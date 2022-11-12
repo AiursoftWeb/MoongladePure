@@ -1,13 +1,8 @@
 ﻿using AspNetCoreRateLimit;
 using Edi.Captcha;
-using Microsoft.ApplicationInsights.DependencyCollector;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.FeatureManagement;
 using Moonglade.Data.MySql;
-using Moonglade.Data.PostgreSql;
-using Moonglade.Data.SqlServer;
 using Moonglade.Notification.Client;
 using Moonglade.Pingback;
 using Moonglade.Syndication;
@@ -28,12 +23,10 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 
-string dbType = builder.Configuration.GetConnectionString("DatabaseType");
 string connStr = builder.Configuration.GetConnectionString("MoongladeDatabase");
 
 var cultures = new[] { "en-US", "zh-Hans" }.Select(p => new CultureInfo(p)).ToList();
 
-ConfigureConfiguration(builder.Configuration);
 ConfigureServices(builder.Services);
 
 var app = builder.Build();
@@ -43,30 +36,6 @@ await FirstRun();
 ConfigureMiddleware(app);
 
 app.Run();
-
-void ConfigureConfiguration(IConfiguration configuration)
-{
-    builder.Logging.AddAzureWebAppDiagnostics();
-    builder.Host.ConfigureAppConfiguration(config =>
-    {
-        config.AddJsonFile("manifesticons.json", false, true);
-        var appConfigConn = configuration["ConnectionStrings:AzureAppConfig"];
-
-        if (!string.IsNullOrWhiteSpace(appConfigConn))
-        {
-            config.AddAzureAppConfiguration(options =>
-            {
-                options.Connect(appConfigConn)
-                    .ConfigureRefresh(refresh =>
-                    {
-                        refresh.Register("Moonglade:Settings:Sentinel", refreshAll: true)
-                            .SetCacheExpiration(TimeSpan.FromSeconds(10));
-                    })
-                    .UseFeatureFlags(o => o.Label = "Moonglade");
-            });
-        }
-    });
-}
 
 void ConfigureServices(IServiceCollection services)
 {
@@ -87,9 +56,6 @@ void ConfigureServices(IServiceCollection services)
             .AddHttpContextAccessor()
             .AddRateLimit(builder.Configuration.GetSection("IpRateLimiting"))
             .AddFeatureManagement();
-    services.AddAzureAppConfiguration()
-            .AddApplicationInsightsTelemetry()
-            .ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, _) => module.EnableSqlCommandTextInstrumentation = true);
 
     services.AddSession(options =>
     {
@@ -146,26 +112,14 @@ void ConfigureServices(IServiceCollection services)
             .AddImageStorage(builder.Configuration, options => options.ContentRootPath = builder.Environment.ContentRootPath)
             .Configure<List<ManifestIcon>>(builder.Configuration.GetSection("ManifestIcons"));
 
-    switch (dbType.ToLower())
-    {
-        case "mysql":
-            services.AddMySqlStorage(connStr);
-            break;
-        case "postgresql":
-            services.AddPostgreSqlStorage(connStr);
-            break;
-        case "sqlserver":
-        default:
-            services.AddSqlServerStorage(connStr);
-            break;
-    }
+    services.AddMySqlStorage(connStr);
 }
 
 async Task FirstRun()
 {
     try
     {
-        var startUpResut = await app.InitStartUp(dbType);
+        var startUpResut = await app.InitStartUp();
         switch (startUpResut)
         {
             case StartupInitResult.DatabaseConnectionFail:
@@ -195,14 +149,7 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
 {
     appBuilder.UseForwardedHeaders();
 
-    if (!app.Environment.IsProduction())
-    {
-        app.Logger.LogWarning($"Running in environment: {app.Environment.EnvironmentName}. Application Insights disabled.");
-
-        var tc = app.Services.GetRequiredService<TelemetryConfiguration>();
-        tc.DisableTelemetry = true;
-        TelemetryDebugWriter.IsTracingDisabled = true;
-    }
+    app.Logger.LogWarning($"Running in environment: {app.Environment.EnvironmentName}.");
 
     appBuilder.UseCustomCss(options => options.MaxContentLength = 10240);
     appBuilder.UseManifest(options => options.ThemeColor = "#333333");
@@ -226,11 +173,6 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
     appBuilder.UseMiddleware<SiteMapMiddleware>()
               .UseMiddleware<PoweredByMiddleware>()
               .UseMiddleware<DNTMiddleware>();
-
-    if (app.Configuration.GetValue<bool>("PreferAzureAppConfiguration"))
-    {
-        appBuilder.UseAzureAppConfiguration();
-    }
 
     if (app.Environment.IsDevelopment())
     {

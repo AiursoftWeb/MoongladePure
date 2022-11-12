@@ -1,5 +1,4 @@
 ﻿@using Moonglade.Utils
-@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
 @{
     if (string.IsNullOrEmpty(BlogConfig.GeneralSettings.AvatarUrl))
     {
@@ -80,12 +79,6 @@
     {
         <link href="~/custom.css" rel="stylesheet" asp-append-version="true" />
     }
-    <environment include="Production">
-        @if (!(bool)Context.Items["DNT"])
-        {
-            @Html.Raw(JavaScriptSnippet.FullScript)
-        }
-    </environment>
     <script src="~/js/3rd/jquery.slim.min.js" asp-append-version="true"></script>
     @if (BlogConfig.GeneralSettings.Pride)
     {

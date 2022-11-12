@@ -1,25 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonglade.Data.MySql;
-using Moonglade.Data.PostgreSql;
-using Moonglade.Data.SqlServer;
 
 namespace Moonglade.Web;
 
 public static class WebApplicationExtensions
 {
-    public static async Task<StartupInitResult> InitStartUp(this WebApplication app, string dbType)
+    public static async Task<StartupInitResult> InitStartUp(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
         var services = scope.ServiceProvider;
         var env = services.GetRequiredService<IWebHostEnvironment>();
 
-        BlogDbContext context = dbType.ToLowerInvariant() switch
-        {
-            "mysql" => services.GetRequiredService<MySqlBlogDbContext>(),
-            "sqlserver" => services.GetRequiredService<SqlServerBlogDbContext>(),
-            "postgresql" => services.GetRequiredService<PostgreSqlBlogDbContext>(),
-            _ => throw new ArgumentOutOfRangeException(nameof(dbType))
-        };
+        var context = services.GetRequiredService<MySqlBlogDbContext>();
 
         try
         {
