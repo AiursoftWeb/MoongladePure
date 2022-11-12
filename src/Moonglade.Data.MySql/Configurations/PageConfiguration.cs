@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Moonglade.Data.Entities;
+using MoongladePure.Data.Entities;
 
-namespace Moonglade.Data.MySql.Configurations;
+namespace MoongladePure.Data.MySql.Configurations;
 
 internal class PageConfiguration : IEntityTypeConfiguration<PageEntity>
 {

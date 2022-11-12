@@ -1,8 +1,8 @@
-﻿using Moonglade.Data.Entities;
-using Moonglade.Pingback;
-using Moonglade.Web.Attributes;
+﻿using MoongladePure.Data.Entities;
+using MoongladePure.Pingback;
+using MoongladePure.Web.Attributes;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [ApiController]
 [Route("pingback")]

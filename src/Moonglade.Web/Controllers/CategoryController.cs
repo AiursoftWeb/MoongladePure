@@ -1,7 +1,7 @@
-﻿using Moonglade.Core.CategoryFeature;
-using Moonglade.Web.Attributes;
+﻿using MoongladePure.Core.CategoryFeature;
+using MoongladePure.Web.Attributes;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

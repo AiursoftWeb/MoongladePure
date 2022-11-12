@@ -2,7 +2,7 @@
 using SixLabors.ImageSharp.Processing;
 using System.Collections.Concurrent;
 
-namespace Moonglade.Web;
+namespace MoongladePure.Web;
 
 public static class MemoryStreamIconGenerator
 {

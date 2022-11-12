@@ -1,7 +1,7 @@
 ﻿using System.Text.Encodings.Web;
 using System.Text.Unicode;
 
-namespace Moonglade.Web.Configuration;
+namespace MoongladePure.Web.Configuration;
 
 public static class Encoder
 {

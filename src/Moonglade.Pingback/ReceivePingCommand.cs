@@ -1,12 +1,12 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Data.Spec;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Data.Spec;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace Moonglade.Pingback;
+namespace MoongladePure.Pingback;
 
 public class ReceivePingCommand : IRequest<PingbackResponse>
 {

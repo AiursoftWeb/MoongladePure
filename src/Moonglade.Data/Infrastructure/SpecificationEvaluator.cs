@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Data.Infrastructure;
+﻿namespace MoongladePure.Data.Infrastructure;
 
 public class SpecificationEvaluator<T> where T : class
 {

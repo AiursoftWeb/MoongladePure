@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
-namespace Moonglade.Pingback;
+namespace MoongladePure.Pingback;
 
 public class PingbackResult : IActionResult
 {

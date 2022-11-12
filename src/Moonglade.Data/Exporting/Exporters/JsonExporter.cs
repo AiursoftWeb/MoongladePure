@@ -1,9 +1,9 @@
-﻿using Moonglade.Data.Infrastructure;
+﻿using MoongladePure.Data.Infrastructure;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.Json;
 
-namespace Moonglade.Data.Exporting.Exporters;
+namespace MoongladePure.Data.Exporting.Exporters;
 
 public class JsonExporter<T> : IExporter<T> where T : class
 {

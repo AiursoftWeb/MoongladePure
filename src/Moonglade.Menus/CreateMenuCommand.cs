@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Menus;
+namespace MoongladePure.Menus;
 
 public record CreateMenuCommand(EditMenuRequest Payload) : IRequest<Guid>;
 

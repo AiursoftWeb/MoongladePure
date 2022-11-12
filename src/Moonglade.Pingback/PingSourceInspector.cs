@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text.RegularExpressions;
 
-namespace Moonglade.Pingback;
+namespace MoongladePure.Pingback;
 
 public interface IPingSourceInspector
 {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Moonglade.Caching;
-using Moonglade.Data.Spec;
-using Moonglade.Utils;
+using MoongladePure.Caching;
+using MoongladePure.Data.Spec;
+using MoongladePure.Utils;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record GetPostBySlugQuery(PostSlug Slug) : IRequest<Post>;
 

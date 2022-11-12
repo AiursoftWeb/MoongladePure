@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Moonglade.Caching;
-using Moonglade.Configuration;
-using Moonglade.Core.TagFeature;
-using Moonglade.Utils;
+using MoongladePure.Caching;
+using MoongladePure.Configuration;
+using MoongladePure.Core.TagFeature;
+using MoongladePure.Utils;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record UpdatePostCommand(Guid Id, PostEditModel Payload) : IRequest<PostEntity>;
 public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostEntity>

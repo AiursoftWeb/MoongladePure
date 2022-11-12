@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Data.Spec;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Data.Spec;
 
-namespace Moonglade.FriendLink;
+namespace MoongladePure.FriendLink;
 
 public record GetLinkQuery(Guid Id) : IRequest<Link>;
 

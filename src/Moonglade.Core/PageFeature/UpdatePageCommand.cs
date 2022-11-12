@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core.PageFeature;
+﻿namespace MoongladePure.Core.PageFeature;
 
 public record UpdatePageCommand(Guid Id, EditPageRequest Payload) : IRequest<Guid>;
 

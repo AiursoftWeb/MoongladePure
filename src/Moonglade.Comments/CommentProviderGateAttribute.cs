@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using Moonglade.Configuration;
+using MoongladePure.Configuration;
 
-namespace Moonglade.Comments;
+namespace MoongladePure.Comments;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
 public class CommentProviderGateAttribute : ActionFilterAttribute

@@ -1,7 +1,7 @@
-﻿using Moonglade.Data.Spec;
-using Moonglade.Utils;
+﻿using MoongladePure.Data.Spec;
+using MoongladePure.Utils;
 
-namespace Moonglade.Core.TagFeature;
+namespace MoongladePure.Core.TagFeature;
 
 public record CreateTagCommand(string Name) : IRequest<Tag>;
 

@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Web;
+﻿namespace MoongladePure.Web;
 
 public interface ITimeZoneResolver
 {

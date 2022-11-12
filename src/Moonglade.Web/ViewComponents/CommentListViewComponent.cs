@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Web.ViewComponents;
+﻿namespace MoongladePure.Web.ViewComponents;
 
 public class CommentListViewComponent : ViewComponent
 {

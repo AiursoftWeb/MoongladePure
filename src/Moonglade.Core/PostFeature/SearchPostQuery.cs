@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record SearchPostQuery(string Keyword) : IRequest<IReadOnlyList<PostDigest>>;
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.FriendLink;
+using MoongladePure.FriendLink;
 
-namespace Moonglade.Web.Pages.Admin;
+namespace MoongladePure.Web.Pages.Admin;
 
 public class FriendLinkModel : PageModel
 {

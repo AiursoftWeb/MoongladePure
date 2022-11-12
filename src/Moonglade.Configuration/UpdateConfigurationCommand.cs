@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Moonglade.Data;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Configuration;
+namespace MoongladePure.Configuration;
 
 public record UpdateConfigurationCommand(string Name, string Json) : IRequest<OperationCode>;
 

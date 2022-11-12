@@ -1,6 +1,6 @@
 ﻿using System.Xml;
 
-namespace Moonglade.Web.Middleware;
+namespace MoongladePure.Web.Middleware;
 
 public class RSDMiddleware
 {

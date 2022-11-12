@@ -1,10 +1,10 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 using System.Text;
 using System.Text.Json;
 
-namespace Moonglade.Theme;
+namespace MoongladePure.Theme;
 
 public record GetStyleSheetQuery(int Id) : IRequest<string>;
 public class GetStyleSheetQueryHandler : IRequestHandler<GetStyleSheetQuery, string>

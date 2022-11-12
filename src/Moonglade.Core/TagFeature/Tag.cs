@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
-namespace Moonglade.Core.TagFeature;
+namespace MoongladePure.Core.TagFeature;
 
 public class Tag
 {

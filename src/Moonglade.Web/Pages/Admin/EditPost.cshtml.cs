@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.CategoryFeature;
-using Moonglade.Core.PostFeature;
+using MoongladePure.Core.CategoryFeature;
+using MoongladePure.Core.PostFeature;
 
-namespace Moonglade.Web.Pages.Admin;
+namespace MoongladePure.Web.Pages.Admin;
 
 public class EditPostModel : PageModel
 {

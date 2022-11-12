@@ -1,6 +1,6 @@
 ﻿using AspNetCoreRateLimit;
 
-namespace Moonglade.Web.Configuration;
+namespace MoongladePure.Web.Configuration;
 
 // Setup document: https://github.com/stefanprodan/AspNetCoreRateLimit/wiki/IpRateLimitMiddleware#setup
 public static class ConfigureRateLimit

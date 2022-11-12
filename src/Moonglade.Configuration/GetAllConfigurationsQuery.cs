@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Configuration;
+namespace MoongladePure.Configuration;
 
 public record GetAllConfigurationsQuery : IRequest<IDictionary<string, string>>;
 

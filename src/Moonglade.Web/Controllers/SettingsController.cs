@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Localization;
-using Moonglade.Caching.Filters;
+using MoongladePure.Caching.Filters;
 using NUglify;
 using System.Reflection;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

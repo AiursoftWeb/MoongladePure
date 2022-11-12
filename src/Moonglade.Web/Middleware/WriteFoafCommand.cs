@@ -1,8 +1,8 @@
-﻿using Moonglade.FriendLink;
+﻿using MoongladePure.FriendLink;
 using System.Security.Cryptography;
 using System.Xml;
 
-namespace Moonglade.Web.Middleware;
+namespace MoongladePure.Web.Middleware;
 
 public class WriteFoafCommand : IRequest<string>
 {

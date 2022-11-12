@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PostFeature;
+using MoongladePure.Core.PostFeature;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 public class ArchiveListModel : PageModel
 {

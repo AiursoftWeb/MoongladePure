@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Comments;
+﻿namespace MoongladePure.Comments;
 
 public class CommentReplyDigest
 {

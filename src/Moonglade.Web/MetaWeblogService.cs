@@ -1,12 +1,12 @@
-﻿using Moonglade.Core.CategoryFeature;
-using Moonglade.Core.PageFeature;
-using Moonglade.Core.PostFeature;
-using Moonglade.Core.TagFeature;
+﻿using MoongladePure.Core.CategoryFeature;
+using MoongladePure.Core.PageFeature;
+using MoongladePure.Core.PostFeature;
+using MoongladePure.Core.TagFeature;
 using WilderMinds.MetaWeblog;
 using Post = WilderMinds.MetaWeblog.Post;
 using Tag = WilderMinds.MetaWeblog.Tag;
 
-namespace Moonglade.Web;
+namespace MoongladePure.Web;
 
 public class MetaWeblogService : IMetaWeblogProvider
 {

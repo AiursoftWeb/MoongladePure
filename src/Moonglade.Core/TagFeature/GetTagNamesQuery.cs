@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core.TagFeature;
+﻿namespace MoongladePure.Core.TagFeature;
 
 public record GetTagNamesQuery : IRequest<IReadOnlyList<string>>;
 

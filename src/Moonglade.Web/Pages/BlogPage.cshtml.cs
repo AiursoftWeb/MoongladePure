@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PageFeature;
+using MoongladePure.Core.PageFeature;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 public class BlogPageModel : PageModel
 {

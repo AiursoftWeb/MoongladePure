@@ -1,7 +1,7 @@
-﻿using Moonglade.Data.Spec;
-using Moonglade.Utils;
+﻿using MoongladePure.Data.Spec;
+using MoongladePure.Utils;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record ListByTagQuery(int TagId, int PageSize, int PageIndex) : IRequest<IReadOnlyList<PostDigest>>;
 

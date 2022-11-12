@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Web.Middleware;
+﻿namespace MoongladePure.Web.Middleware;
 
 public class DNTMiddleware
 {

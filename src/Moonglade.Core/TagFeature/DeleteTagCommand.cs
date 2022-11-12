@@ -1,7 +1,7 @@
-﻿using Moonglade.Data;
-using Moonglade.Data.Spec;
+﻿using MoongladePure.Data;
+using MoongladePure.Data.Spec;
 
-namespace Moonglade.Core.TagFeature;
+namespace MoongladePure.Core.TagFeature;
 
 public record DeleteTagCommand(int Id) : IRequest<OperationCode>;
 

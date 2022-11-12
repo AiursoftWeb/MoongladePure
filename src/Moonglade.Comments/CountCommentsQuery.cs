@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Comments;
+namespace MoongladePure.Comments;
 
 public record CountCommentsQuery : IRequest<int>;
 

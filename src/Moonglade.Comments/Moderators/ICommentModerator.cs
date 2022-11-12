@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Comments.Moderators;
+﻿namespace MoongladePure.Comments.Moderators;
 
 public interface ICommentModerator
 {

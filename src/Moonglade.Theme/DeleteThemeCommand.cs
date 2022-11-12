@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Moonglade.Data;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Theme;
+namespace MoongladePure.Theme;
 
 public record DeleteThemeCommand(int Id) : IRequest<OperationCode>;
 

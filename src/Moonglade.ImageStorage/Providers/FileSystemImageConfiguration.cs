@@ -1,4 +1,4 @@
-﻿namespace Moonglade.ImageStorage.Providers;
+﻿namespace MoongladePure.ImageStorage.Providers;
 
 public class FileSystemImageConfiguration
 {

@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Web.Handlers;
+﻿namespace MoongladePure.Web.Handlers;
 
 public class SaveAssetToCdnHandler : INotificationHandler<SaveAssetCommand>
 {

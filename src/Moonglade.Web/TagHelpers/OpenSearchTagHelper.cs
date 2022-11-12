@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Moonglade.Web.TagHelpers;
+namespace MoongladePure.Web.TagHelpers;
 
 [HtmlTargetElement("opensearch", TagStructure = TagStructure.NormalOrSelfClosing)]
 public class OpenSearchTagHelper : TagHelper

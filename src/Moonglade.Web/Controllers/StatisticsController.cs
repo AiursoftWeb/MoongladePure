@@ -1,7 +1,7 @@
-﻿using Moonglade.Core.StatisticFeature;
-using Moonglade.Web.Attributes;
+﻿using MoongladePure.Core.StatisticFeature;
+using MoongladePure.Web.Attributes;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

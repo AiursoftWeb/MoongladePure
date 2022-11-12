@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Unicode;
 
-namespace Moonglade.Data.Exporting.Exporters;
+namespace MoongladePure.Data.Exporting.Exporters;
 
 public static class MoongladeJsonSerializerOptions
 {

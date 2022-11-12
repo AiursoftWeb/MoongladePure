@@ -1,6 +1,6 @@
-﻿using Moonglade.Menus;
+﻿using MoongladePure.Menus;
 
-namespace Moonglade.Web.ViewComponents;
+namespace MoongladePure.Web.ViewComponents;
 
 public class MenuViewComponent : ViewComponent
 {

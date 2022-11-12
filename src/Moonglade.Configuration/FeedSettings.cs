@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Configuration;
+namespace MoongladePure.Configuration;
 
 public class FeedSettings : IBlogSettings
 {

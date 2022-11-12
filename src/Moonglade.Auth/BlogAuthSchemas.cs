@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace Moonglade.Auth;
+namespace MoongladePure.Auth;
 
 public static class BlogAuthSchemas
 {

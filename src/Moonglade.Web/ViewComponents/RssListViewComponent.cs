@@ -1,6 +1,6 @@
-﻿using Moonglade.Core.CategoryFeature;
+﻿using MoongladePure.Core.CategoryFeature;
 
-namespace Moonglade.Web.ViewComponents;
+namespace MoongladePure.Web.ViewComponents;
 
 public class RssListViewComponent : ViewComponent
 {

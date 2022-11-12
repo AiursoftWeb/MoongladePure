@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Moonglade.Web.Configuration;
+namespace MoongladePure.Web.Configuration;
 
 
 public class ConfigureEndpoints

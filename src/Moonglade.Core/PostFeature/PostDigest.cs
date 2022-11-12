@@ -1,7 +1,7 @@
-﻿using Moonglade.Core.TagFeature;
+﻿using MoongladePure.Core.TagFeature;
 using System.Linq.Expressions;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public class PostDigest
 {

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.CategoryFeature;
+using MoongladePure.Core.CategoryFeature;
 
-namespace Moonglade.Web.Pages.Admin;
+namespace MoongladePure.Web.Pages.Admin;
 
 public class CategoryModel : PageModel
 {

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Moonglade.Data.Infrastructure;
+namespace MoongladePure.Data.Infrastructure;
 
 public abstract class DbContextRepository<T> : IRepository<T> where T : class
 {

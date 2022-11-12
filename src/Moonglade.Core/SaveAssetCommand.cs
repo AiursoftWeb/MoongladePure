@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core;
+﻿namespace MoongladePure.Core;
 
 public record SaveAssetCommand(Guid AssetId, string AssetBase64) : INotification;
 

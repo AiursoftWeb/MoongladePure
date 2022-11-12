@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
-using Moonglade.Utils;
+using MoongladePure.Utils;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Moonglade.Core;
+namespace MoongladePure.Core;
 
 public interface IReleaseCheckerClient
 {

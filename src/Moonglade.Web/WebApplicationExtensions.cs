@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Moonglade.Data.MySql;
+using MoongladePure.Data.MySql;
 
-namespace Moonglade.Web;
+namespace MoongladePure.Web;
 
 public static class WebApplicationExtensions
 {

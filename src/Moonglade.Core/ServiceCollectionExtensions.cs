@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Polly;
 
-namespace Moonglade.Core;
+namespace MoongladePure.Core;
 
 public static class ServiceCollectionExtensions
 {

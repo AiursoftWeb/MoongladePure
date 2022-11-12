@@ -1,6 +1,6 @@
 ﻿using NUglify;
 
-namespace Moonglade.Web.Middleware;
+namespace MoongladePure.Web.Middleware;
 
 public class CustomCssMiddleware
 {

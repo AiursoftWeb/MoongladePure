@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PostFeature;
-using Moonglade.Data.Spec;
+using MoongladePure.Core.PostFeature;
+using MoongladePure.Data.Spec;
 using X.PagedList;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 public class IndexModel : PageModel
 {

@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core.StatisticFeature;
+﻿namespace MoongladePure.Core.StatisticFeature;
 
 public record UpdateStatisticCommand(Guid PostId, bool IsLike) : IRequest;
 

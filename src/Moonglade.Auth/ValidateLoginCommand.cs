@@ -1,8 +1,8 @@
-﻿using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Utils;
+﻿using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Utils;
 
-namespace Moonglade.Auth;
+namespace MoongladePure.Auth;
 
 public record ValidateLoginCommand(string Username, string InputPassword) : IRequest<Guid>;
 

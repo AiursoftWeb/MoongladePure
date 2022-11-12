@@ -1,7 +1,7 @@
-﻿using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+﻿using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Data.Spec;
+namespace MoongladePure.Data.Spec;
 
 public sealed class PageSpec : BaseSpecification<PageEntity>
 {

@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Utils;
+﻿namespace MoongladePure.Utils;
 
 public static class UrlExtension
 {

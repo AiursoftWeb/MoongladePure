@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Xml;
 
-namespace Moonglade.Pingback;
+namespace MoongladePure.Pingback;
 
 public interface IPingbackWebRequest
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Security.Claims;
 
-namespace Moonglade.Web.TagHelpers;
+namespace MoongladePure.Web.TagHelpers;
 
 public enum UserInfoDisplay
 {

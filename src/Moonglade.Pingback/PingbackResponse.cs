@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Pingback;
+﻿namespace MoongladePure.Pingback;
 
 public enum PingbackResponse
 {

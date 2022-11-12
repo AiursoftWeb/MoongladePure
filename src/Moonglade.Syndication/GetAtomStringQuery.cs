@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
-using Moonglade.Configuration;
-using Moonglade.Utils;
+using MoongladePure.Configuration;
+using MoongladePure.Utils;
 
-namespace Moonglade.Syndication;
+namespace MoongladePure.Syndication;
 
 public record GetAtomStringQuery : IRequest<string>;
 

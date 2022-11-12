@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PostFeature;
+using MoongladePure.Core.PostFeature;
 using X.PagedList;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 public class FeaturedModel : PageModel
 {

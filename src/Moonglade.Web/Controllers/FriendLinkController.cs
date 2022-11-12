@@ -1,7 +1,7 @@
-using Moonglade.FriendLink;
-using Moonglade.Web.Attributes;
+using MoongladePure.FriendLink;
+using MoongladePure.Web.Attributes;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

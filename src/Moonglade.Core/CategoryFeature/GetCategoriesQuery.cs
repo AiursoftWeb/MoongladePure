@@ -1,6 +1,6 @@
-﻿using Moonglade.Caching;
+﻿using MoongladePure.Caching;
 
-namespace Moonglade.Core.CategoryFeature;
+namespace MoongladePure.Core.CategoryFeature;
 
 public record GetCategoriesQuery : IRequest<IReadOnlyList<Category>>;
 

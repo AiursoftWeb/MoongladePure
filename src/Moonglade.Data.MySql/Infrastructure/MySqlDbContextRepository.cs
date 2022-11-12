@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Infrastructure;
+﻿using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Data.MySql.Infrastructure;
+namespace MoongladePure.Data.MySql.Infrastructure;
 
 
 public class MySqlDbContextRepository<T> : DbContextRepository<T> where T : class

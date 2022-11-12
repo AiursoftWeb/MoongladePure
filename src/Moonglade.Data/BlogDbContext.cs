@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Entities;
+﻿using MoongladePure.Data.Entities;
 
-namespace Moonglade.Data;
+namespace MoongladePure.Data;
 
 public class BlogDbContext : DbContext
 {

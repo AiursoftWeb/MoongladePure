@@ -1,7 +1,7 @@
-﻿using Moonglade.Caching;
-using Moonglade.Data;
+﻿using MoongladePure.Caching;
+using MoongladePure.Data;
 
-namespace Moonglade.Core.CategoryFeature;
+namespace MoongladePure.Core.CategoryFeature;
 
 public class UpdateCategoryCommand : CreateCategoryCommand, IRequest<OperationCode>
 {

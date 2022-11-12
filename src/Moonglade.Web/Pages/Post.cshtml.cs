@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PostFeature;
-using Moonglade.Pingback;
+using MoongladePure.Core.PostFeature;
+using MoongladePure.Pingback;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 [AddPingbackHeader("pingback")]
 public class PostModel : PageModel

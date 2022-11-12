@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 
-namespace Moonglade.Web.Middleware;
+namespace MoongladePure.Web.Middleware;
 
 public class WebManifestMiddleware
 {

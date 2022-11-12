@@ -1,8 +1,8 @@
-﻿using Moonglade.Core.CategoryFeature;
-using Moonglade.Syndication;
+﻿using MoongladePure.Core.CategoryFeature;
+using MoongladePure.Syndication;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [ApiController]
 public class SubscriptionController : ControllerBase

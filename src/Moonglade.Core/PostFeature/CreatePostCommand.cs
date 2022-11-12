@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Moonglade.Configuration;
-using Moonglade.Core.TagFeature;
-using Moonglade.Data.Spec;
-using Moonglade.Utils;
+using MoongladePure.Configuration;
+using MoongladePure.Core.TagFeature;
+using MoongladePure.Data.Spec;
+using MoongladePure.Utils;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record CreatePostCommand(PostEditModel Payload) : IRequest<PostEntity>;
 

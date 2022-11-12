@@ -1,8 +1,8 @@
-﻿using Moonglade.Caching.Filters;
+﻿using MoongladePure.Caching.Filters;
 using NUglify;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Theme;
+﻿namespace MoongladePure.Theme;
 
 public struct ThemeSegment
 {

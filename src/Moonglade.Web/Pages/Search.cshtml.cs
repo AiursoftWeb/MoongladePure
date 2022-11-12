@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PostFeature;
-using Moonglade.Web.Attributes;
+using MoongladePure.Core.PostFeature;
+using MoongladePure.Web.Attributes;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 [AddXRobotsTag("noindex, nofollow")]
 public class SearchModel : PageModel

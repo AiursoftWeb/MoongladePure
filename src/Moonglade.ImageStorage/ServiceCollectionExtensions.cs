@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moonglade.ImageStorage.Providers;
+using MoongladePure.ImageStorage.Providers;
 
-namespace Moonglade.ImageStorage;
+namespace MoongladePure.ImageStorage;
 
 public class ImageStorageOptions
 {

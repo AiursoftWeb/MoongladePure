@@ -1,8 +1,8 @@
-﻿using Moonglade.Core.CategoryFeature;
-using Moonglade.Core.TagFeature;
+﻿using MoongladePure.Core.CategoryFeature;
+using MoongladePure.Core.TagFeature;
 using System.Linq.Expressions;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public class Post
 {

@@ -1,6 +1,6 @@
-using Moonglade.FriendLink;
+using MoongladePure.FriendLink;
 
-namespace Moonglade.Web.Middleware;
+namespace MoongladePure.Web.Middleware;
 
 public class FoafMiddleware
 {

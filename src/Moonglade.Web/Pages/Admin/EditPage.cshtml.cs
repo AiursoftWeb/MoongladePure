@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PageFeature;
+using MoongladePure.Core.PageFeature;
 
-namespace Moonglade.Web.Pages.Admin;
+namespace MoongladePure.Web.Pages.Admin;
 
 public class EditPageModel : PageModel
 {

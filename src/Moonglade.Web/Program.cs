@@ -1,9 +1,9 @@
 ﻿using AspNetCoreRateLimit;
 using Edi.Captcha;
 using Microsoft.AspNetCore.HttpOverrides;
-using Moonglade.Data.MySql;
-using Moonglade.Pingback;
-using Moonglade.Syndication;
+using MoongladePure.Data.MySql;
+using MoongladePure.Pingback;
+using MoongladePure.Syndication;
 using SixLabors.Fonts;
 using System.Globalization;
 using System.Text.Json.Serialization;

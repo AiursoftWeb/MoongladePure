@@ -1,6 +1,6 @@
-﻿using Moonglade.Core.TagFeature;
+﻿using MoongladePure.Core.TagFeature;
 
-namespace Moonglade.Web.ViewComponents;
+namespace MoongladePure.Web.ViewComponents;
 
 public class TagsViewComponent : ViewComponent
 {

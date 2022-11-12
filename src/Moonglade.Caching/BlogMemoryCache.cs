@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Concurrent;
 
-namespace Moonglade.Caching;
+namespace MoongladePure.Caching;
 
 public enum CacheDivision
 {

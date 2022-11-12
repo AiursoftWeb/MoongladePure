@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Moonglade.ImageStorage.Providers;
+namespace MoongladePure.ImageStorage.Providers;
 
 public class FileSystemImageStorage : IBlogImageStorage
 {

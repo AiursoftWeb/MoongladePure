@@ -4,7 +4,7 @@ using Microsoft.SyndicationFeed.Rss;
 using System.Text;
 using System.Xml;
 
-namespace Moonglade.Syndication;
+namespace MoongladePure.Syndication;
 
 public class FeedGenerator : IFeedGenerator, IRssGenerator, IAtomGenerator
 {

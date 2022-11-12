@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Moonglade.Syndication;
+namespace MoongladePure.Syndication;
 
 public static class ServiceCollectionExtensions
 {

@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Theme;
+namespace MoongladePure.Theme;
 
 public record GetAllThemeSegmentQuery : IRequest<IReadOnlyList<ThemeSegment>>;
 

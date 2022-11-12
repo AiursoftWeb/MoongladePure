@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Data.Spec;
+﻿namespace MoongladePure.Data.Spec;
 
 public enum PostStatus
 {

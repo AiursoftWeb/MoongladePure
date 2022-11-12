@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core.PageFeature;
+﻿namespace MoongladePure.Core.PageFeature;
 
 public record GetPageByIdQuery(Guid Id) : IRequest<BlogPage>;
 

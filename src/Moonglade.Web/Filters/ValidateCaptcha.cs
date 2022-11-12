@@ -1,7 +1,7 @@
 ﻿using Edi.Captcha;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Moonglade.Web.Filters;
+namespace MoongladePure.Web.Filters;
 
 public class ValidateCaptcha : ActionFilterAttribute
 {

@@ -1,7 +1,7 @@
-﻿using Moonglade.Data.Spec;
+﻿using MoongladePure.Data.Spec;
 using System.Linq.Expressions;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public class ListPostSegmentQuery : IRequest<(IReadOnlyList<PostSegment> Posts, int TotalRows)>
 {

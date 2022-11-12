@@ -1,8 +1,8 @@
-﻿using Moonglade.Web.Attributes;
+﻿using MoongladePure.Web.Attributes;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

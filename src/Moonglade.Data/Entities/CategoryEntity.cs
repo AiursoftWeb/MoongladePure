@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Moonglade.Data.Entities;
+namespace MoongladePure.Data.Entities;
 
 public class CategoryEntity
 {

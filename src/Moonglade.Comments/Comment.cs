@@ -1,7 +1,7 @@
-﻿using Moonglade.Data.Entities;
+﻿using MoongladePure.Data.Entities;
 using System.Linq.Expressions;
 
-namespace Moonglade.Comments;
+namespace MoongladePure.Comments;
 
 public class Comment
 {

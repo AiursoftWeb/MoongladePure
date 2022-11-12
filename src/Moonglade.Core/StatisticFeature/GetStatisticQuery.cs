@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core.StatisticFeature;
+﻿namespace MoongladePure.Core.StatisticFeature;
 
 public record GetStatisticQuery(Guid PostId) : IRequest<(int Hits, int Likes)>;
 

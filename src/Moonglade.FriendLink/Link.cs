@@ -1,4 +1,4 @@
-﻿namespace Moonglade.FriendLink;
+﻿namespace MoongladePure.FriendLink;
 
 public class Link
 {

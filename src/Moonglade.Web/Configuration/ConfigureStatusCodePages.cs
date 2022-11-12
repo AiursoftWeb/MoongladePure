@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace Moonglade.Web.Configuration;
+namespace MoongladePure.Web.Configuration;
 
 public class ConfigureStatusCodePages
 {

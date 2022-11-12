@@ -1,7 +1,7 @@
-﻿using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+﻿using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Auth;
+namespace MoongladePure.Auth;
 
 public record CountAccountsQuery : IRequest<int>;
 

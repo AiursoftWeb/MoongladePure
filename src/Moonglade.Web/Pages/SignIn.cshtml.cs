@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 public class SignInModel : PageModel
 {

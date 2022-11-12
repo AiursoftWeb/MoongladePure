@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Exporting;
+﻿using MoongladePure.Data.Exporting;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

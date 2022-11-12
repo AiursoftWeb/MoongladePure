@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PostFeature;
-using Moonglade.Data.Spec;
+using MoongladePure.Core.PostFeature;
+using MoongladePure.Data.Spec;
 using System.ComponentModel.DataAnnotations;
 using X.PagedList;
 
-namespace Moonglade.Web.Pages.Admin;
+namespace MoongladePure.Web.Pages.Admin;
 
 public class PostModel : PageModel
 {

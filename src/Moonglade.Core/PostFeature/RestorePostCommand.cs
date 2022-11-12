@@ -1,6 +1,6 @@
-﻿using Moonglade.Caching;
+﻿using MoongladePure.Caching;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record RestorePostCommand(Guid Id) : IRequest;
 

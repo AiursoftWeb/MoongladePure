@@ -2,7 +2,7 @@
 using NUglify;
 using System.Text.RegularExpressions;
 
-namespace Moonglade.Utils;
+namespace MoongladePure.Utils;
 
 public static class ContentProcessor
 {

@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Entities;
+﻿using MoongladePure.Data.Entities;
 
-namespace Moonglade.Auth;
+namespace MoongladePure.Auth;
 
 public class Account
 {

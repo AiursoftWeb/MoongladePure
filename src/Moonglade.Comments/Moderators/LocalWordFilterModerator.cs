@@ -1,7 +1,7 @@
 ﻿using Edi.WordFilter;
-using Moonglade.Configuration;
+using MoongladePure.Configuration;
 
-namespace Moonglade.Comments.Moderators;
+namespace MoongladePure.Comments.Moderators;
 
 public class LocalWordFilterModerator : ICommentModerator
 {

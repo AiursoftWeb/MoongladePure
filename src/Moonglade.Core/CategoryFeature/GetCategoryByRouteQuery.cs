@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Spec;
+﻿using MoongladePure.Data.Spec;
 
-namespace Moonglade.Core.CategoryFeature;
+namespace MoongladePure.Core.CategoryFeature;
 
 public record GetCategoryByRouteQuery(string RouteName) : IRequest<Category>;
 

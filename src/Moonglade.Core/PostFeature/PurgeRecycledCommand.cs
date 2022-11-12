@@ -1,7 +1,7 @@
-﻿using Moonglade.Caching;
-using Moonglade.Data.Spec;
+﻿using MoongladePure.Caching;
+using MoongladePure.Data.Spec;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record PurgeRecycledCommand : IRequest;
 

@@ -1,7 +1,7 @@
-﻿using Moonglade.Data;
-using Moonglade.Utils;
+﻿using MoongladePure.Data;
+using MoongladePure.Utils;
 
-namespace Moonglade.Core.TagFeature;
+namespace MoongladePure.Core.TagFeature;
 
 public record UpdateTagCommand(int Id, string Name) : IRequest<OperationCode>;
 

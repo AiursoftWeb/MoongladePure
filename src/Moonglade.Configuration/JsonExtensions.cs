@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Unicode;
 
-namespace Moonglade.Configuration;
+namespace MoongladePure.Configuration;
 
 public static class JsonExtensions
 {

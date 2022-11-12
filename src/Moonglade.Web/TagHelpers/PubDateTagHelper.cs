@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Moonglade.Web.TagHelpers;
+namespace MoongladePure.Web.TagHelpers;
 
 [HtmlTargetElement("pubdate", TagStructure = TagStructure.NormalOrSelfClosing)]
 public class PubDateTagHelper : TagHelper

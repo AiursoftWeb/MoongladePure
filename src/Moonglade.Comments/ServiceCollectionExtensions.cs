@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moonglade.Comments.Moderators;
+using MoongladePure.Comments.Moderators;
 
-namespace Moonglade.Comments;
+namespace MoongladePure.Comments;
 
 public static class ServiceCollectionExtensions
 {

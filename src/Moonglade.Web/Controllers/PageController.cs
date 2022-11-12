@@ -1,9 +1,9 @@
-﻿using Moonglade.Caching.Filters;
-using Moonglade.Core.PageFeature;
-using Moonglade.Web.Attributes;
+﻿using MoongladePure.Caching.Filters;
+using MoongladePure.Core.PageFeature;
+using MoongladePure.Web.Attributes;
 using NUglify;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

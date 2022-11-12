@@ -1,7 +1,7 @@
-﻿using Moonglade.Utils;
+﻿using MoongladePure.Utils;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Configuration;
+namespace MoongladePure.Configuration;
 
 public class ImageSettings : IBlogSettings, IValidatableObject
 {

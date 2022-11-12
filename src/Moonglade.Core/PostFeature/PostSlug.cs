@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core.PostFeature;
+﻿namespace MoongladePure.Core.PostFeature;
 
 public struct PostSlug
 {

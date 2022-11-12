@@ -1,4 +1,4 @@
-﻿namespace Moonglade.ImageStorage;
+﻿namespace MoongladePure.ImageStorage;
 
 public interface IBlogImageStorage
 {

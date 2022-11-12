@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Menus;
+﻿namespace MoongladePure.Menus;
 
 public record SubMenu
 {

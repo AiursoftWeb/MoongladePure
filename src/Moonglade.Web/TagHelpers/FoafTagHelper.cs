@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Moonglade.Web.TagHelpers;
+namespace MoongladePure.Web.TagHelpers;
 
 [HtmlTargetElement("foaf", TagStructure = TagStructure.NormalOrSelfClosing)]
 public class FoafTagHelper : TagHelper

@@ -1,8 +1,8 @@
-﻿using Moonglade.Caching.Filters;
-using Moonglade.Core.TagFeature;
+﻿using MoongladePure.Caching.Filters;
+using MoongladePure.Core.TagFeature;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

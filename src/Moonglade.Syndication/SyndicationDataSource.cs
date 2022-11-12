@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Moonglade.Configuration;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Data.Spec;
-using Moonglade.Utils;
+using MoongladePure.Configuration;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Data.Spec;
+using MoongladePure.Utils;
 
-namespace Moonglade.Syndication;
+namespace MoongladePure.Syndication;
 
 public interface ISyndicationDataSource
 {

@@ -1,8 +1,8 @@
-﻿using Moonglade.Caching.Filters;
-using Moonglade.Menus;
-using Moonglade.Web.Attributes;
+﻿using MoongladePure.Caching.Filters;
+using MoongladePure.Menus;
+using MoongladePure.Web.Attributes;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

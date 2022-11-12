@@ -1,11 +1,11 @@
 ﻿using MediatR;
-using Moonglade.Comments.Moderators;
-using Moonglade.Configuration;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Data.Spec;
+using MoongladePure.Comments.Moderators;
+using MoongladePure.Configuration;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Data.Spec;
 
-namespace Moonglade.Comments;
+namespace MoongladePure.Comments;
 
 public class CreateCommentCommand : IRequest<CommentDetailedItem>
 {

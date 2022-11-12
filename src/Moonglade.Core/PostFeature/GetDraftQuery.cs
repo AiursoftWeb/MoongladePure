@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Spec;
+﻿using MoongladePure.Data.Spec;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record GetDraftQuery(Guid Id) : IRequest<Post>;
 

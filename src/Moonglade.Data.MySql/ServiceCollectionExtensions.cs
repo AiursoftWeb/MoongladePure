@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Data.MySql.Infrastructure;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Data.MySql.Infrastructure;
 
-namespace Moonglade.Data.MySql;
+namespace MoongladePure.Data.MySql;
 
 
 public static class ServiceCollectionExtensions

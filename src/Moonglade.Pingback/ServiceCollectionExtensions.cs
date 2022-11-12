@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 
-namespace Moonglade.Pingback;
+namespace MoongladePure.Pingback;
 
 public static class ServiceCollectionExtensions
 {

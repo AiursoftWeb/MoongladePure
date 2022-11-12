@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Data.Spec;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Data.Spec;
 
-namespace Moonglade.Comments;
+namespace MoongladePure.Comments;
 
 public record GetCommentsQuery(int PageSize, int PageIndex) : IRequest<IReadOnlyList<CommentDetailedItem>>;
 

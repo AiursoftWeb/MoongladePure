@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Moonglade.Web.Attributes;
+using MoongladePure.Web.Attributes;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

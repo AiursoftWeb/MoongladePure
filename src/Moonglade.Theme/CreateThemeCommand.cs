@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 using System.Text.Json;
 
-namespace Moonglade.Theme;
+namespace MoongladePure.Theme;
 
 public record CreateThemeCommand(string Name, IDictionary<string, string> Rules) : IRequest<int>;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Text.Encodings.Web;
 
-namespace Moonglade.Web.TagHelpers;
+namespace MoongladePure.Web.TagHelpers;
 
 [HtmlTargetElement("gravatar", TagStructure = TagStructure.NormalOrSelfClosing)]
 public class GravatarImgHelper : TagHelper

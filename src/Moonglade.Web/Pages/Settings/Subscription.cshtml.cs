@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Moonglade.Web.Pages.Settings;
+namespace MoongladePure.Web.Pages.Settings;
 
 public class SubscriptionModel : PageModel
 {

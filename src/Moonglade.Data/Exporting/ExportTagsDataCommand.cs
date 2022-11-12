@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Exporting.Exporters;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Exporting.Exporters;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Data.Exporting;
+namespace MoongladePure.Data.Exporting;
 
 public record ExportTagsDataCommand : IRequest<ExportResult>;
 

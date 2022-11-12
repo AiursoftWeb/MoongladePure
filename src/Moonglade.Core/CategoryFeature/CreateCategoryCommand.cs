@@ -1,7 +1,7 @@
-﻿using Moonglade.Caching;
+﻿using MoongladePure.Caching;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Core.CategoryFeature;
+namespace MoongladePure.Core.CategoryFeature;
 
 public class CreateCategoryCommand : IRequest
 {

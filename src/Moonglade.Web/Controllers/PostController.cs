@@ -1,12 +1,12 @@
-﻿using Moonglade.Caching.Filters;
-using Moonglade.Core.PostFeature;
-using Moonglade.Data.Spec;
-using Moonglade.Pingback;
-using Moonglade.Web.Attributes;
+﻿using MoongladePure.Caching.Filters;
+using MoongladePure.Core.PostFeature;
+using MoongladePure.Data.Spec;
+using MoongladePure.Pingback;
+using MoongladePure.Web.Attributes;
 using NUglify;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [Authorize]
 [ApiController]

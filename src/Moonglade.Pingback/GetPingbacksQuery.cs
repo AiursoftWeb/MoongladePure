@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 
-namespace Moonglade.Pingback;
+namespace MoongladePure.Pingback;
 
 public record GetPingbacksQuery : IRequest<IReadOnlyList<PingbackEntity>>;
 

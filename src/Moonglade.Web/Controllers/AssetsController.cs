@@ -1,7 +1,7 @@
-﻿using Moonglade.Caching.Filters;
+﻿using MoongladePure.Caching.Filters;
 using SixLabors.ImageSharp;
 
-namespace Moonglade.Web.Controllers;
+namespace MoongladePure.Web.Controllers;
 
 [ApiController]
 public class AssetsController : ControllerBase

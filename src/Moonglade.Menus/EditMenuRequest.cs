@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonglade.Menus;
+namespace MoongladePure.Menus;
 
 public class EditMenuRequest
 {

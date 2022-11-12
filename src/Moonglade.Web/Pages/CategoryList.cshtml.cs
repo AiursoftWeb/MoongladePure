@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.CategoryFeature;
-using Moonglade.Core.PostFeature;
+using MoongladePure.Core.CategoryFeature;
+using MoongladePure.Core.PostFeature;
 using X.PagedList;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 public class CategoryListModel : PageModel
 {

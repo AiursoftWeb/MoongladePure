@@ -1,7 +1,7 @@
 ﻿@page "/page/{slug:regex(^(?!-)([a-zA-Z0-9-]){{1,128}}$)}"
 @model Moonglade.Web.Pages.BlogPageModel
 @using NUglify
-@using Moonglade.Utils
+@using MoongladePure.Utils
 
 @{
     ViewBag.TitlePrefix = Model.BlogPage.Title;

@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core.TagFeature;
+﻿namespace MoongladePure.Core.TagFeature;
 
 public record GetTagCountListQuery : IRequest<IReadOnlyList<KeyValuePair<Tag, int>>>;
 

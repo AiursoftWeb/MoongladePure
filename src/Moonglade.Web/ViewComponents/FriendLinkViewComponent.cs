@@ -1,6 +1,6 @@
-using Moonglade.FriendLink;
+using MoongladePure.FriendLink;
 
-namespace Moonglade.Web.ViewComponents;
+namespace MoongladePure.Web.ViewComponents;
 
 public class FriendLinkViewComponent : ViewComponent
 {

@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Data.Entities;
+﻿namespace MoongladePure.Data.Entities;
 
 public class BlogThemeEntity
 {

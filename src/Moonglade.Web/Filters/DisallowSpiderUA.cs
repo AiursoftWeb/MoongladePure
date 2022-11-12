@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using UAParser;
 
-namespace Moonglade.Web.Filters;
+namespace MoongladePure.Web.Filters;
 
 public class DisallowSpiderUA : ActionFilterAttribute
 {

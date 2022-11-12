@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Utils;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Utils;
 
-namespace Moonglade.Menus;
+namespace MoongladePure.Menus;
 
 public record UpdateMenuCommand(EditMenuRequest Payload) : IRequest;
 

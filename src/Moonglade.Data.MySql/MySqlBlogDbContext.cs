@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Moonglade.Data.MySql.Configurations;
+using MoongladePure.Data.MySql.Configurations;
 
-namespace Moonglade.Data.MySql;
+namespace MoongladePure.Data.MySql;
 
 
 public class MySqlBlogDbContext : BlogDbContext

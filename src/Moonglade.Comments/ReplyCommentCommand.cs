@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Moonglade.Data.Entities;
-using Moonglade.Data.Infrastructure;
-using Moonglade.Utils;
+using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Utils;
 
-namespace Moonglade.Comments;
+namespace MoongladePure.Comments;
 
 public record ReplyCommentCommand(Guid CommentId, string ReplyContent) : IRequest<CommentReply>;
 

@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Spec;
+﻿using MoongladePure.Data.Spec;
 
-namespace Moonglade.Core.PageFeature;
+namespace MoongladePure.Core.PageFeature;
 
 public record GetPagesQuery(int Top) : IRequest<IReadOnlyList<BlogPage>>;
 

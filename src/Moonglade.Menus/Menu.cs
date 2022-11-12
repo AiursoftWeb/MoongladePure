@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Entities;
+﻿using MoongladePure.Data.Entities;
 
-namespace Moonglade.Menus;
+namespace MoongladePure.Menus;
 
 public class Menu
 {

@@ -1,7 +1,7 @@
-﻿using Moonglade.Data.Spec;
+﻿using MoongladePure.Data.Spec;
 using System.Linq.Expressions;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record struct Archive(int Year, int Month, int Count);
 public record GetArchiveQuery : IRequest<IReadOnlyList<Archive>>;

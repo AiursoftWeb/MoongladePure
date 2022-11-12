@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Auth;
+﻿namespace MoongladePure.Auth;
 
 public class AuthenticationSettings
 {

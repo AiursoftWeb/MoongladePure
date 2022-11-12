@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Moonglade.Data.Infrastructure;
+namespace MoongladePure.Data.Infrastructure;
 
 public interface IRepository<T> where T : class
 {

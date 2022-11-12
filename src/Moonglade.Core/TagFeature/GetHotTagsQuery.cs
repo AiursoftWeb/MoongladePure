@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Spec;
+﻿using MoongladePure.Data.Spec;
 
-namespace Moonglade.Core.TagFeature;
+namespace MoongladePure.Core.TagFeature;
 
 public record GetHotTagsQuery(int Top) : IRequest<IReadOnlyList<KeyValuePair<Tag, int>>>;
 

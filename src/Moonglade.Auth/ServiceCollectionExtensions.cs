@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 
-namespace Moonglade.Auth;
+namespace MoongladePure.Auth;
 
 public static class ServiceCollectionExtensions
 {

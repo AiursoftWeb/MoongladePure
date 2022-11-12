@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Core;
+﻿namespace MoongladePure.Core;
 
 public record GetAssetQuery(Guid AssetId) : IRequest<string>;
 

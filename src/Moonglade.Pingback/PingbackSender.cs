@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 
-namespace Moonglade.Pingback;
+namespace MoongladePure.Pingback;
 
 public class PingbackSender : IPingbackSender
 {

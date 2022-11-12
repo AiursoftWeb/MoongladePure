@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Moonglade.Configuration;
+namespace MoongladePure.Configuration;
 
 public static class ServiceCollectionExtensions
 {

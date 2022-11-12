@@ -2,7 +2,7 @@
 using System.Text;
 using System.Xml;
 
-namespace Moonglade.Syndication;
+namespace MoongladePure.Syndication;
 
 public record GetOpmlQuery(OpmlDoc OpmlDoc) : IRequest<string>;
 

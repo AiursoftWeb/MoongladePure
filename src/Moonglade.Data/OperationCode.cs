@@ -1,4 +1,4 @@
-﻿namespace Moonglade.Data;
+﻿namespace MoongladePure.Data;
 
 public enum OperationCode
 {

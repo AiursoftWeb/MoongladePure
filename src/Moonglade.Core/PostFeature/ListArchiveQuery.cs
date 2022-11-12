@@ -1,6 +1,6 @@
-﻿using Moonglade.Data.Spec;
+﻿using MoongladePure.Data.Spec;
 
-namespace Moonglade.Core.PostFeature;
+namespace MoongladePure.Core.PostFeature;
 
 public record ListArchiveQuery(int Year, int? Month = null) : IRequest<IReadOnlyList<PostDigest>>;
 

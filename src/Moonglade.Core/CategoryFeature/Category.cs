@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Moonglade.Core.CategoryFeature;
+namespace MoongladePure.Core.CategoryFeature;
 
 public class Category
 {

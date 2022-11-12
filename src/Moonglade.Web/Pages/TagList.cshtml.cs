@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moonglade.Core.PostFeature;
-using Moonglade.Core.TagFeature;
+using MoongladePure.Core.PostFeature;
+using MoongladePure.Core.TagFeature;
 using X.PagedList;
 
-namespace Moonglade.Web.Pages;
+namespace MoongladePure.Web.Pages;
 
 public class TagListModel : PageModel
 {
