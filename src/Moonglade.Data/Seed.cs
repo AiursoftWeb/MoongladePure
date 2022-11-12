@@ -22,13 +22,13 @@ public class Seed
 
             // Add example post
             var content =
-                "Moonglade is a blog system forked from EdiWang's Moonglade.";
+                "MoongladePure removes some dependencies from the original Moonglade and can be deployed completely on-premises without coupling to any particular cloud.";
 
             var post = new PostEntity
             {
                 Id = Guid.NewGuid(),
-                Title = "Welcome to Moonglade",
-                Slug = "welcome-to-moonglade",
+                Title = "Welcome to MoongladePure",
+                Slug = "welcome-to-moonglade-pure",
                 Author = "admin",
                 PostContent = content,
                 CommentEnabled = true,
@@ -44,8 +44,8 @@ public class Seed
                 IsOriginal = true,
                 PostExtension = new()
                 {
-                    Hits = 1024,
-                    Likes = 512
+                    Hits = 0,
+                    Likes = 0
                 },
                 Tags = dbContext.Tag.ToList(),
                 PostCategory = dbContext.PostCategory.ToList()
@@ -96,7 +96,7 @@ public class Seed
             {
                 Id = 4,
                 CfgKey = "GeneralSettings",
-                CfgValue = "{\"OwnerName\":\"Admin\",\"OwnerEmail\":\"admin@edi.wang\",\"Description\":\"Moonglade Admin\",\"ShortDescription\":\"Moonglade Admin\",\"AvatarBase64\":\"\",\"SiteTitle\":\"Moonglade\",\"LogoText\":\"moonglade\",\"MetaKeyword\":\"moonglade\",\"MetaDescription\":\"Just another .NET blog system\",\"Copyright\":\"[c] 2022\",\"SideBarCustomizedHtmlPitch\":\"\",\"FooterCustomizedHtmlPitch\":\"\",\"UserTimeZoneBaseUtcOffset\":\"08:00:00\",\"TimeZoneId\":\"China Standard Time\",\"AutoDarkLightTheme\":true,\"ThemeId\":1}",
+                CfgValue = "{\"OwnerName\":\"Admin\",\"OwnerEmail\":\"admin@sample.email\",\"Description\":\"Moonglade Admin\",\"ShortDescription\":\"Moonglade Admin\",\"AvatarBase64\":\"\",\"SiteTitle\":\"Moonglade\",\"LogoText\":\"moonglade\",\"MetaKeyword\":\"moonglade\",\"MetaDescription\":\"Just another .NET blog system\",\"Copyright\":\"[c] 2022\",\"SideBarCustomizedHtmlPitch\":\"\",\"FooterCustomizedHtmlPitch\":\"\",\"UserTimeZoneBaseUtcOffset\":\"08:00:00\",\"TimeZoneId\":\"China Standard Time\",\"AutoDarkLightTheme\":true,\"ThemeId\":1}",
                 LastModifiedTimeUtc = DateTime.UtcNow
             },
             new()
@@ -206,8 +206,8 @@ public class Seed
             new()
             {
                 Id = Guid.NewGuid(),
-                Title = "Edi.Wang",
-                LinkUrl = "https://edi.wang"
+                Title = "Anduin.Xue",
+                LinkUrl = "https://anduin.aiursoft.cn"
             }
         };
     }
