@@ -1,7 +1,6 @@
 using Edi.Captcha;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
@@ -52,10 +51,6 @@ public class SignInModel : PageModel
     {
         switch (_authenticationSettings.Provider)
         {
-            case AuthenticationProvider.AzureAD:
-                return Challenge(
-                    new AuthenticationProperties { RedirectUri = "/" },
-                    OpenIdConnectDefaults.AuthenticationScheme);
             case AuthenticationProvider.Local:
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 break;

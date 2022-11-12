@@ -2,6 +2,5 @@
 
 public enum AuthenticationProvider
 {
-    AzureAD,
     Local
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
 
 namespace Moonglade.Web.Controllers;
@@ -20,12 +19,6 @@ public class AuthController : ControllerBase
     {
         switch (_authenticationSettings.Provider)
         {
-            case AuthenticationProvider.AzureAD:
-                var callbackUrl = Url.Page("/Index", null, null, Request.Scheme);
-                return SignOut(
-                    new AuthenticationProperties { RedirectUri = callbackUrl },
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    OpenIdConnectDefaults.AuthenticationScheme);
             case AuthenticationProvider.Local:
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return RedirectToPage("/Index");
