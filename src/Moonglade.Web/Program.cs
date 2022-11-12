@@ -8,7 +8,7 @@ using SixLabors.Fonts;
 using System.Globalization;
 using System.Text.Json.Serialization;
 using WilderMinds.MetaWeblog;
-using Encoder = Moonglade.Web.Configuration.Encoder;
+using Encoder = MoongladePure.Web.Configuration.Encoder;
 
 var info = $"App:\tMoonglade {Helper.AppVersion}\n" +
            $"Path:\t{Environment.CurrentDirectory} \n" +
@@ -96,7 +96,7 @@ void ConfigureServices(IServiceCollection services)
             .AddSyndication()
             .AddReleaseCheckerClient()
             .AddBlogCache()
-            .AddMetaWeblog<Moonglade.Web.MetaWeblogService>()
+            .AddMetaWeblog<MoongladePure.Web.MetaWeblogService>()
             .AddScoped<ValidateCaptcha>()
             .AddScoped<ITimeZoneResolver, BlogTimeZoneResolver>()
             .AddBlogConfig(builder.Configuration)
