@@ -3,6 +3,8 @@
 
 ## Sensitive data
 appsettings.Development.json
+.vs
+.vscode
 
 # User-specific files
 *.suo
