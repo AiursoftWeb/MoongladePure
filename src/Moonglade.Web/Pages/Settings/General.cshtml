@@ -1,5 +1,5 @@
 ﻿@page "/admin/settings/general"
-@model Moonglade.Web.Pages.Settings.GeneralModel
+@model MoongladePure.Web.Pages.Settings.GeneralModel
 @inject ITimeZoneResolver ZoneResolver
 @{
     var tzList = ZoneResolver.ListTimeZones().Select(t => new SelectListItem
