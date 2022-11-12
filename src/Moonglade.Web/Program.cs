@@ -1,7 +1,6 @@
 ﻿using AspNetCoreRateLimit;
 using Edi.Captcha;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.FeatureManagement;
 using Moonglade.Data.MySql;
 using Moonglade.Pingback;
 using Moonglade.Syndication;
@@ -53,8 +52,7 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddOptions()
             .AddHttpContextAccessor()
-            .AddRateLimit(builder.Configuration.GetSection("IpRateLimiting"))
-            .AddFeatureManagement();
+            .AddRateLimit(builder.Configuration.GetSection("IpRateLimiting"));
 
     services.AddSession(options =>
     {
@@ -146,7 +144,7 @@ async Task FirstRun()
 void ConfigureMiddleware(IApplicationBuilder appBuilder)
 {
     appBuilder.UseForwardedHeaders();
-
+    appBuilder.UseHealthChecks(new PathString("/health"));
     app.Logger.LogWarning($"Running in environment: {app.Environment.EnvironmentName}.");
 
     appBuilder.UseCustomCss(options => options.MaxContentLength = 10240);
@@ -160,7 +158,7 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder)
         options.IconFilePath = "/favicon-16x16.png";
     });
 
-    appBuilder.UseMiddlewareForFeature<FoafMiddleware>(nameof(FeatureFlags.Foaf));
+    appBuilder.UseMiddleware<FoafMiddleware>();
 
     var bc = app.Services.GetRequiredService<IBlogConfig>();
     if (bc.AdvancedSettings.EnableMetaWeblog)

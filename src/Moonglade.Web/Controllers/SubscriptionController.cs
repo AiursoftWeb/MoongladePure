@@ -21,7 +21,6 @@ public class SubscriptionController : ControllerBase
         _mediator = mediator;
     }
 
-    [FeatureGate(FeatureFlags.OPML)]
     [HttpGet("opml")]
     public async Task<IActionResult> Opml()
     {
