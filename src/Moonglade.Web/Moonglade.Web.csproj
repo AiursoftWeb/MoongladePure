@@ -15,19 +15,19 @@
 		<Using Include="Microsoft.AspNetCore.Authorization" />
 		<Using Include="MediatR" />
 
-		<Using Include="Moonglade.Web" />
-		<Using Include="Moonglade.Web.Configuration" />
-		<Using Include="Moonglade.Web.Filters" />
-		<Using Include="Moonglade.Web.Middleware" />
-		<Using Include="Moonglade.Auth" />
-		<Using Include="Moonglade.Core" />
-		<Using Include="Moonglade.Caching" />
-		<Using Include="Moonglade.Configuration" />
-		<Using Include="Moonglade.Comments" />
-		<Using Include="Moonglade.Theme" />
-		<Using Include="Moonglade.Utils" />
-		<Using Include="Moonglade.Data" />
-		<Using Include="Moonglade.ImageStorage" />
+		<Using Include="MoongladePure.Web" />
+		<Using Include="MoongladePure.Web.Configuration" />
+		<Using Include="MoongladePure.Web.Filters" />
+		<Using Include="MoongladePure.Web.Middleware" />
+		<Using Include="MoongladePure.Auth" />
+		<Using Include="MoongladePure.Core" />
+		<Using Include="MoongladePure.Caching" />
+		<Using Include="MoongladePure.Configuration" />
+		<Using Include="MoongladePure.Comments" />
+		<Using Include="MoongladePure.Theme" />
+		<Using Include="MoongladePure.Utils" />
+		<Using Include="MoongladePure.Data" />
+		<Using Include="MoongladePure.ImageStorage" />
 	</ItemGroup>
 
 	<ItemGroup>
