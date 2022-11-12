@@ -1,4 +1,8 @@
-# Moonglade Blog
+# MoongladePure
+
+MoongladePure is a fork of Moonglade.
+
+It removes some dependencies from the original Moonglade and can be deployed completely on-premises without coupling to any particular cloud.
 
 ### 🔩 Others
 
