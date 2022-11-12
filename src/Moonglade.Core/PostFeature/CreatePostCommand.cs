@@ -35,8 +35,7 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostE
     {
         var abs = ContentProcessor.GetPostAbstract(
             string.IsNullOrEmpty(request.Payload.Abstract) ? request.Payload.EditorContent : request.Payload.Abstract.Trim(),
-            _blogConfig.ContentSettings.PostAbstractWords,
-            _configuration.GetSection("Editor").Get<EditorChoice>() == EditorChoice.Markdown);
+            _blogConfig.ContentSettings.PostAbstractWords);
 
         var post = new PostEntity
         {

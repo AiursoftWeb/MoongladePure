@@ -91,8 +91,6 @@ public class SyndicationDataSource : ISyndicationDataSource
 
     private string FormatPostContent(string rawContent)
     {
-        return _configuration.GetSection("Editor").Get<EditorChoice>() == EditorChoice.Markdown ?
-            ContentProcessor.MarkdownToContent(rawContent, ContentProcessor.MarkdownConvertType.Html, false) :
-            rawContent;
+        return ContentProcessor.MarkdownToContent(rawContent, ContentProcessor.MarkdownConvertType.Html, false);
     }
 }

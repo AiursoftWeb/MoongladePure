@@ -20,11 +20,9 @@ public static class ContentProcessor
         return newStr;
     }
 
-    public static string GetPostAbstract(string rawContent, int wordCount, bool useMarkdown = false)
+    public static string GetPostAbstract(string rawContent, int wordCount)
     {
-        var plainText = useMarkdown ?
-            MarkdownToContent(rawContent, MarkdownConvertType.Text) :
-            RemoveTags(rawContent);
+        var plainText = MarkdownToContent(rawContent, MarkdownConvertType.Text);
 
         var result = plainText.Ellipsize(wordCount);
         return result;

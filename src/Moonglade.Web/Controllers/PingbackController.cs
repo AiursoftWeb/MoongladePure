@@ -1,5 +1,4 @@
 ﻿using Moonglade.Data.Entities;
-using Moonglade.Notification.Client;
 using Moonglade.Pingback;
 using Moonglade.Web.Attributes;
 
@@ -27,7 +26,7 @@ public class PingbackController : ControllerBase
     [IgnoreAntiforgeryToken]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> Process()
+    public IActionResult Process()
     {
         if (!_blogConfig.AdvancedSettings.EnablePingbackReceive)
         {
@@ -35,25 +34,7 @@ public class PingbackController : ControllerBase
             return Forbid();
         }
 
-        var ip = Helper.GetClientIP(HttpContext);
-        var requestBody = await new StreamReader(HttpContext.Request.Body, Encoding.Default).ReadToEndAsync();
-
-        var response = await _mediator.Send(new ReceivePingCommand(requestBody, ip, SendPingbackEmailAction));
-
-        _logger.LogInformation($"Pingback Processor Response: {response}");
-        return new PingbackResult(response);
-    }
-
-    private async void SendPingbackEmailAction(PingbackEntity history)
-    {
-        try
-        {
-            await _mediator.Publish(new PingbackNotification(history.TargetPostTitle, history.Domain, history.SourceIp, history.SourceUrl, history.SourceTitle));
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, e.Message);
-        }
+        return new PingbackResult(PingbackResponse.Success);
     }
 
     [Authorize]

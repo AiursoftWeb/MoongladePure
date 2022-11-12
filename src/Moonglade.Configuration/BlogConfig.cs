@@ -8,7 +8,6 @@ public interface IBlogConfig
 {
     GeneralSettings GeneralSettings { get; set; }
     ContentSettings ContentSettings { get; set; }
-    NotificationSettings NotificationSettings { get; set; }
     FeedSettings FeedSettings { get; set; }
     ImageSettings ImageSettings { get; set; }
     AdvancedSettings AdvancedSettings { get; set; }
@@ -23,8 +22,6 @@ public class BlogConfig : IBlogConfig
 
     public ContentSettings ContentSettings { get; set; }
 
-    public NotificationSettings NotificationSettings { get; set; }
-
     public FeedSettings FeedSettings { get; set; }
 
     public ImageSettings ImageSettings { get; set; }
@@ -37,7 +34,6 @@ public class BlogConfig : IBlogConfig
     {
         GeneralSettings = config[nameof(GeneralSettings)].FromJson<GeneralSettings>();
         ContentSettings = config[nameof(ContentSettings)].FromJson<ContentSettings>();
-        NotificationSettings = config[nameof(NotificationSettings)].FromJson<NotificationSettings>();
         FeedSettings = config[nameof(FeedSettings)].FromJson<FeedSettings>();
         ImageSettings = config[nameof(ImageSettings)].FromJson<ImageSettings>();
         AdvancedSettings = config[nameof(AdvancedSettings)].FromJson<AdvancedSettings>();

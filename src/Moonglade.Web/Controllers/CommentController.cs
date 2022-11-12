@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Moonglade.Notification.Client;
 using Moonglade.Web.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -52,23 +51,6 @@ public class CommentController : ControllerBase
             return Conflict(ModelState);
         }
 
-        if (_blogConfig.NotificationSettings.SendEmailOnNewComment)
-        {
-            try
-            {
-                await _mediator.Publish(new CommentNotification(
-                    item.Username,
-                    item.Email,
-                    item.IpAddress,
-                    item.PostTitle,
-                    item.CommentContent));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-            }
-        }
-
         if (_blogConfig.ContentSettings.RequireCommentReview)
         {
             return Created("moonglade://empty", item);
@@ -105,24 +87,6 @@ public class CommentController : ControllerBase
         if (!_blogConfig.ContentSettings.EnableComments) return Forbid();
 
         var reply = await _mediator.Send(new ReplyCommentCommand(commentId, replyContent));
-        if (_blogConfig.NotificationSettings.SendEmailOnCommentReply && !string.IsNullOrWhiteSpace(reply.Email))
-        {
-            var postLink = GetPostUrl(linkGenerator, reply.PubDateUtc, reply.Slug);
-
-            try
-            {
-                await _mediator.Publish(new CommentReplyNotification(
-                    reply.Email,
-                    reply.CommentContent,
-                    reply.Title,
-                    reply.ReplyContentHtml,
-                    postLink));
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-            }
-        }
 
         return Ok(reply);
     }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Localization;
 using Moonglade.Caching.Filters;
-using Moonglade.Notification.Client;
 using NUglify;
 using System.Reflection;
 
@@ -101,38 +100,6 @@ public class SettingsController : ControllerBase
 
         await SaveConfigAsync(_blogConfig.ContentSettings);
         return NoContent();
-    }
-
-    [HttpPost("notification")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Notification(NotificationSettings model)
-    {
-        if (model.EnableEmailSending && string.IsNullOrWhiteSpace(model.AzureStorageQueueConnection))
-        {
-            ModelState.AddModelError(nameof(model.AzureStorageQueueConnection), "Azure Storage Queue Connection is required.");
-            return BadRequest(ModelState.CombineErrorMessages());
-        }
-
-        _blogConfig.NotificationSettings = model;
-
-        await SaveConfigAsync(_blogConfig.NotificationSettings);
-        return NoContent();
-    }
-
-    [HttpPost("email/test")]
-    [IgnoreAntiforgeryToken]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> TestEmail()
-    {
-        try
-        {
-            await _mediator.Publish(new TestNotification());
-            return Ok(true);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
-        }
     }
 
     [HttpPost("subscription")]

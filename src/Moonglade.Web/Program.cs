@@ -3,7 +3,6 @@ using Edi.Captcha;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.FeatureManagement;
 using Moonglade.Data.MySql;
-using Moonglade.Notification.Client;
 using Moonglade.Pingback;
 using Moonglade.Syndication;
 using SixLabors.Fonts;
@@ -100,7 +99,6 @@ void ConfigureServices(IServiceCollection services)
     services.AddHealthChecks();
     services.AddPingback()
             .AddSyndication()
-            .AddNotification()
             .AddReleaseCheckerClient()
             .AddBlogCache()
             .AddMetaWeblog<Moonglade.Web.MetaWeblogService>()

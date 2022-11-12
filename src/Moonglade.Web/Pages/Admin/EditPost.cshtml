@@ -21,21 +21,10 @@
 @section scripts{
     <script src="~/lib/tagify/tagify.min.js"></script>
     <script src="~/js/3rd/bs-custom-file-input.min.js"></script>
-    @{
-        var ec = Configuration.GetSection("Editor").Get<EditorChoice>();
-        switch (ec)
-        {
-            case EditorChoice.Html:
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.2.0/tinymce.min.js" integrity="sha512-tofxIFo8lTkPN/ggZgV89daDZkgh1DunsMYBq41usfs3HbxMRVHWFAjSi/MXrT+Vw5XElng9vAfMmOWdLg0YbA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-                break;
-            case EditorChoice.Markdown:
-                <script src="https://unpkg.com/simplemde@1.11.2/dist/simplemde.min.js"></script>
-                <script src="~/js/3rd/inline-attachment.js"></script>
-                <script src="~/js/3rd/codemirror-4.inline-attachment.js"></script>
-                <link id="css-simplemde" href="https://unpkg.com/simplemde@1.11.2/dist/simplemde.min.css" rel="stylesheet" />
-                break;
-        }
-    }
+    <script src="https://unpkg.com/simplemde@1.11.2/dist/simplemde.min.js"></script>
+    <script src="~/js/3rd/inline-attachment.js"></script>
+    <script src="~/js/3rd/codemirror-4.inline-attachment.js"></script>
+    <link id="css-simplemde" href="https://unpkg.com/simplemde@1.11.2/dist/simplemde.min.css" rel="stylesheet" />
 
     <script type="module">
         import * as utils from '/js/app/utils.module.js'
@@ -46,14 +35,7 @@
 
         $(function() {
             editor.initEvents();
-            var editorMode = '@ec';
-            if (editorMode == '@nameof(EditorChoice.Html)') {
-                editor.loadTinyMCE(".post-content-textarea");
-            }
-            if (editorMode == '@nameof(EditorChoice.Markdown)') {
-                editor.loadMdEditor(".post-content-textarea");
-            }
-
+            editor.loadMdEditor(".post-content-textarea");
             editor.keepAlive();
         });
 
