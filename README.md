@@ -92,60 +92,15 @@ Build and run `./src/Moonglade.sln`
 
 ### 🛡 Authentication
 
-#### Local Account (Alternative)
+#### Local Account
 
 Set `Authentication:Provider` to `"Local"`. You can manage accounts in `/admin/settings/account`
 
 ### 🖼 Image Storage
+
 `ImageStorage` controls how blog post images are stored.
 
-#### [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs/) (Preferred)
-
-You need to create an [**Azure Blob Storage**](https://azure.microsoft.com/en-us/services/storage/blobs/) with **container level permission**. 
-
-```json
-{
-  "Provider": "azurestorage"
-  "AzureStorageSettings": {
-    "ConnectionString": "YOUR CONNECTION STRING",
-    "ContainerName": "YOUR CONTAINER NAME"
-  }
-}
-```
-
-When configured the image storage to use Azure Blob, you can take advantage of CDN for your image resources. Just enable CDN in admin settings, the blog will get images from CDN.
-
-#### [Minio Blob Storage](https://min.io/) (Free)
-
-You need to hava an [**Minio Server**](https://docs.min.io/). 
-
-```json
-"Provider": "miniostorage"
-"MinioStorageSettings": {
-  "EndPoint": "Minio Server Endpoint(eg:localhost:9600)",
-  "AccessKey": "Your Access Key",
-  "SecretKey": "Your Secret Key",
-  "BucketName": "Your BucketName",
-  "WithSSL": false
-}
-```
-
-#### [Qiniu Blob Storage](https://qiniu.com/) (Almost free)
-
-You need to hava an Qiniu cloud account, and use [Kodo](https://www.qiniu.com/products/kodo) storage service. 
-
-```json
-"Provider": "qiniustorage"
-"QiniuStorageSettings": {
-  "EndPoint": "Your Custom Domain",
-  "AccessKey": "Your Access Key",
-  "SecretKey": "Your Secret Key",
-  "BucketName": "Your BucketName",
-  "WithSSL": false
-}
-```
-
-#### File System (Not Recommended)
+#### File System
 
 You can also choose File System for image storage if you don't have a cloud option.
 
@@ -155,10 +110,6 @@ You can also choose File System for image storage if you don't have a cloud opti
   "FileSystemPath": "C:\\UploadedImages"
 }
 ```
-
-### 🤬 Comment Moderator
-
-- [Comment Moderator Settings](https://github.com/EdiWang/Moonglade/wiki/Comment-Moderator-Settings)
 
 ### 📧 Email Notification
 
@@ -184,18 +135,3 @@ If you need email notification for new comments, new replies and pingbacks, you 
 - [ ] APML - Not planned
 - [ ] Trackback - Not planned
 
-## 🐼 Example Blogs
-
-There are a few individuals already setup thier blogs using Moonglade on Azure (Global or China), Alibaba Cloud, Tencent Cloud, etc.
-
-- [Anduin Xue](https://anduin.aiursoft.com/)
-- [zchwei](https://zchwei.com/)
-- [yycoding](https://www.yycoding.xyz/)
-- [51azure](https://www.51azure.cloud/)
-- [Zhuangkh](https://zhuangkh.com/)
-- [HueiFeng](https://blog.stackable.cn/)
-- [Leslie Wang](https://lesliewxj.com/)
-- [AllenMasters](https://allenmasters.com)
-- [Hao's House](https://haxu.dev/)
-
-*Just Submit PR or issue if you want your blog to be listed here*
