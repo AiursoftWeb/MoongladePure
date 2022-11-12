@@ -22,7 +22,7 @@ public class Seed
 
             // Add example post
             var content =
-                "Moonglade is the new blog system for https://edi.wang. It is a complete rewrite of the old system using .NET 6 and runs on Microsoft Azure.";
+                "Moonglade is a blog system forked from EdiWang's Moonglade.";
 
             var post = new PostEntity
             {
