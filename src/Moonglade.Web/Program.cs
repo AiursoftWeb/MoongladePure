@@ -37,11 +37,12 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services)
 {
-    AppDomain.CurrentDomain.Load("Moonglade.FriendLink");
-    AppDomain.CurrentDomain.Load("Moonglade.Menus");
-    AppDomain.CurrentDomain.Load("Moonglade.Theme");
-    AppDomain.CurrentDomain.Load("Moonglade.Configuration");
-    AppDomain.CurrentDomain.Load("Moonglade.Data");
+    AppDomain.CurrentDomain.Load("MoongladePure.Core");
+    AppDomain.CurrentDomain.Load("MoongladePure.FriendLink");
+    AppDomain.CurrentDomain.Load("MoongladePure.Menus");
+    AppDomain.CurrentDomain.Load("MoongladePure.Theme");
+    AppDomain.CurrentDomain.Load("MoongladePure.Configuration");
+    AppDomain.CurrentDomain.Load("MoongladePure.Data");
 
     services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -104,7 +105,7 @@ void ConfigureServices(IServiceCollection services)
             .AddImageStorage(builder.Configuration, options => options.ContentRootPath = builder.Environment.ContentRootPath)
             .Configure<List<ManifestIcon>>(builder.Configuration.GetSection("ManifestIcons"));
 
-    services.AddMySqlStorage(connStr);
+    services.AddDatabase(connStr, useTestDb: false);
 }
 
 async Task FirstRun()

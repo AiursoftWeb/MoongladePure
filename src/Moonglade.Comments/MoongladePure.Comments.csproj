@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Moonglade.Configuration\Moonglade.Configuration.csproj" />
+    <ProjectReference Include="..\Moonglade.Configuration\MoongladePure.Configuration.csproj" />
   </ItemGroup>
 
 </Project>

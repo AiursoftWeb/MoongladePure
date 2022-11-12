@@ -3,43 +3,43 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Web", "src\Moonglade.Web\Moonglade.Web.csproj", "{2BC1D1F3-B0B2-4184-A84B-34A6B531BD4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Web", "src\Moonglade.Web\MoongladePure.Web.csproj", "{2BC1D1F3-B0B2-4184-A84B-34A6B531BD4A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Core", "src\Moonglade.Core\Moonglade.Core.csproj", "{0A3BCAC1-1759-48F4-A222-71A4C65A23A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Core", "src\Moonglade.Core\MoongladePure.Core.csproj", "{0A3BCAC1-1759-48F4-A222-71A4C65A23A0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "src\Application", "{9B62AB08-D68E-440E-819C-2C4636FF9C78}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{9B62AB08-D68E-440E-819C-2C4636FF9C78}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "src\Core", "{97439361-03B4-46C9-BC06-49F76BA57879}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{97439361-03B4-46C9-BC06-49F76BA57879}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Data", "src\Moonglade.Data\Moonglade.Data.csproj", "{B7151A42-A200-442D-9244-F6A2EADDFEA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Data", "src\Moonglade.Data\MoongladePure.Data.csproj", "{B7151A42-A200-442D-9244-F6A2EADDFEA1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "src\Data", "{41072B8B-1052-4CC6-930F-83A5F8EA7482}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{41072B8B-1052-4CC6-930F-83A5F8EA7482}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.ImageStorage", "src\Moonglade.ImageStorage\Moonglade.ImageStorage.csproj", "{702AEE84-D06A-403F-8D7F-BE1955E9D062}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.ImageStorage", "src\Moonglade.ImageStorage\MoongladePure.ImageStorage.csproj", "{702AEE84-D06A-403F-8D7F-BE1955E9D062}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Configuration", "src\Moonglade.Configuration\Moonglade.Configuration.csproj", "{D050818F-EDAD-43F1-9824-9627A0B4324C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Configuration", "src\Moonglade.Configuration\MoongladePure.Configuration.csproj", "{D050818F-EDAD-43F1-9824-9627A0B4324C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Syndication", "src\Moonglade.Syndication\Moonglade.Syndication.csproj", "{3675CD24-B29D-4F1E-AB8E-9B563B000338}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Syndication", "src\Moonglade.Syndication\MoongladePure.Syndication.csproj", "{3675CD24-B29D-4F1E-AB8E-9B563B000338}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Pingback", "src\Moonglade.Pingback\Moonglade.Pingback.csproj", "{DB2020AF-391A-4D5F-8037-541462DAEEE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Pingback", "src\Moonglade.Pingback\MoongladePure.Pingback.csproj", "{DB2020AF-391A-4D5F-8037-541462DAEEE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Caching", "src\Moonglade.Caching\Moonglade.Caching.csproj", "{BBC1C4FB-52C8-4E89-BED5-B461298A652B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Caching", "src\Moonglade.Caching\MoongladePure.Caching.csproj", "{BBC1C4FB-52C8-4E89-BED5-B461298A652B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "src\Infrastructure", "{F9400B71-ADCD-4FBE-A88F-F85873FDC60B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{F9400B71-ADCD-4FBE-A88F-F85873FDC60B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Utils", "src\Moonglade.Utils\Moonglade.Utils.csproj", "{9C2D082D-39B8-4D51-B532-3274431EA606}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Utils", "src\Moonglade.Utils\MoongladePure.Utils.csproj", "{9C2D082D-39B8-4D51-B532-3274431EA606}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Comments", "src\Moonglade.Comments\Moonglade.Comments.csproj", "{80E6D51F-0920-4910-9A0A-A2E4ACF9F36D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Comments", "src\Moonglade.Comments\MoongladePure.Comments.csproj", "{80E6D51F-0920-4910-9A0A-A2E4ACF9F36D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.FriendLink", "src\Moonglade.FriendLink\Moonglade.FriendLink.csproj", "{C2691740-A964-43C8-8024-DA64FB5DB624}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.FriendLink", "src\Moonglade.FriendLink\MoongladePure.FriendLink.csproj", "{C2691740-A964-43C8-8024-DA64FB5DB624}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Auth", "src\Moonglade.Auth\Moonglade.Auth.csproj", "{5B888FFB-8BF0-4AED-9D1E-91396290BC05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Auth", "src\Moonglade.Auth\MoongladePure.Auth.csproj", "{5B888FFB-8BF0-4AED-9D1E-91396290BC05}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Menus", "src\Moonglade.Menus\Moonglade.Menus.csproj", "{A5ED355A-D024-4176-B453-2F8F42E29414}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Menus", "src\Moonglade.Menus\MoongladePure.Menus.csproj", "{A5ED355A-D024-4176-B453-2F8F42E29414}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Theme", "src\Moonglade.Theme\Moonglade.Theme.csproj", "{59770DF9-9CC5-4912-8677-5E99DA9C96CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Theme", "src\Moonglade.Theme\MoongladePure.Theme.csproj", "{59770DF9-9CC5-4912-8677-5E99DA9C96CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Moonglade.Data.MySql", "src\Moonglade.Data.MySql\Moonglade.Data.MySql.csproj", "{0267C513-2DB9-4697-A6FA-39BB83E1CA9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Data.MySql", "src\Moonglade.Data.MySql\MoongladePure.Data.MySql.csproj", "{0267C513-2DB9-4697-A6FA-39BB83E1CA9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,16 +119,12 @@ Global
 		{D050818F-EDAD-43F1-9824-9627A0B4324C} = {F9400B71-ADCD-4FBE-A88F-F85873FDC60B}
 		{3675CD24-B29D-4F1E-AB8E-9B563B000338} = {97439361-03B4-46C9-BC06-49F76BA57879}
 		{DB2020AF-391A-4D5F-8037-541462DAEEE8} = {97439361-03B4-46C9-BC06-49F76BA57879}
-		{F2B7F09C-55B8-4A24-9CCB-9883C0B72DF1} = {BE685106-CE96-4A43-A161-3425565C6A9D}
 		{BBC1C4FB-52C8-4E89-BED5-B461298A652B} = {F9400B71-ADCD-4FBE-A88F-F85873FDC60B}
 		{9C2D082D-39B8-4D51-B532-3274431EA606} = {F9400B71-ADCD-4FBE-A88F-F85873FDC60B}
 		{80E6D51F-0920-4910-9A0A-A2E4ACF9F36D} = {97439361-03B4-46C9-BC06-49F76BA57879}
 		{C2691740-A964-43C8-8024-DA64FB5DB624} = {97439361-03B4-46C9-BC06-49F76BA57879}
 		{5B888FFB-8BF0-4AED-9D1E-91396290BC05} = {97439361-03B4-46C9-BC06-49F76BA57879}
 		{A5ED355A-D024-4176-B453-2F8F42E29414} = {97439361-03B4-46C9-BC06-49F76BA57879}
-		{FE0F6EA1-5520-4DD9-9CD4-7A2365A03C8C} = {BE685106-CE96-4A43-A161-3425565C6A9D}
-		{9505BDE6-E5CB-43E1-A2F0-07E67BEF6948} = {BE685106-CE96-4A43-A161-3425565C6A9D}
-		{2C27F5AF-7A99-4B49-A053-8E3486319F2B} = {9505BDE6-E5CB-43E1-A2F0-07E67BEF6948}
 		{59770DF9-9CC5-4912-8677-5E99DA9C96CA} = {97439361-03B4-46C9-BC06-49F76BA57879}
 		{0267C513-2DB9-4697-A6FA-39BB83E1CA9B} = {41072B8B-1052-4CC6-930F-83A5F8EA7482}
 	EndGlobalSection

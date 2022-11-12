@@ -44,15 +44,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Moonglade.Auth\Moonglade.Auth.csproj" />
-		<ProjectReference Include="..\Moonglade.Comments\Moonglade.Comments.csproj" />
-		<ProjectReference Include="..\Moonglade.Core\Moonglade.Core.csproj" />
-		<ProjectReference Include="..\Moonglade.Data.MySql\Moonglade.Data.MySql.csproj" />
-		<ProjectReference Include="..\Moonglade.FriendLink\Moonglade.FriendLink.csproj" />
-		<ProjectReference Include="..\Moonglade.ImageStorage\Moonglade.ImageStorage.csproj" />
-		<ProjectReference Include="..\Moonglade.Menus\Moonglade.Menus.csproj" />
-		<ProjectReference Include="..\Moonglade.Pingback\Moonglade.Pingback.csproj" />
-		<ProjectReference Include="..\Moonglade.Syndication\Moonglade.Syndication.csproj" />
-		<ProjectReference Include="..\Moonglade.Theme\Moonglade.Theme.csproj" />
+		<ProjectReference Include="..\Moonglade.Auth\MoongladePure.Auth.csproj" />
+		<ProjectReference Include="..\Moonglade.Comments\MoongladePure.Comments.csproj" />
+		<ProjectReference Include="..\Moonglade.Core\MoongladePure.Core.csproj" />
+		<ProjectReference Include="..\Moonglade.Data.MySql\MoongladePure.Data.MySql.csproj" />
+		<ProjectReference Include="..\Moonglade.FriendLink\MoongladePure.FriendLink.csproj" />
+		<ProjectReference Include="..\Moonglade.ImageStorage\MoongladePure.ImageStorage.csproj" />
+		<ProjectReference Include="..\Moonglade.Menus\MoongladePure.Menus.csproj" />
+		<ProjectReference Include="..\Moonglade.Pingback\MoongladePure.Pingback.csproj" />
+		<ProjectReference Include="..\Moonglade.Syndication\MoongladePure.Syndication.csproj" />
+		<ProjectReference Include="..\Moonglade.Theme\MoongladePure.Theme.csproj" />
 	</ItemGroup>
 </Project>

@@ -8,16 +8,24 @@ namespace MoongladePure.Data.MySql;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddMySqlStorage(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddDatabase(this IServiceCollection services, string connectionString, bool useTestDb)
     {
         services.AddScoped(typeof(IRepository<>), typeof(MySqlDbContextRepository<>));
 
-        services.AddDbContext<MySqlBlogDbContext>(optionsAction => optionsAction.UseLazyLoadingProxies()
-            .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), builder =>
-            {
-                builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
-            })
-            .EnableDetailedErrors());
+        if (useTestDb)
+        {
+            services.AddDbContext<MySqlBlogDbContext>((serviceProvider, optionsBuilder) =>
+                optionsBuilder.UseInMemoryDatabase("inmemory"));
+        }
+        else
+        {
+            services.AddDbContext<MySqlBlogDbContext>(optionsAction => optionsAction
+                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), builder =>
+                {
+                    builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
+                })
+                .EnableDetailedErrors());
+        }
 
         return services;
     }
