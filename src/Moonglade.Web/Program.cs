@@ -94,7 +94,6 @@ void ConfigureServices(IServiceCollection services)
     services.AddHealthChecks();
     services.AddPingback()
             .AddSyndication()
-            .AddReleaseCheckerClient()
             .AddBlogCache()
             .AddMetaWeblog<MoongladePure.Web.MetaWeblogService>()
             .AddScoped<ValidateCaptcha>()
