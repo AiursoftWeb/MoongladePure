@@ -44,35 +44,6 @@
             }, 30000);
         });
 
-        $('.btn-check-update').click(function () {
-            $('.spinner-border').show();
-            $('.alert-has-new-release').hide();
-            $('.alert-no-new-release').hide();
-            $('.btn-get-update').addClass('disabled');
-            $('.btn-get-update').attr('href', '#');
-
-            var updateCheckCanvas = new bootstrap.Offcanvas(document.getElementById('updateCheckCanvas'));
-            updateCheckCanvas.show();
-
-            callApi('/api/settings/release/check', 'GET', {}, async (resp) => {
-                var data = await resp.json();
-                $('.spinner-border').hide();
-
-                $('#currentAssemblyFileVersion').val(data.latestReleaseInfo.currentAssemblyFileVersion);
-                $('#releaseName').val(data.latestReleaseInfo.name);
-                $('#releaseTagName').val(data.latestReleaseInfo.tag_name);
-                $('#releaseCreatedAt').val(data.latestReleaseInfo.created_at);
-
-                if (data.hasNewRelease) {
-                    $('.alert-has-new-release').show();
-                    $('.btn-get-update').removeClass('disabled');
-                    $('.btn-get-update').attr('href', data.latestReleaseInfo.html_url);
-                }
-                else {
-                    $('.alert-no-new-release').show();
-                }
-            });
-        });
 
         window.generateMetaWeblogPassword = function() {
             callApi('/api/settings/password/generate', 'GET', {}, async (resp) => {
@@ -251,23 +222,6 @@
                     <h6 class="card-subtitle mb-4 text-muted">
                         @SharedLocalizer["Options"]
                     </h6>
-
-                    <div class="row g-3 align-items-center settings-entry mb-4">
-                        <div class="col-auto">
-                            <i class="bi-moon-stars settings-entry-icon"></i>
-                        </div>
-                        <div class="col">
-                            @SharedLocalizer["Update"]
-                            <div class="form-text">
-                                @SharedLocalizer["Check online for new Moonglade release."]
-                            </div>
-                        </div>
-                        <div class="col-md-5 text-end">
-                            <a href="#" class="btn btn-sm btn-outline-accent btn-check-update">
-                                @SharedLocalizer["Check now"]
-                            </a>
-                        </div>
-                    </div>
 
                     <div class="row g-3 align-items-center settings-entry mb-4">
                         <div class="col-auto">
