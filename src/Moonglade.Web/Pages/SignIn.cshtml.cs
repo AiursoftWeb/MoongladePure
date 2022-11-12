@@ -10,13 +10,11 @@ namespace MoongladePure.Web.Pages;
 
 public class SignInModel : PageModel
 {
-    private readonly AuthenticationSettings _authenticationSettings;
     private readonly IMediator _mediator;
     private readonly ILogger<SignInModel> _logger;
     private readonly ISessionBasedCaptcha _captcha;
 
     public SignInModel(
-        IOptions<AuthenticationSettings> authSettings,
         IMediator mediator,
         ILogger<SignInModel> logger,
         ISessionBasedCaptcha captcha)
@@ -24,7 +22,6 @@ public class SignInModel : PageModel
         _mediator = mediator;
         _logger = logger;
         _captcha = captcha;
-        _authenticationSettings = authSettings.Value;
     }
 
     [BindProperty]
@@ -49,15 +46,7 @@ public class SignInModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        switch (_authenticationSettings.Provider)
-        {
-            case AuthenticationProvider.Local:
-                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                break;
-            default:
-                Response.StatusCode = StatusCodes.Status501NotImplemented;
-                return Content("Invalid AuthenticationProvider, please check system settings.");
-        }
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
         return Page();
     }

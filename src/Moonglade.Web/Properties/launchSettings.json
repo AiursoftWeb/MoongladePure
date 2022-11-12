@@ -12,14 +12,6 @@
     }
   },
   "profiles": {
-    "IIS": {
-      "commandName": "IIS",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "ancmHostingModel": "InProcess"
-    },
     "Moonglade.Web": {
       "commandName": "Project",
       "launchBrowser": true,
