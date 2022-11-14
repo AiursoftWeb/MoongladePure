@@ -109,7 +109,9 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
         // 3. update categories
         post.PostCategory.Clear();
-        if (postEditModel.SelectedCatIds is { Length: > 0 })
+        await _postRepo.UpdateAsync(post, ct);
+
+        if (postEditModel.SelectedCatIds.Any())
         {
             foreach (var cid in postEditModel.SelectedCatIds)
             {
