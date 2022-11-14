@@ -202,6 +202,12 @@ https://your.domain.com
 
 ### Advanced setup
 
+Moonglade supports scaling out. You can deploy multiple MoongladePure instances to serve your users.
+
+![Moonglade-scale-out](./assets/arch.png)
+
+The following articles might be needed.
+
 You can follow the best practice after having a Linux server.
 
 - [Best practice after having a Linux server](https://anduin.aiursoft.cn/post/2020/7/26/bestpractice-for-authentication-after-creating-a-new-linux-server)
@@ -222,4 +228,4 @@ And in that case, you need Caddy as a load balance. Here are some tips:
 
 It is also suggested to mount a big disk to save your blog's content. View more here:
 
-- [Mount a disk in Linux](https://anduin.aiursoft.cn/post/2022/7/5/install-nextcloud-on-a-ubuntu-2004-server#bigger-hdd)
+- [Mounting a big disk in Linux](https://anduin.aiursoft.cn/post/2022/7/5/install-nextcloud-on-a-ubuntu-2004-server#bigger-hdd)
