@@ -200,7 +200,22 @@ Now try to open your browser and try:
 https://your.domain.com
 ```
 
-### 🔩 Others
+### Advanced setup
 
-- [System Settings](https://github.com/EdiWang/Moonglade/wiki/System-Settings)
-- [Security Headers (CSP, XSS, etc.)](https://github.com/EdiWang/Moonglade/wiki/Security-Headers-(CSP,-XSS,-etc.))
+You can follow the best practice after having a Linux server.
+
+- [Best practice after having a Linux server](https://anduin.aiursoft.cn/post/2020/7/26/bestpractice-for-authentication-after-creating-a-new-linux-server)
+
+If you deployed the MySQL database on another server, you might need to set up MySQL to allow remote connection.
+
+- [How to set up MySQL remote connection](https://anduin.aiursoft.cn/post/2022/10/19/mysql-allow-remote-connection-for-root-and-other-users)
+
+If you want to share the storage path on a different remote server to scale out, you can use NFS to share the folder.
+
+- [How to set up NFS to mount a path to other servers](https://anduin.aiursoft.cn/post/2022/9/18/build-a-new-nfs-server-with-winserver-or-ubuntu-and-mount-it)
+
+Yes! MoongladePure is stateless. You can setup multiple MoongladePure Web servers to scale out and shares the same database and NFS storage.
+
+And in that case, you need Caddy as a load balance. Here are some tips:
+
+- [Caddy load balance and health monitoring](https://anduin.aiursoft.cn/post/2022/9/23/caddyv2-tips)
