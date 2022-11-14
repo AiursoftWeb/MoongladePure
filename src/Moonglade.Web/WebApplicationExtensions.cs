@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoongladePure.Data.MySql;
+using Polly;
 
 namespace MoongladePure.Web;
 
@@ -15,7 +16,9 @@ public static class WebApplicationExtensions
 
         try
         {
-            await context.Database.EnsureCreatedAsync();
+            await Policy.Handle<Exception>()
+                .WaitAndRetryAsync(retryCount: 7, sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(retryAttempt))   
+                .ExecuteAsync(()=> context.Database.EnsureCreatedAsync());
         }
         catch (Exception e)
         {
