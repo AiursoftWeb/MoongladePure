@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using MoongladePure.Caching;
 using MoongladePure.Configuration;
 using MoongladePure.Core.TagFeature;
@@ -9,6 +10,7 @@ namespace MoongladePure.Core.PostFeature;
 public record UpdatePostCommand(Guid Id, PostEditModel Payload) : IRequest<PostEntity>;
 public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostEntity>
 {
+    private readonly IRepository<PostCategoryEntity> _pcRepository;
     private readonly IRepository<TagEntity> _tagRepo;
     private readonly IRepository<PostEntity> _postRepo;
     private readonly IBlogCache _cache;
@@ -16,11 +18,13 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
     private readonly IConfiguration _configuration;
 
     public UpdatePostCommandHandler(
+        IRepository<PostCategoryEntity> pcRepository,
         IRepository<TagEntity> tagRepo,
         IRepository<PostEntity> postRepo,
         IBlogCache cache,
         IBlogConfig blogConfig, IConfiguration configuration)
     {
+        _pcRepository = pcRepository;
         _tagRepo = tagRepo;
         _postRepo = postRepo;
         _cache = cache;
@@ -108,9 +112,10 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
         }
 
         // 3. update categories
-        post.PostCategory.Clear();
-        await _postRepo.UpdateAsync(post, ct);
+        var oldpcs = await _pcRepository.AsQueryable().Where(pc => pc.PostId == post.Id).ToListAsync();
+        await _pcRepository.DeleteAsync(oldpcs);
 
+        post.PostCategory.Clear();
         if (postEditModel.SelectedCatIds.Any())
         {
             foreach (var cid in postEditModel.SelectedCatIds)
