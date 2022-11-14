@@ -219,3 +219,7 @@ Yes! MoongladePure is stateless. You can setup multiple MoongladePure Web server
 And in that case, you need Caddy as a load balance. Here are some tips:
 
 - [Caddy load balance and health monitoring](https://anduin.aiursoft.cn/post/2022/9/23/caddyv2-tips)
+
+It is also suggested to mount a big disk to save your blog's content. View more here:
+
+- [Mount a disk in Linux](https://anduin.aiursoft.cn/post/2022/7/5/install-nextcloud-on-a-ubuntu-2004-server#bigger-hdd)
