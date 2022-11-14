@@ -129,8 +129,8 @@ First register MoongladePure as a service:
 ```bash
 echo '[Unit]
 Description=MoongladePure Service
-After=network.target
-Wants=network.target
+After=network.target mysql.service
+Wants=network.target mysql.service
 
 [Service]
 Type=simple
