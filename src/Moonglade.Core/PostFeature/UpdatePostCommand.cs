@@ -11,6 +11,7 @@ public record UpdatePostCommand(Guid Id, PostEditModel Payload) : IRequest<PostE
 public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostEntity>
 {
     private readonly IRepository<PostCategoryEntity> _pcRepository;
+    private readonly IRepository<PostTagEntity> _ptRepository;
     private readonly IRepository<TagEntity> _tagRepo;
     private readonly IRepository<PostEntity> _postRepo;
     private readonly IBlogCache _cache;
@@ -19,11 +20,13 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
     public UpdatePostCommandHandler(
         IRepository<PostCategoryEntity> pcRepository,
+        IRepository<PostTagEntity> ptRepository,
         IRepository<TagEntity> tagRepo,
         IRepository<PostEntity> postRepo,
         IBlogCache cache,
         IBlogConfig blogConfig, IConfiguration configuration)
     {
+        _ptRepository = ptRepository;
         _pcRepository = pcRepository;
         _tagRepo = tagRepo;
         _postRepo = postRepo;
@@ -96,6 +99,8 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
         }
 
         // 2. update tags
+        var oldTags = await _ptRepository.AsQueryable().Where(pc => pc.PostId == post.Id).ToListAsync();
+        await _ptRepository.DeleteAsync(oldTags);
         post.Tags.Clear();
         if (tags.Any())
         {
