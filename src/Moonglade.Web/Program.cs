@@ -23,7 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 string connStr = builder.Configuration.GetConnectionString("MoongladeDatabase");
 
-var cultures = new[] { "en-US", "zh-Hans" }.Select(p => new CultureInfo(p)).ToList();
+var cultures = new[] { "en-US", "zh-CN" }.Select(p => new CultureInfo(p)).ToList();
 
 ConfigureServices(builder.Services);
 
