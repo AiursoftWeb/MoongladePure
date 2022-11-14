@@ -101,7 +101,7 @@ dotnet publish -c Release -o ./bin -r linux-x64 --no-self-contained ./moongladep
 Copy the files to the directory:
 
 ```bash
-sudo cp ./bin/ /opt/apps/MoongladePure -rv
+sudo cp ./bin/* /opt/apps/MoongladePure/ -rv
 sudo chown -R www-data:www-data /opt/apps/MoongladePure
 ```
 
