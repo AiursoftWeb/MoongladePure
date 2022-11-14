@@ -13,7 +13,7 @@ It is suggested to use Ubuntu 22.04 LTS as the operating system.
 ### Prerequisites
 
 * MySQL
-* DotNet Runtime
+* .NET
 * Caddy(Optional)
 
 ### Prepare MySQL Server
@@ -158,6 +158,47 @@ sudo systemctl start moongladepure
 ```
 
 Now you can visit your MoongladePure site via `http://your-ip:48466`.
+
+The admin panel is at `http://your-ip:48466/admin`. The default username is `admin` and password is `admin123`.
+
+### Prepare HTTPS
+
+Please make sure you have a domain name ready and point to your server's IP address.
+
+Then install a reverse proxy server. For example, I'm using Caddy.
+
+```bash
+echo "deb [trusted=yes] https://apt.fury.io/caddy/ /" | sudo tee -a /etc/apt/sources.list.d/caddy-fury.list
+sudo apt update
+sudo apt install caddy -y
+```
+
+Then edit the Caddyfile:
+
+```bash
+sudo vim /etc/caddy/Caddyfile
+```
+
+Add the following content:
+
+```bash
+your.domain.com {
+        reverse_proxy http://localhost:48466 {
+        }
+}
+```
+
+Then restart Caddy:
+
+```bash
+sudo systemctl restart caddy
+```
+
+Now try to open your browser and try:
+
+```bash
+https://your.domain.com
+```
 
 ### 🔩 Others
 
