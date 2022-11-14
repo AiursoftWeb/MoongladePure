@@ -34,7 +34,8 @@ public class SearchPostQueryHandler : IRequestHandler<SearchPostQuery, IReadOnly
         {
             // keyword: "dot  net rocks"
             // search for post where Title containing "dot && net && rocks"
-            var result = rst.Aggregate(query, (current, s) => current.Where(p => p.Title.Contains(s)));
+            var result = rst.Aggregate(query, (current, s) => 
+                current.Where(p => p.Title.Contains(s) || p.PostContent.Contains(s)));
             return result;
         }
         else
@@ -42,6 +43,7 @@ public class SearchPostQueryHandler : IRequestHandler<SearchPostQuery, IReadOnly
             // keyword: "dotnetrocks"
             var k = rst.First();
             var result = query.Where(p => p.Title.Contains(k) ||
+                                          p.PostContent.Contains(k) ||
                                           p.Tags.Select(t => t.DisplayName).Contains(k));
             return result;
         }
