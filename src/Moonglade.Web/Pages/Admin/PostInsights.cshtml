@@ -1,6 +1,7 @@
 ﻿@page "/admin/post/insight"
 @using MoongladePure.Core.PostFeature
 @using MoongladePure.Data.Spec
+@using System.Globalization
 @inject IMediator Mediator
 @{
     ViewBag.Title = "Insights";
@@ -36,7 +37,7 @@
                                         @post.Title
                                     </a>
                                 </td>
-                                <td class="text-muted">@post.PubDateUtc.GetValueOrDefault().ToString("MM/dd/yyyy")</td>
+                                <td class="text-muted" data-utc-time="@post.PubDateUtc.GetValueOrDefault().ToString(CultureInfo.InvariantCulture)"></td>
                                 <td>
                                     @post.Hits
                                 </td>
@@ -67,7 +68,7 @@
                                         @post.Title
                                     </a>
                                 </td>
-                                <td class="text-muted">@post.CreateTimeUtc.ToString("MM/dd/yyyy")</td>
+                                <td class="text-muted" data-utc-time="@post.CreateTimeUtc.ToString(CultureInfo.InvariantCulture)"></td>
                             </tr>
                         }
                     </tbody>
