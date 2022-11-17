@@ -903,4 +903,16 @@
   <data name="Export" xml:space="preserve">
     <value>导出</value>
   </data>
+  <data name="Links" xml:space="preserve">
+    <value>友情链接</value>
+  </data>
+  <data name="Most popular" xml:space="preserve">
+    <value>浏览最多</value>
+  </data>
+  <data name="Powered by" xml:space="preserve">
+    <value>基于</value>
+  </data>
+  <data name="Recent" xml:space="preserve">
+    <value>最新发布</value>
+  </data>
 </root>

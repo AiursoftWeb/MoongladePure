@@ -16,7 +16,7 @@
                     @Html.Raw(Helper.FormatCopyright2Html(BlogConfig.GeneralSettings.Copyright))
                 </div>
                 <small>
-                    Powered by <a href="https://git.aiursoft.cn/Aiursoft/MoongladePure" target="_blank">MoongladePure</a> @Helper.AppVersion
+                    @SharedLocalizer["Powered by"] <a href="https://git.aiursoft.cn/Aiursoft/MoongladePure" target="_blank">MoongladePure</a> @Helper.AppVersion
                 </small>
 
                 @if (BlogConfig.GeneralSettings.Pride)
