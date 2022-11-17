@@ -1,7 +1,7 @@
 ﻿@page "/admin/post/recycle-bin"
 @using MoongladePure.Core.PostFeature
 @using MoongladePure.Data.Spec
-@inject ITimeZoneResolver ZoneResolver
+@using System.Globalization
 @inject IMediator Mediator
 @{
     ViewBag.Title = "Recycle Bin";
@@ -68,7 +68,7 @@
                         </h6>
                         <div>
                             <i class="bi-calendar-event"></i>
-                            @ZoneResolver.ToTimeZone(post.CreateTimeUtc).ToString("MM/dd/yyyy HH:mm")
+                            <span data-utc-time="@post.CreateTimeUtc.ToString(CultureInfo.InvariantCulture)"></span>
                         </div>
                     </div>
                     <div>

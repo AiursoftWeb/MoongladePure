@@ -2,8 +2,8 @@
 @model MoongladePure.Web.Pages.PostModel
 @using MoongladePure.Utils
 @using NUglify
+@using System.Globalization
 
-@inject ITimeZoneResolver ZoneResolver
 @Html.AntiForgeryToken()
 
 @{
@@ -139,8 +139,7 @@
 
             <i class="bi-calendar-event"></i>
             <span class="me-2">
-                <pubdate t-zone-resolver="@ZoneResolver" pub-date-utc="@Model.Post.PubDateUtc"></pubdate>
-                @BlogConfig.GeneralSettings.TimeZoneId
+                <time data-utc-time="@Model.Post.PubDateUtc?.ToString(CultureInfo.InvariantCulture);"></time>
             </span>
 
             <i class="bi-eye d-none d-sm-inline"></i>

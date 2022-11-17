@@ -7,15 +7,13 @@ namespace MoongladePure.Web.Pages.Admin;
 public class EditPostModel : PageModel
 {
     private readonly IMediator _mediator;
-    private readonly ITimeZoneResolver _timeZoneResolver;
 
     public PostEditModel ViewModel { get; set; }
     public List<CategoryCheckBox> CategoryList { get; set; }
 
-    public EditPostModel(IMediator mediator, ITimeZoneResolver timeZoneResolver)
+    public EditPostModel(IMediator mediator)
     {
         _mediator = mediator;
-        _timeZoneResolver = timeZoneResolver;
         ViewModel = new()
         {
             IsPublished = false,
@@ -69,7 +67,7 @@ public class EditPostModel : PageModel
 
         if (post.PubDateUtc is not null)
         {
-            ViewModel.PublishDate = _timeZoneResolver.ToTimeZone(post.PubDateUtc.GetValueOrDefault());
+            ViewModel.PublishDate = post.PubDateUtc.GetValueOrDefault();
         }
 
         var tagStr = post.Tags

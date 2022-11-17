@@ -1,8 +1,8 @@
 ﻿@page "/admin/comments"
 @using MoongladePure.Utils
+@using System.Globalization
 @using X.PagedList.Mvc.Core
 @using X.PagedList.Web.Common
-@inject ITimeZoneResolver ZoneResolver
 @model MoongladePure.Web.Pages.Admin.CommentsModel
 @{
     ViewBag.Title = "Manage Comments";
@@ -117,7 +117,8 @@
                     </div>
 
                     <small class="text-muted">
-                        <span>@ZoneResolver.ToTimeZone(item.CreateTimeUtc).ToString("yyyy-MM-dd HH:mm")</span> <span class="text-muted d-none d-sm-inline">(@item.IpAddress)</span>
+                        <span data-utc-time="@item.CreateTimeUtc.ToString(CultureInfo.InvariantCulture)"></span>
+                        <span class="text-muted d-none d-sm-inline">(@item.IpAddress)</span>
                     </small>
 
                     <div class="reply-ui mt-3" style="display: none;">
@@ -142,7 +143,7 @@
                                 <div>
                                     @Html.Raw(ContentProcessor.MarkdownToContent(reply.ReplyContent, ContentProcessor.MarkdownConvertType.Html))
                                 </div>
-                                <small class="text-muted">@ZoneResolver.ToTimeZone(reply.ReplyTimeUtc)</small>
+                                <small class="text-muted" data-utc-time="@reply.ReplyTimeUtc.ToString(CultureInfo.InvariantCulture)"></small>
                             </div>
                         }
                     </div>

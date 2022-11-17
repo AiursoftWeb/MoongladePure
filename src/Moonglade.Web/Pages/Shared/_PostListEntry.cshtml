@@ -1,19 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using System.Globalization
 @model MoongladePure.Core.PostFeature.PostDigest
-@inject ITimeZoneResolver ZoneResolver
 
 <article class="article-post-summary d-flex" lang="@Model.LangCode">
     <div class="post-date-box d-none d-md-block font-sairas me-4">
         <div class="post-date-day">
-            @ZoneResolver.ToTimeZone(Model.PubDateUtc).Day.ToString("00")
+            @Model.PubDateUtc.Day.ToString("00")
         </div>
         <div class="post-date-month text-white">
-            @ZoneResolver.ToTimeZone(Model.PubDateUtc).ToString("MMM").ToUpper()
+            @Model.PubDateUtc.ToString("MMM").ToUpper()
         </div>
     </div>
     <div class="post-summary-box">
-        <time datetime="@Model.PubDateUtc.ToString("u")" class="d-none">
-            @Model.PubDateUtc
+        <time data-utc-time="@Model.PubDateUtc.ToString(CultureInfo.InvariantCulture)" class="d-none">
         </time>
 
         <h4 class="post-summary-title mb-3">

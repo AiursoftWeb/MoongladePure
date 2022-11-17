@@ -1,8 +1,8 @@
 ﻿@page "/admin/post/draft"
 @using MoongladePure.Core.PostFeature
 @using MoongladePure.Data.Spec
+@using System.Globalization
 @inject IMediator Mediator
-@inject ITimeZoneResolver ZoneResolver
 @{
     ViewBag.Title = "Drafts";
     var posts = await Mediator.Send(new ListPostSegmentByStatusQuery(PostStatus.Draft));
@@ -49,7 +49,7 @@
                         </a>
                         <div>
                             <i class="bi-calendar-event"></i>
-                            <span class="text-muted me-2">@ZoneResolver.ToTimeZone(post.CreateTimeUtc).ToString("yyyy-MM-dd HH:mm")</span>
+                            <span class="text-muted me-2" data-utc-time="@post.CreateTimeUtc.ToString(CultureInfo.InvariantCulture)"></span>
 
                             <i class="bi-eye"></i>
                             <span class="text-muted">@post.Hits</span>

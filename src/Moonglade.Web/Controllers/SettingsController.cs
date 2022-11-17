@@ -56,12 +56,11 @@ public class SettingsController : ControllerBase
     [HttpPost("general")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [TypeFilter(typeof(ClearBlogCache), Arguments = new object[] { CacheDivision.General, "theme" })]
-    public async Task<IActionResult> General(GeneralSettings model, [FromServices] ITimeZoneResolver timeZoneResolver)
+    public async Task<IActionResult> General(GeneralSettings model)
     {
         model.AvatarUrl = _blogConfig.GeneralSettings.AvatarUrl;
 
         _blogConfig.GeneralSettings = model;
-        _blogConfig.GeneralSettings.TimeZoneUtcOffset = timeZoneResolver.GetTimeSpanByZoneId(model.TimeZoneId);
 
         await SaveConfigAsync(_blogConfig.GeneralSettings);
 

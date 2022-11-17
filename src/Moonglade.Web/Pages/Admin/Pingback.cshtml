@@ -1,6 +1,6 @@
 ﻿@page "/admin/pingback"
 @using MoongladePure.Pingback
-@inject ITimeZoneResolver ZoneResolver
+@using System.Globalization
 @inject IMediator Mediator
 @{
     ViewBag.Title = "Pingback";
@@ -76,7 +76,7 @@
 
                     <div class="text-muted">
                         @item.Domain, @item.SourceIp,
-                        <pubdate t-zone-resolver="@ZoneResolver" pub-date-utc="@item.PingTimeUtc"></pubdate>
+                        <time data-utc-time="@item.PingTimeUtc.ToString(CultureInfo.InvariantCulture)"></time>
                     </div>
                 </div>
 

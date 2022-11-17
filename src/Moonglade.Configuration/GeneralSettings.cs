@@ -65,11 +65,6 @@ public class GeneralSettings : IBlogSettings
     [MaxLength(4096)]
     public string FooterCustomizedHtmlPitch { get; set; }
 
-    public TimeSpan SelectedUtcOffset { get; set; }
-
-    [MaxLength(64)]
-    public string TimeZoneId { get; set; }
-
     [Display(Name = "Auto Light / Dark theme regarding client system settings")]
     public bool AutoDarkLightTheme { get; set; }
 
@@ -95,8 +90,6 @@ public class GeneralSettings : IBlogSettings
 
     [MaxLength(64)]
     public string AvatarUrl { get; set; }
-
-    public TimeSpan TimeZoneUtcOffset { get; set; }
 
     public GeneralSettings() => ThemeId = 1;
 }

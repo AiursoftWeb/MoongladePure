@@ -1,6 +1,6 @@
 ﻿@using MoongladePure.Utils
+@using System.Globalization
 @model IReadOnlyList<MoongladePure.Comments.Comment>
-@inject ITimeZoneResolver ZoneResolver
 
 @{
     static string GetUserAvatarChar(string username)
@@ -42,7 +42,9 @@
                 <div class="card comment-item">
                     <div class="card-header">
                         <strong>@item.Username</strong>
-                        <span class="text-muted float-end"> @ZoneResolver.ToTimeZone(item.CreateTimeUtc).ToString("yyyy-M-d HH:mm")</span>
+                        <span class="text-muted float-end">
+                            <time data-utc-time="@item.CreateTimeUtc.ToString(CultureInfo.InvariantCulture)"></time>
+                        </span>
                     </div>
                     <div class="card-body">
                         @Html.Raw(ContentProcessor.MarkdownToContent(item.CommentContent, ContentProcessor.MarkdownConvertType.Html))
@@ -55,7 +57,10 @@
                                         <strong>
                                             @SharedLocalizer["Author"]
                                         </strong>
-                                        <span class="float-end text-muted">@SharedLocalizer["Replied at"] @ZoneResolver.ToTimeZone(reply.ReplyTimeUtc).ToString("yyyy-M-d HH:mm")</span>
+                                        <span class="float-end text-muted">
+                                            @SharedLocalizer["Replied at"]
+                                            <time data-utc-time="@reply.ReplyTimeUtc.ToString(CultureInfo.InvariantCulture)"></time>
+                                        </span>
                                     </div>
                                     <p>
                                         @Html.Raw(ContentProcessor.MarkdownToContent(reply.ReplyContent, ContentProcessor.MarkdownConvertType.Html))

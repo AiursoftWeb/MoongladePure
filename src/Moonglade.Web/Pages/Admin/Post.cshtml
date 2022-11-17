@@ -1,6 +1,6 @@
 ﻿@page "/admin/post"
+@using System.Globalization
 @using X.PagedList.Mvc.Core
-@inject ITimeZoneResolver ZoneResolver
 @model MoongladePure.Web.Pages.Admin.PostModel
 @{
     ViewBag.Title = "Manage Posts";
@@ -63,7 +63,8 @@
                         </a>
                         <div>
                             <i class="bi-calendar-event"></i>
-                            <span class="text-muted me-2">@ZoneResolver.ToTimeZone(item.PubDateUtc.GetValueOrDefault()).ToString("yyyy-MM-dd HH:mm")</span>
+                            <span class="text-muted me-2" data-utc-time="@item.PubDateUtc?.ToString(CultureInfo.InvariantCulture)">
+                            </span>
 
                             <i class="bi-eye"></i>
                             <span class="text-muted">@item.Hits</span>

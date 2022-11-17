@@ -16,20 +16,17 @@ public class PostController : ControllerBase
     private readonly IMediator _mediator;
 
     private readonly IBlogConfig _blogConfig;
-    private readonly ITimeZoneResolver _timeZoneResolver;
     private readonly IPingbackSender _pingbackSender;
     private readonly ILogger<PostController> _logger;
 
     public PostController(
         IMediator mediator,
         IBlogConfig blogConfig,
-        ITimeZoneResolver timeZoneResolver,
         IPingbackSender pingbackSender,
         ILogger<PostController> logger)
     {
         _mediator = mediator;
         _blogConfig = blogConfig;
-        _timeZoneResolver = timeZoneResolver;
         _pingbackSender = pingbackSender;
         _logger = logger;
     }
@@ -64,13 +61,11 @@ public class PostController : ControllerBase
                 model.InlineCss = uglifyTest.Code;
             }
 
-            var tzDate = _timeZoneResolver.NowOfTimeZone;
             if (model.ChangePublishDate &&
                 model.PublishDate.HasValue &&
-                model.PublishDate <= tzDate &&
                 model.PublishDate.GetValueOrDefault().Year >= 1975)
             {
-                model.PublishDate = _timeZoneResolver.ToUtc(model.PublishDate.Value);
+                model.PublishDate =model.PublishDate.Value;
             }
 
             var postEntity = model.PostId == Guid.Empty ?

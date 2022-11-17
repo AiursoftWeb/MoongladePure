@@ -1,13 +1,6 @@
 ﻿@page "/admin/settings/general"
 @model MoongladePure.Web.Pages.Settings.GeneralModel
-@inject ITimeZoneResolver ZoneResolver
 @{
-    var tzList = ZoneResolver.ListTimeZones().Select(t => new SelectListItem
-    {
-        Text = t.DisplayName,
-        Value = t.Id
-    });
-
     var tmList = Model.Themes
         .Select(t => new SelectListItem
         {
@@ -117,20 +110,6 @@
                                     <input asp-for="ViewModel.CanonicalPrefix" class="form-control" />
                                 </div>
                             </div>
-                            
-                            <div class="row g-3 align-items-center settings-entry mb-4">
-                                <div class="col-auto">
-                                    <i class="bi-clock settings-entry-icon"></i>
-                                </div>
-                                <div class="col">
-                                    <label for="SelectedUtcOffset">@SharedLocalizer["Time Zone"]</label>
-                                    <div class="form-text">@SharedLocalizer["Blog posts will use this time zone as date and time display."]</div>
-                                </div>
-                                <div class="col-md-5 text-end">
-                                    <select class="form-select" asp-for="ViewModel.TimeZoneId" asp-items="@tzList"></select>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                     <div class="row">
