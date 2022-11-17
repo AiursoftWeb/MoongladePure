@@ -75,7 +75,7 @@ public class Seed
             {
                 Id = 1,
                 CfgKey = "ContentSettings",
-                CfgValue = "{\"EnableComments\":true,\"RequireCommentReview\":true,\"EnableWordFilter\":false,\"PostListPageSize\":10,\"HotTagAmount\":10,\"DisharmonyWords\":\"fuck|shit\",\"ShowCalloutSection\":false,\"CalloutSectionHtmlPitch\":\"\"}",
+                CfgValue = "{\"EnableComments\":true,\"RequireCommentReview\":false,\"EnableWordFilter\":false,\"PostListPageSize\":10,\"HotTagAmount\":10,\"DisharmonyWords\":\"fuck|shit\",\"ShowCalloutSection\":false,\"CalloutSectionHtmlPitch\":\"\"}",
                 LastModifiedTimeUtc = DateTime.UtcNow
             },
             new()
@@ -110,7 +110,7 @@ public class Seed
             {
                 Id = 6,
                 CfgKey = "AdvancedSettings",
-                CfgValue = "{\"DNSPrefetchEndpoint\":\"\",\"EnablePingBackSend\":true,\"EnablePingBackReceive\":true,\"EnableOpenSearch\":true,\"WarnExternalLink\":true,\"AllowScriptsInPage\":false,\"ShowAdminLoginButton\":false,\"EnablePostRawEndpoint\":true}",
+                CfgValue = "{\"DNSPrefetchEndpoint\":\"\",\"EnablePingBackSend\":true,\"EnablePingBackReceive\":true,\"EnableOpenSearch\":true,\"WarnExternalLink\":false,\"AllowScriptsInPage\":false,\"ShowAdminLoginButton\":true,\"EnablePostRawEndpoint\":true}",
                 LastModifiedTimeUtc = DateTime.UtcNow
             },
             new()

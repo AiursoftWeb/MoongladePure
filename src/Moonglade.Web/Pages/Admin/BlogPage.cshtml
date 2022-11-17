@@ -1,5 +1,6 @@
 ﻿@page "/admin/page"
 @using MoongladePure.Core.PageFeature
+@using System.Globalization
 @inject IMediator Mediator
 @{
     ViewBag.Title = "Manage Pages";
@@ -52,8 +53,8 @@
                                 <a asp-page="/BlogPage" asp-route-slug="@item.Slug" target="_blank">@item.Title</a>
                             </h6>
                             <p class="mt-2 h-30px">@item.Slug</p>
-                            <small class="text-muted">
-                                @item.CreateTimeUtc
+                            <small class="text-muted" data-utc-time="@item.CreateTimeUtc.ToString(CultureInfo.InvariantCulture)">
+                                
                             </small>
                         </div>
                         <div class="card-footer">

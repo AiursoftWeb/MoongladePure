@@ -1,4 +1,5 @@
 ﻿@page "/admin/account"
+@using System.Globalization
 @model MoongladePure.Web.Pages.Admin.LocalAccountModel
 @{
     ViewBag.Title = "Manage Accounts";
@@ -96,8 +97,8 @@
                 <tr>
                     <th>@SharedLocalizer["Username"]</th>
                     <th>@SharedLocalizer["Last Login IP"]</th>
-                    <th>@SharedLocalizer["Last Login Time (UTC)"]</th>
-                    <th>@SharedLocalizer["Create Time (UTC)"]</th>
+                    <th>@SharedLocalizer["Last Login Time"]</th>
+                    <th>@SharedLocalizer["Create Time"]</th>
                     <th>@SharedLocalizer["Action"]</th>
                 </tr>
             </thead>
@@ -107,8 +108,8 @@
                     <tr id="tr-@item.Id">
                         <td>@item.Username</td>
                         <td>@(item.LastLoginIp ?? "N/A")</td>
-                        <td>@(null != item.LastLoginTimeUtc ? item.LastLoginTimeUtc.ToString() : "N/A")</td>
-                        <td>@item.CreateTimeUtc</td>
+                        <td data-utc-time="@item.LastLoginTimeUtc?.ToString(CultureInfo.InvariantCulture)"></td>
+                        <td data-utc-time="@item.CreateTimeUtc.ToString(CultureInfo.InvariantCulture)"></td>
                         <td>
                             <a href="javascript:resetPassword('@item.Id');" class="btn btn-sm btn-outline-accent btn-updatepwd">
                                 <i class="bi-key-fill"></i>
