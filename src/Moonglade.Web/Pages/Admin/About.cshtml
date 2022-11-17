@@ -1,6 +1,7 @@
 ﻿@page "/admin/about"
 @using System.Diagnostics
 @using MoongladePure.Utils
+@using System.Globalization
 @inject IWebHostEnvironment WebHostEnvironment
 @inject IConfiguration Configuration
 
@@ -17,7 +18,7 @@
                 <tr>
                     <th colspan="2">
                         <i class="bi-moon-stars"></i>
-                        @SharedLocalizer["Moonglade Configuration"]
+                        @SharedLocalizer["MoongladePure Configuration"]
                     </th>
                 </tr>
             </thead>
@@ -71,7 +72,7 @@
                 </tr>
                 <tr>
                     <td>@SharedLocalizer["Start Time"]</td>
-                    <td>@process.StartTime.ToUniversalTime() (UTC)</td>
+                    <td data-utc-time="@process.StartTime.ToUniversalTime().ToString(CultureInfo.InvariantCulture)"></td>
                 </tr>
                 <tr>
                     <td>@SharedLocalizer["Memory"]</td>

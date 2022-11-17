@@ -82,28 +82,28 @@ public class Seed
             {
                 Id = 2,
                 CfgKey = "NotificationSettings",
-                CfgValue = "{\"EnableEmailSending\":false,\"EnableSsl\":true,\"SendEmailOnCommentReply\":true,\"SendEmailOnNewComment\":true,\"SmtpServerPort\":587,\"AdminEmail\":\"\",\"EmailDisplayName\":\"Moonglade\",\"SmtpPassword\":\"\",\"SmtpServer\":\"\",\"SmtpUserName\":\"\",\"BannedMailDomain\":\"\"}",
+                CfgValue = "{\"EnableEmailSending\":false,\"EnableSsl\":true,\"SendEmailOnCommentReply\":true,\"SendEmailOnNewComment\":true,\"SmtpServerPort\":587,\"AdminEmail\":\"\",\"EmailDisplayName\":\"MoongladePure\",\"SmtpPassword\":\"\",\"SmtpServer\":\"\",\"SmtpUserName\":\"\",\"BannedMailDomain\":\"\"}",
                 LastModifiedTimeUtc = DateTime.UtcNow
             },
             new()
             {
                 Id = 3,
                 CfgKey = "FeedSettings",
-                CfgValue = "{\"RssItemCount\":20,\"RssCopyright\":\"(c) {year} Moonglade\",\"RssDescription\":\"Latest posts from Moonglade\",\"RssTitle\":\"Moonglade\",\"AuthorName\":\"Admin\",\"UseFullContent\":false}",
+                CfgValue = "{\"RssItemCount\":20,\"RssCopyright\":\"(c) {year} MoongladePure\",\"RssDescription\":\"Latest posts from MoongladePure\",\"RssTitle\":\"MoongladePure\",\"AuthorName\":\"Admin\",\"UseFullContent\":false}",
                 LastModifiedTimeUtc = DateTime.UtcNow
             },
             new()
             {
                 Id = 4,
                 CfgKey = "GeneralSettings",
-                CfgValue = "{\"OwnerName\":\"Admin\",\"OwnerEmail\":\"admin@sample.email\",\"Description\":\"Moonglade Admin\",\"ShortDescription\":\"Moonglade Admin\",\"AvatarBase64\":\"\",\"SiteTitle\":\"Moonglade\",\"LogoText\":\"moonglade\",\"MetaKeyword\":\"moonglade\",\"MetaDescription\":\"Just another .NET blog system\",\"Copyright\":\"[c] 2022\",\"SideBarCustomizedHtmlPitch\":\"\",\"FooterCustomizedHtmlPitch\":\"\",\"UserTimeZoneBaseUtcOffset\":\"08:00:00\",\"TimeZoneId\":\"China Standard Time\",\"AutoDarkLightTheme\":true,\"ThemeId\":1}",
+                CfgValue = "{\"OwnerName\":\"Admin\",\"OwnerEmail\":\"admin@sample.email\",\"Description\":\"MoongladePure Admin\",\"ShortDescription\":\"MoongladePure Admin\",\"AvatarBase64\":\"\",\"SiteTitle\":\"MoongladePure\",\"LogoText\":\"moongladepure\",\"MetaKeyword\":\"moongladepure\",\"MetaDescription\":\"Just another .NET blog system\",\"Copyright\":\"[c] 2022\",\"SideBarCustomizedHtmlPitch\":\"\",\"FooterCustomizedHtmlPitch\":\"\",\"UserTimeZoneBaseUtcOffset\":\"08:00:00\",\"TimeZoneId\":\"China Standard Time\",\"AutoDarkLightTheme\":true,\"ThemeId\":1}",
                 LastModifiedTimeUtc = DateTime.UtcNow
             },
             new()
             {
                 Id = 5,
                 CfgKey = "ImageSettings",
-                CfgValue = "{\"IsWatermarkEnabled\":true,\"KeepOriginImage\":false,\"WatermarkFontSize\":20,\"WatermarkText\":\"Moonglade\",\"UseFriendlyNotFoundImage\":true}",
+                CfgValue = "{\"IsWatermarkEnabled\":true,\"KeepOriginImage\":false,\"WatermarkFontSize\":20,\"WatermarkText\":\"MoongladePure\",\"UseFriendlyNotFoundImage\":true}",
                 LastModifiedTimeUtc = DateTime.UtcNow
             },
             new()
@@ -194,7 +194,7 @@ public class Seed
     {
         return new List<TagEntity>
         {
-            new() { DisplayName = "Moonglade", NormalizedName = "moonglade" },
+            new() { DisplayName = "MoongladePure", NormalizedName = "moongladepure" },
             new() { DisplayName = ".NET", NormalizedName = "dot-net" }
         };
     }
