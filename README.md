@@ -69,7 +69,7 @@ sudo chown -R www-data:www-data /mnt/datastore
 
 ### Download MoongladePure
 
-You can download Moonglade via:
+You can download MoongladePure via:
 
 ```bash
 wget https://git.aiursoft.cn/Aiursoft/MoongladePure/archive/master.tar.gz
@@ -210,7 +210,7 @@ https://your.domain.com
 
 ### Advanced setup
 
-Moonglade supports scaling out. You can deploy multiple MoongladePure instances to serve your users.
+MoongladePure supports scaling out. You can deploy multiple MoongladePure instances to serve your users.
 
 ![Moonglade-scale-out](./assets/arch.png)
 

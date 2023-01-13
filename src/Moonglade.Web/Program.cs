@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 using WilderMinds.MetaWeblog;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 
-var info = $"App:\tMoonglade {Helper.AppVersion}\n" +
+var info = $"App:\tMoongladePure {Helper.AppVersion}\n" +
            $"Path:\t{Environment.CurrentDirectory} \n" +
            $"System:\t{Helper.TryGetFullOSVersion()} \n" +
            $"Host:\t{Environment.MachineName} \n" +
@@ -116,14 +116,14 @@ async Task FirstRun()
         {
             case StartupInitResult.DatabaseConnectionFail:
                 app.MapGet("/", () => Results.Problem(
-                    detail: "Database connection test failed, please check your connection string and firewall settings, then RESTART Moonglade manually.",
+                    detail: "Database connection test failed, please check your connection string and firewall settings, then RESTART MoongladePure manually.",
                     statusCode: 500
                     ));
                 app.Run();
                 return;
             case StartupInitResult.DatabaseSetupFail:
                 app.MapGet("/", () => Results.Problem(
-                    detail: "Database setup failed, please check error log, then RESTART Moonglade manually.",
+                    detail: "Database setup failed, please check error log, then RESTART MoongladePure manually.",
                     statusCode: 500
                 ));
                 app.Run();

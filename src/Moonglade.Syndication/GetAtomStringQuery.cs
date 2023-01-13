@@ -24,7 +24,7 @@ public class GetAtomStringQueryHandler : IRequestHandler<GetAtomStringQuery, str
             blogConfig.FeedSettings.RssTitle,
             blogConfig.GeneralSettings.Description,
             Helper.FormatCopyright2Html(blogConfig.GeneralSettings.Copyright).Replace("&copy;", "©"),
-            $"Moonglade v{Helper.AppVersion}",
+            $"MoongladePure v{Helper.AppVersion}",
             baseUrl);
     }
 

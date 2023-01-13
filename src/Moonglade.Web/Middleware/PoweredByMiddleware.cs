@@ -8,7 +8,7 @@ public class PoweredByMiddleware
 
     public Task Invoke(HttpContext httpContext)
     {
-        httpContext.Response.Headers["X-Powered-By"] = $"Moonglade {Helper.AppVersion}";
+        httpContext.Response.Headers["X-Powered-By"] = $"MoongladePure {Helper.AppVersion}";
         return _next.Invoke(httpContext);
     }
 }
