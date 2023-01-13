@@ -105,6 +105,14 @@ sudo cp ./bin/* /opt/apps/MoongladePure/ -rv
 sudo chown -R www-data:www-data /opt/apps/MoongladePure
 ```
 
+Download related fonts:
+
+```bash
+sudo mkdir /usr/share/fonts
+sudo wget https://git.aiursoft.cn/Aiursoft/MoongladePure/raw/branch/master/assets/OpenSans-Regular.ttf -O /usr/share/fonts/OpenSans-Regular.ttf
+sudo chown www-data:www-data /usr/share/fonts/OpenSans-Regular.ttf
+```
+
 ### Edit the configuration
 
 Copy the configuration file as production first:
