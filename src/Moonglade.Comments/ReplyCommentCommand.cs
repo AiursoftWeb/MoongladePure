@@ -9,11 +9,16 @@ public record ReplyCommentCommand(Guid CommentId, string ReplyContent) : IReques
 
 public class ReplyCommentCommandHandler : IRequestHandler<ReplyCommentCommand, CommentReply>
 {
+    private readonly IRepository<PostEntity> _postRepo;
     private readonly IRepository<CommentEntity> _commentRepo;
     private readonly IRepository<CommentReplyEntity> _commentReplyRepo;
 
-    public ReplyCommentCommandHandler(IRepository<CommentEntity> commentRepo, IRepository<CommentReplyEntity> commentReplyRepo)
+    public ReplyCommentCommandHandler(
+        IRepository<PostEntity> postRepo, 
+        IRepository<CommentEntity> commentRepo,
+        IRepository<CommentReplyEntity> commentReplyRepo)
     {
+        _postRepo = postRepo;
         _commentRepo = commentRepo;
         _commentReplyRepo = commentReplyRepo;
     }
@@ -34,6 +39,7 @@ public class ReplyCommentCommandHandler : IRequestHandler<ReplyCommentCommand, C
 
         await _commentReplyRepo.AddAsync(model, ct);
 
+        cmt.Post = await _postRepo.GetAsync(cmt.PostId, ct);
         var reply = new CommentReply
         {
             CommentContent = cmt.CommentContent,
