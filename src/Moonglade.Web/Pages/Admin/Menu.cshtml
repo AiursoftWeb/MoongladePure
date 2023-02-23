@@ -110,7 +110,7 @@
 
         $('.btn-delete').click(function() {
             var cfm = confirm("Delete Confirmation?");
-            if (cfm) deleteMenu($(this).data("menuid"));
+            if (cfm) deleteMenu($(this).attr("data-menuid"));
         });
 
         $('.btn-delete-submenu').click(function () {

@@ -18,7 +18,7 @@
     }
 
     $(".btn-delete").click(function () {
-        var tagid = $(this).data("tagid");
+        var tagid = $(this).attr("data-tagid");
         var cfm = confirm(`Confirm to delete tag: ${$(this).text().trim()}`);
         if (cfm) {
             callApi(`/api/tags/${tagid}`, 'DELETE', {},
@@ -30,7 +30,7 @@
     });
 
     $(".span-tagcontent-editable").blur(function () {
-        var tagId = $(this).data("tagid");
+        var tagId = $(this).attr("data-tagid");
         var newTagName = $(this).text().trim();
 
         callApi(`/api/tags/${tagId}`, 'PUT', newTagName, (resp) => {
