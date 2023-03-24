@@ -18,15 +18,6 @@
                 <small>
                     @SharedLocalizer["Powered by"] <a href="https://git.aiursoft.cn/Aiursoft/MoongladePure" target="_blank">MoongladePure</a> @Helper.AppVersion
                 </small>
-
-                @if (BlogConfig.GeneralSettings.Pride)
-                {
-                    <div class="mt-2">
-                        <a href="https://en.wikipedia.org/wiki/WorldPride" target="_blank">
-                            <img src="~/images/rainbow-flag.svg" alt="Pride" width="24" />
-                        </a>
-                    </div>
-                }
             </section>
 
             @Html.Raw(BlogConfig.GeneralSettings.FooterCustomizedHtmlPitch)

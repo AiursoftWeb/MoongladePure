@@ -70,9 +70,6 @@ public class GeneralSettings : IBlogSettings
 
     public int ThemeId { get; set; }
 
-    [Display(Name = "Show pride mouse cursor and flag")]
-    public bool Pride { get; set; }
-
     [Display(Name = "Profile")]
     public bool WidgetsProfile { get; set; } = true;
 
