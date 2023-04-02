@@ -96,7 +96,7 @@ public class Seed
             {
                 Id = 4,
                 CfgKey = "GeneralSettings",
-                CfgValue = "{\"OwnerName\":\"Admin\",\"OwnerEmail\":\"admin@sample.email\",\"Description\":\"MoongladePure Admin\",\"ShortDescription\":\"MoongladePure Admin\",\"AvatarBase64\":\"\",\"SiteTitle\":\"MoongladePure\",\"LogoText\":\"moongladepure\",\"MetaKeyword\":\"moongladepure\",\"MetaDescription\":\"Just another .NET blog system\",\"Copyright\":\"[c] 2022\",\"SideBarCustomizedHtmlPitch\":\"\",\"FooterCustomizedHtmlPitch\":\"\",\"UserTimeZoneBaseUtcOffset\":\"08:00:00\",\"TimeZoneId\":\"China Standard Time\",\"AutoDarkLightTheme\":true,\"ThemeId\":1}",
+                CfgValue = "{\"OwnerName\":\"Admin\",\"OwnerEmail\":\"admin@sample.email\",\"Description\":\"MoongladePure Admin\",\"ShortDescription\":\"MoongladePure Admin\",\"AvatarBase64\":\"\",\"SiteTitle\":\"MoongladePure\",\"LogoText\":\"moongladepure\",\"MetaKeyword\":\"moongladepure\",\"MetaDescription\":\"Just another .NET blog system\",\"Copyright\":\"[c] 2023 - [year] MoongladePure\",\"SideBarCustomizedHtmlPitch\":\"\",\"FooterCustomizedHtmlPitch\":\"\",\"UserTimeZoneBaseUtcOffset\":\"08:00:00\",\"TimeZoneId\":\"China Standard Time\",\"AutoDarkLightTheme\":true,\"ThemeId\":1}",
                 LastModifiedTimeUtc = DateTime.UtcNow
             },
             new()
