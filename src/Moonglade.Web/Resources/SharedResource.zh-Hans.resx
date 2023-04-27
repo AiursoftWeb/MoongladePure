@@ -354,8 +354,8 @@
   <data name="Drag and drop image file here" xml:space="preserve">
     <value>拖拽图片文件到此处</value>
   </data>
-  <data name="e.g. https://blog.ediwangcdn.com/ediwang-images" xml:space="preserve">
-    <value>示例 https://blog.ediwangcdn.com/ediwang-images</value>
+  <data name="e.g. https://blog.cdn.com/your-images" xml:space="preserve">
+    <value>示例 https://blog.cdn.com/your-images</value>
   </data>
   <data name="e.g. Your blog post license information." xml:space="preserve">
     <value>例如：博客文章的许可协议</value>
