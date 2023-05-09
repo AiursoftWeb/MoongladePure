@@ -43,7 +43,7 @@
     }
 
     .card-bkimg-container {
-        height: 95px !important;
+        height: 95px;
     }
 
     .card-bkimg {
