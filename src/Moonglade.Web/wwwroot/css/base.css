@@ -265,6 +265,11 @@ h5 {
     overflow: hidden;
 }
 
+.card-with-avatar {
+    height: 310px;
+    overflow: hidden;
+}
+
 .card-bkimg {
     -moz-filter: blur(30px);
     -webkit-filter: blur(30px);
