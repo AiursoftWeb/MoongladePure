@@ -72,7 +72,7 @@ sudo chown -R www-data:www-data /mnt/datastore
 You can download MoongladePure via:
 
 ```bash
-wget https://git.aiursoft.cn/Aiursoft/MoongladePure/archive/master.tar.gz
+wget https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/archive/master/moongladepure-master.tar.gz
 tar -zxvf ./master.tar.gz
 ls
 ```
@@ -109,7 +109,7 @@ Download related fonts:
 
 ```bash
 sudo mkdir /usr/share/fonts
-sudo wget https://git.aiursoft.cn/Aiursoft/MoongladePure/raw/branch/master/assets/OpenSans-Regular.ttf -O /usr/share/fonts/OpenSans-Regular.ttf
+sudo wget https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/raw/master/assets/OpenSans-Regular.ttf -O /usr/share/fonts/OpenSans-Regular.ttf
 sudo chown www-data:www-data /usr/share/fonts/OpenSans-Regular.ttf
 ```
 

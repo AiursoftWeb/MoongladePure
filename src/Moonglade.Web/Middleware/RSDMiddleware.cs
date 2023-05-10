@@ -40,7 +40,7 @@ public class RSDMiddleware
             // Service 
             writer.WriteStartElement("service");
             writer.WriteElementString("engineName", $"MoongladePure {Helper.AppVersion}");
-            writer.WriteElementString("engineLink", "https://git.aiursoft.cn/Aiursoft/MoongladePure");
+            writer.WriteElementString("engineLink", "https://gitlab.aiursoft.cn/Aiursoft/MoongladePure");
             writer.WriteElementString("homePageLink", siteRootUrl);
 
             // APIs
