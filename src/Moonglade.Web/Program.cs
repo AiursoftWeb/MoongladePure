@@ -9,189 +9,185 @@ using System.Text.Json.Serialization;
 using WilderMinds.MetaWeblog;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 
-var info = $"App:\tMoongladePure {Helper.AppVersion}\n" +
-           $"Path:\t{Environment.CurrentDirectory} \n" +
-           $"System:\t{Helper.TryGetFullOSVersion()} \n" +
-           $"Host:\t{Environment.MachineName} \n" +
-           $"User:\t{Environment.UserName}";
-Console.WriteLine(info);
-
-Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-var builder = WebApplication.CreateBuilder(args);
-
-string connStr = builder.Configuration.GetConnectionString("MoongladeDatabase");
-
-var cultures = new[] { "en-US", "zh-CN" }.Select(p => new CultureInfo(p)).ToList();
-
-ConfigureServices(builder.Services);
-
-var app = builder.Build();
-
-await FirstRun();
-
-ConfigureMiddleware(app);
-
-app.Run();
-
-void ConfigureServices(IServiceCollection services)
+public class Program
 {
-    AppDomain.CurrentDomain.Load("MoongladePure.Core");
-    AppDomain.CurrentDomain.Load("MoongladePure.FriendLink");
-    AppDomain.CurrentDomain.Load("MoongladePure.Menus");
-    AppDomain.CurrentDomain.Load("MoongladePure.Theme");
-    AppDomain.CurrentDomain.Load("MoongladePure.Configuration");
-    AppDomain.CurrentDomain.Load("MoongladePure.Data");
-
-    services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
-
-    services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
-
-    services.AddOptions()
-            .AddHttpContextAccessor()
-            .AddRateLimit(builder.Configuration.GetSection("IpRateLimiting"));
-
-    services.AddSession(options =>
+    private static readonly List<CultureInfo> Cultures = new[] { "en-US", "zh-CN" }.Select(p => new CultureInfo(p)).ToList();
+    
+    public static async Task Main(string[] args)
     {
-        options.IdleTimeout = TimeSpan.FromMinutes(20);
-        options.Cookie.HttpOnly = true;
-    }).AddSessionBasedCaptcha(options => options.FontStyle = FontStyle.Bold);
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-    services.AddLocalization(options => options.ResourcesPath = "Resources");
-    services.AddControllers(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
-            .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
-            .ConfigureApiBehaviorOptions(ConfigureApiBehavior.BlogApiBehavior);
-    services.AddRazorPages()
-            .AddDataAnnotationsLocalization(options => options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResource)))
-            .AddRazorPagesOptions(options =>
-            {
-                options.Conventions.AddPageRoute("/Admin/Post", "admin");
-                options.Conventions.AuthorizeFolder("/Admin");
-                options.Conventions.AuthorizeFolder("/Settings");
-            });
+        var builder = WebApplication.CreateBuilder(args);
 
-    // Fix Chinese character being encoded in HTML output
-    services.AddSingleton(Encoder.MoongladeHtmlEncoder);
+        ConfigureServices(builder.Services, builder.Configuration);
 
-    services.AddAntiforgery(options =>
+        var app = builder.Build();
+        ConfigureMiddleware(app);
+
+        await FirstRun(app);
+        await app.RunAsync();
+    }
+
+    static void ConfigureServices(IServiceCollection services, IConfiguration config)
     {
-        const string csrfName = "CSRF-TOKEN-MOONGLADE";
-        options.Cookie.Name = $"X-{csrfName}";
-        options.FormFieldName = $"{csrfName}-FORM";
-        options.HeaderName = "XSRF-TOKEN";
-    }).Configure<RequestLocalizationOptions>(options =>
-    {
-        options.DefaultRequestCulture = new("en-US");
-        options.SupportedCultures = cultures;
-        options.SupportedUICultures = cultures;
-    }).Configure<RouteOptions>(options =>
-    {
-        options.LowercaseUrls = true;
-        options.LowercaseQueryStrings = true;
-        options.AppendTrailingSlash = false;
-    });
+        AppDomain.CurrentDomain.Load("MoongladePure.Core");
+        AppDomain.CurrentDomain.Load("MoongladePure.FriendLink");
+        AppDomain.CurrentDomain.Load("MoongladePure.Menus");
+        AppDomain.CurrentDomain.Load("MoongladePure.Theme");
+        AppDomain.CurrentDomain.Load("MoongladePure.Configuration");
+        AppDomain.CurrentDomain.Load("MoongladePure.Data");
 
-    services.AddHealthChecks();
-    services.AddSyndication()
-            .AddBlogCache()
-            .AddMetaWeblog<MoongladePure.Web.MetaWeblogService>()
-            .AddScoped<ValidateCaptcha>()
-            .AddBlogConfig(builder.Configuration)
-            .AddBlogAuthenticaton(builder.Configuration)
-            .AddComments(builder.Configuration)
-            .AddImageStorage(builder.Configuration, options => options.ContentRootPath = builder.Environment.ContentRootPath)
-            .Configure<List<ManifestIcon>>(builder.Configuration.GetSection("ManifestIcons"));
+        services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 
-    services.AddDatabase(connStr, useTestDb: false);
-}
+        services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
-async Task FirstRun()
-{
-    try
-    {
-        var startUpResut = await app.InitStartUp();
-        switch (startUpResut)
+        services.AddOptions()
+                .AddHttpContextAccessor()
+                .AddRateLimit(config.GetSection("IpRateLimiting"));
+
+        services.AddSession(options =>
         {
-            case StartupInitResult.DatabaseConnectionFail:
-                app.MapGet("/", () => Results.Problem(
-                    detail: "Database connection test failed, please check your connection string and firewall settings, then RESTART MoongladePure manually.",
-                    statusCode: 500
+            options.IdleTimeout = TimeSpan.FromMinutes(20);
+            options.Cookie.HttpOnly = true;
+        }).AddSessionBasedCaptcha(options => options.FontStyle = FontStyle.Bold);
+
+        services.AddLocalization(options => options.ResourcesPath = "Resources");
+        services.AddControllers(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+                .ConfigureApiBehaviorOptions(ConfigureApiBehavior.BlogApiBehavior);
+        services.AddRazorPages()
+                .AddDataAnnotationsLocalization(options => options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResource)))
+                .AddRazorPagesOptions(options =>
+                {
+                    options.Conventions.AddPageRoute("/Admin/Post", "admin");
+                    options.Conventions.AuthorizeFolder("/Admin");
+                    options.Conventions.AuthorizeFolder("/Settings");
+                });
+
+        // Fix Chinese character being encoded in HTML output
+        services.AddSingleton(Encoder.MoongladeHtmlEncoder);
+
+        services.AddAntiforgery(options =>
+        {
+            const string csrfName = "CSRF-TOKEN-MOONGLADE";
+            options.Cookie.Name = $"X-{csrfName}";
+            options.FormFieldName = $"{csrfName}-FORM";
+            options.HeaderName = "XSRF-TOKEN";
+        }).Configure<RequestLocalizationOptions>(options =>
+        {
+            options.DefaultRequestCulture = new("en-US");
+            options.SupportedCultures = Cultures;
+            options.SupportedUICultures = Cultures;
+        }).Configure<RouteOptions>(options =>
+        {
+            options.LowercaseUrls = true;
+            options.LowercaseQueryStrings = true;
+            options.AppendTrailingSlash = false;
+        });
+
+        services.AddHealthChecks();
+        services.AddSyndication()
+                .AddBlogCache()
+                .AddMetaWeblog<MoongladePure.Web.MetaWeblogService>()
+                .AddScoped<ValidateCaptcha>()
+                .AddBlogConfig(config)
+                .AddBlogAuthenticaton(config)
+                .AddComments(config)
+                .AddImageStorage(config)
+                .Configure<List<ManifestIcon>>(config.GetSection("ManifestIcons"));
+
+        var connStr = config.GetConnectionString("MoongladeDatabase");
+        services.AddDatabase(connStr, useTestDb: false);
+    }
+
+    static async Task FirstRun(WebApplication app)
+    {
+        try
+        {
+            var startUpResut = await app.InitStartUp();
+            switch (startUpResut)
+            {
+                case StartupInitResult.DatabaseConnectionFail:
+                    app.MapGet("/", () => Results.Problem(
+                        detail: "Database connection test failed, please check your connection string and firewall settings, then RESTART MoongladePure manually.",
+                        statusCode: 500
+                        ));
+                    app.Run();
+                    return;
+                case StartupInitResult.DatabaseSetupFail:
+                    app.MapGet("/", () => Results.Problem(
+                        detail: "Database setup failed, please check error log, then RESTART MoongladePure manually.",
+                        statusCode: 500
                     ));
-                app.Run();
-                return;
-            case StartupInitResult.DatabaseSetupFail:
-                app.MapGet("/", () => Results.Problem(
-                    detail: "Database setup failed, please check error log, then RESTART MoongladePure manually.",
-                    statusCode: 500
-                ));
-                app.Run();
-                return;
+                    app.Run();
+                    return;
+            }
+        }
+        catch (Exception e)
+        {
+            app.MapGet("/", _ => throw new("Start up failed: " + e.Message));
+            app.Run();
         }
     }
-    catch (Exception e)
+
+    static void ConfigureMiddleware(WebApplication app)
     {
-        app.MapGet("/", _ => throw new("Start up failed: " + e.Message));
-        app.Run();
+        app.UseForwardedHeaders();
+        app.UseHealthChecks(new PathString("/health"));
+        app.Logger.LogWarning($"Running in environment: {app.Environment.EnvironmentName}.");
+
+        app.UseCustomCss(options => options.MaxContentLength = 10240);
+        app.UseManifest(options => options.ThemeColor = "#333333");
+        app.UseRobotsTxt();
+
+        app.UseOpenSearch(options =>
+        {
+            options.RequestPath = "/opensearch";
+            options.IconFileType = "image/png";
+            options.IconFilePath = "/favicon-16x16.png";
+        });
+
+        app.UseMiddleware<FoafMiddleware>();
+
+        var bc = app.Services.GetRequiredService<IBlogConfig>();
+        if (bc.AdvancedSettings.EnableMetaWeblog)
+        {
+            app.UseMiddleware<RSDMiddleware>().UseMetaWeblog("/metaweblog");
+        }
+
+        app.UseMiddleware<SiteMapMiddleware>()
+                  .UseMiddleware<PoweredByMiddleware>()
+                  .UseMiddleware<DNTMiddleware>();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            app.UseStatusCodePages(ConfigureStatusCodePages.Handler).UseExceptionHandler("/error");
+        }
+
+        app.UseHttpsRedirection().UseHsts();
+        app.UseRequestLocalization(new RequestLocalizationOptions
+        {
+            DefaultRequestCulture = new("en-US"),
+            SupportedCultures = Cultures,
+            SupportedUICultures = Cultures
+        });
+
+        app.UseStaticFiles();
+        app.UseSession().UseCaptchaImage(options =>
+        {
+            options.RequestPath = "/captcha-image";
+            options.ImageHeight = 36;
+            options.ImageWidth = 100;
+        });
+
+        app.UseIpRateLimiting();
+        app.UseRouting();
+        app.UseAuthentication().UseAuthorization();
+
+        app.UseEndpoints(ConfigureEndpoints.BlogEndpoints);
     }
-}
-
-void ConfigureMiddleware(IApplicationBuilder appBuilder)
-{
-    appBuilder.UseForwardedHeaders();
-    appBuilder.UseHealthChecks(new PathString("/health"));
-    app.Logger.LogWarning($"Running in environment: {app.Environment.EnvironmentName}.");
-
-    appBuilder.UseCustomCss(options => options.MaxContentLength = 10240);
-    appBuilder.UseManifest(options => options.ThemeColor = "#333333");
-    appBuilder.UseRobotsTxt();
-
-    appBuilder.UseOpenSearch(options =>
-    {
-        options.RequestPath = "/opensearch";
-        options.IconFileType = "image/png";
-        options.IconFilePath = "/favicon-16x16.png";
-    });
-
-    appBuilder.UseMiddleware<FoafMiddleware>();
-
-    var bc = app.Services.GetRequiredService<IBlogConfig>();
-    if (bc.AdvancedSettings.EnableMetaWeblog)
-    {
-        appBuilder.UseMiddleware<RSDMiddleware>().UseMetaWeblog("/metaweblog");
-    }
-
-    appBuilder.UseMiddleware<SiteMapMiddleware>()
-              .UseMiddleware<PoweredByMiddleware>()
-              .UseMiddleware<DNTMiddleware>();
-
-    if (app.Environment.IsDevelopment())
-    {
-        appBuilder.UseDeveloperExceptionPage();
-    }
-    else
-    {
-        appBuilder.UseStatusCodePages(ConfigureStatusCodePages.Handler).UseExceptionHandler("/error");
-    }
-
-    appBuilder.UseHttpsRedirection().UseHsts();
-    appBuilder.UseRequestLocalization(new RequestLocalizationOptions
-    {
-        DefaultRequestCulture = new("en-US"),
-        SupportedCultures = cultures,
-        SupportedUICultures = cultures
-    });
-
-    appBuilder.UseStaticFiles();
-    appBuilder.UseSession().UseCaptchaImage(options =>
-    {
-        options.RequestPath = "/captcha-image";
-        options.ImageHeight = 36;
-        options.ImageWidth = 100;
-    });
-
-    appBuilder.UseIpRateLimiting();
-    appBuilder.UseRouting();
-    appBuilder.UseAuthentication().UseAuthorization();
-
-    appBuilder.UseEndpoints(ConfigureEndpoints.BlogEndpoints);
 }
