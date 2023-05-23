@@ -12,7 +12,34 @@ MoongladePure can be deployed completely on-premises without coupling to any par
 
 MoongladePure supports AirGap deployment. It doesn't require an Internet connection to use. 100% local!
 
-## Deployment
+## Run locally
+
+Requirements about how to run
+
+1. [.NET 6 SDK](http://dot.net/)
+
+Clone the project and go to the web project to run it. **Only for development, NOT for production!**
+
+```bash
+git clone https://gitlab.aiursoft.cn/aiursoft/moongladepure.git
+cd ./MoongladePure/src/Moonglade.Web/
+ASPNETCORE_ENVIRONMENT=Development dotnet run --urls=http://0.0.0.0:8080
+```
+
+You may see the following output:
+
+```log
+warn: MoongladePure.Web[0]
+      Running in environment: Development.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://0.0.0.0:8080
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+```
+
+Now open your browser and browse to [http://0.0.0.0:8080](http://0.0.0.0:8080). You should see the MoongladePure welcome page.
+
+## Run in a production server
 
 It is suggested to use Ubuntu 22.04 LTS as the operating system.
 
