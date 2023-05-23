@@ -22,9 +22,11 @@ public class Program
         ConfigureServices(builder.Services, builder.Configuration);
 
         var app = builder.Build();
-        ConfigureMiddleware(app);
 
         await FirstRun(app);
+
+        ConfigureMiddleware(app);
+
         await app.RunAsync();
     }
 
