@@ -273,9 +273,6 @@
   <data name="Clear Now" xml:space="preserve">
     <value>立即清空</value>
   </data>
-  <data name="Clear Pingback Logs" xml:space="preserve">
-    <value>清空Pingback日志</value>
-  </data>
   <data name="Close" xml:space="preserve">
     <value>关闭</value>
   </data>
@@ -398,12 +395,6 @@
   </data>
   <data name="Enable OpenSearch" xml:space="preserve">
     <value>启用 OpenSearch</value>
-  </data>
-  <data name="Enable Pingback receive" xml:space="preserve">
-    <value>启用 Pingback 接受</value>
-  </data>
-  <data name="Enable Pingback send" xml:space="preserve">
-    <value>启用 Pingback 发送</value>
   </data>
   <data name="Enable Site Map" xml:space="preserve">
     <value>启用网站地图</value>
@@ -620,9 +611,6 @@
   </data>
   <data name="Password" xml:space="preserve">
     <value>密码</value>
-  </data>
-  <data name="Pingbacks" xml:space="preserve">
-    <value>引用</value>
   </data>
   <data name="Post footer HTML code" xml:space="preserve">
     <value>文章页脚HTML内容</value>

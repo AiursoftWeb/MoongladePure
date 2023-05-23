@@ -26,7 +26,6 @@ public class BlogDbContext : DbContext
     public virtual DbSet<MenuEntity> Menu { get; set; }
     public virtual DbSet<SubMenuEntity> SubMenu { get; set; }
     public virtual DbSet<LocalAccountEntity> LocalAccount { get; set; }
-    public virtual DbSet<PingbackEntity> Pingback { get; set; }
     public virtual DbSet<BlogThemeEntity> BlogTheme { get; set; }
     public virtual DbSet<BlogAssetEntity> BlogAsset { get; set; }
     public virtual DbSet<BlogConfigurationEntity> BlogConfiguration { get; set; }
@@ -68,7 +67,6 @@ public static class BlogDbContextExtension
         context.Tag.RemoveRange();
         context.Comment.RemoveRange();
         context.FriendLink.RemoveRange();
-        context.Pingback.RemoveRange();
         context.PostExtension.RemoveRange();
         context.Post.RemoveRange();
         context.Menu.RemoveRange();

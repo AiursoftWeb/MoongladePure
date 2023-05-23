@@ -23,7 +23,6 @@ public class MySqlBlogDbContext : BlogDbContext
         modelBuilder.ApplyConfiguration(new PostCategoryConfiguration());
         modelBuilder.ApplyConfiguration(new PostExtensionConfiguration());
         modelBuilder.ApplyConfiguration(new LocalAccountConfiguration());
-        modelBuilder.ApplyConfiguration(new PingbackConfiguration());
         modelBuilder.ApplyConfiguration(new BlogThemeConfiguration());
         modelBuilder.ApplyConfiguration(new BlogAssetConfiguration());
         modelBuilder.ApplyConfiguration(new BlogConfigurationConfiguration());
