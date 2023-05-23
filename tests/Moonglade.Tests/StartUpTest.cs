@@ -13,6 +13,8 @@ public class StartUpTest
 
         Program.ConfigureServices(builder.Services, builder.Configuration);
 
-        _ = builder.Build();
+        var app = builder.Build();
+        
+        Program.ConfigureMiddleware(app);
     }
 }
