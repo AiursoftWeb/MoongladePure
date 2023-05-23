@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
+		<Version>1.0.1</Version>
 		<PackageLicenseExpression>GNU General Public License v3.0</PackageLicenseExpression>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<PackageProjectUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</PackageProjectUrl>

@@ -19,7 +19,7 @@ public class Program
 
         var builder = WebApplication.CreateBuilder(args);
 
-        ConfigureServices(builder.Services, builder.Configuration);
+        ConfigureServices(builder.Services, builder.Configuration, builder.Environment.IsDevelopment());
 
         var app = builder.Build();
 
@@ -30,7 +30,7 @@ public class Program
         await app.RunAsync();
     }
 
-    public static void ConfigureServices(IServiceCollection services, IConfiguration config)
+    public static void ConfigureServices(IServiceCollection services, IConfiguration config, bool isTest = false)
     {
         AppDomain.CurrentDomain.Load("MoongladePure.Core");
         AppDomain.CurrentDomain.Load("MoongladePure.FriendLink");
@@ -95,11 +95,11 @@ public class Program
                 .AddBlogConfig(config)
                 .AddBlogAuthenticaton(config)
                 .AddComments(config)
-                .AddImageStorage(config)
+                .AddImageStorage(config, isTest)
                 .Configure<List<ManifestIcon>>(config.GetSection("ManifestIcons"));
 
         var connStr = config.GetConnectionString("MoongladeDatabase");
-        services.AddDatabase(connStr, useTestDb: false);
+        services.AddDatabase(connStr, useTestDb: isTest);
     }
 
     public static async Task FirstRun(WebApplication app)

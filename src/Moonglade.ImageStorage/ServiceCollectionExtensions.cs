@@ -7,7 +7,9 @@ namespace MoongladePure.ImageStorage;
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddImageStorage(
-        this IServiceCollection services, IConfiguration configuration)
+        this IServiceCollection services, 
+        IConfiguration configuration,
+        bool isTest)
     {
         var section = configuration.GetSection(nameof(ImageStorage));
         var settings = section.Get<ImageStorageSettings>();
@@ -17,6 +19,12 @@ public static class ServiceCollectionExtensions
         {
             throw new ArgumentNullException(nameof(settings.FileSystemPath), "FileSystemPath can not be null or empty.");
         }
+
+        if (isTest)
+        {
+            settings.FileSystemPath = Path.GetTempPath();
+        }
+
         services.AddFileSystemStorage(settings.FileSystemPath);
 
         return services;
