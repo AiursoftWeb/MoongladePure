@@ -1,5 +1,11 @@
 # MoongladePure
 
+[![GPL licensed](https://img.shields.io/badge/license-GPL-blue.svg)](https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/blob/master/LICENSE)
+[![Pipeline stat](https://gitlab.aiursoft.cn/aiursoft/moongladepure/badges/master/pipeline.svg)](https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/pipelines)
+[![Test Coverage](https://gitlab.aiursoft.cn/aiursoft/moongladepure/badges/master/coverage.svg)](https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/pipelines)
+[![NuGet version (MoongladePure.Core](https://img.shields.io/nuget/v/MoongladePure.Core.svg)](https://www.nuget.org/packages/MoongladePure.Core/)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fanduin.aiursoft.com%2F%3Fshow%3Ddirect)](https://anduin.aiursoft.com)
+
 MoongladePure is a fork of Moonglade. Regain control over your data.
 
 MoongladePure can be deployed completely on-premises without coupling to any particular cloud.
@@ -237,3 +243,11 @@ And in that case, you need Caddy as a load balance. Here are some tips:
 It is also suggested to mount a big disk to save your blog's content. View more here:
 
 - [Mounting a big disk in Linux](https://anduin.aiursoft.cn/post/2022/7/5/install-nextcloud-on-a-ubuntu-2004-server#bigger-hdd)
+
+## How to contribute
+
+There are many ways to contribute to the project: logging bugs, submitting pull requests, reporting issues, and creating suggestions.
+
+Even if you with push rights on the repository, you should create a personal fork and create feature branches there when you need them. This keeps the main repository clean and your workflow cruft out of sight.
+
+We're also interested in your feedback on the future of this project. You can submit a suggestion or feature request through the issue tracker. To make this process more effective, we're asking that these include more information to help define them more clearly.
