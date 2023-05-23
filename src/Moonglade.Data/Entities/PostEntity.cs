@@ -2,13 +2,6 @@
 
 public class PostEntity
 {
-    public PostEntity()
-    {
-        Comments = new HashSet<CommentEntity>();
-        PostCategory = new HashSet<PostCategoryEntity>();
-        Tags = new HashSet<TagEntity>();
-    }
-
     public Guid Id { get; set; }
     public string Title { get; set; }
     public string Slug { get; set; }
@@ -31,7 +24,7 @@ public class PostEntity
     public int HashCheckSum { get; set; }
 
     public virtual PostExtensionEntity PostExtension { get; set; }
-    public virtual ICollection<CommentEntity> Comments { get; set; }
-    public virtual ICollection<PostCategoryEntity> PostCategory { get; set; }
-    public virtual ICollection<TagEntity> Tags { get; set; }
+    public virtual ICollection<CommentEntity> Comments { get; set; } = new HashSet<CommentEntity>();
+    public virtual ICollection<PostCategoryEntity> PostCategory { get; set; } = new HashSet<PostCategoryEntity>();
+    public virtual ICollection<TagEntity> Tags { get; set; } = new HashSet<TagEntity>();
 }

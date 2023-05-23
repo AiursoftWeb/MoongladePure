@@ -2,20 +2,20 @@
 @using Microsoft.AspNetCore.Builder
 @model MoongladePure.Web.Pages.Admin.EditPostModel
 @inject IOptions<RequestLocalizationOptions> LocOptions
-@inject IConfiguration Configuration
 
 @{
     ViewBag.Title = "Manage Posts";
 
     var cultureItems = LocOptions.Value.SupportedUICultures
-        .Select(c => new { Value = c.Name, c.NativeName });
+        ?.Select(c => new { Value = c.Name, c.NativeName })
+        .ToList();
 
     var langList = cultureItems
-    .Select(t => new SelectListItem
-            {
-                Text = t.NativeName,
-                Value = t.Value.ToLower()
-            });
+        ?.Select(t => new SelectListItem
+        {
+            Text = t.NativeName,
+            Value = t.Value.ToLower()
+        });
 }
 
 @section scripts{

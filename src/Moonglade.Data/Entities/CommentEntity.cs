@@ -2,11 +2,6 @@
 
 public class CommentEntity
 {
-    public CommentEntity()
-    {
-        Replies = new HashSet<CommentReplyEntity>();
-    }
-
     public Guid Id { get; set; }
     public string Username { get; set; }
     public string Email { get; set; }
@@ -17,5 +12,5 @@ public class CommentEntity
     public bool IsApproved { get; set; }
 
     public virtual PostEntity Post { get; set; }
-    public virtual ICollection<CommentReplyEntity> Replies { get; set; }
+    public virtual ICollection<CommentReplyEntity> Replies { get; set; } = new HashSet<CommentReplyEntity>();
 }

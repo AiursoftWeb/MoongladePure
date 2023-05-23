@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Localization;
 using MoongladePure.Caching.Filters;
 using NUglify;
-using System.Reflection;
 
 namespace MoongladePure.Web.Controllers;
 
@@ -117,7 +116,7 @@ public class SettingsController : ControllerBase
                 }
                 catch (FormatException e)
                 {
-                    _logger.LogError($"Error {nameof(Image)}(), Invalid Base64 string", e);
+                    _logger.LogError(e, $"Error {nameof(Image)}(), Invalid Base64 string");
                 }
             }
         }

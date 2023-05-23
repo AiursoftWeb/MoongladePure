@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
 
         if (useTestDb)
         {
-            services.AddDbContext<MySqlBlogDbContext>((serviceProvider, optionsBuilder) =>
+            services.AddDbContext<MySqlBlogDbContext>((_, optionsBuilder) =>
                 optionsBuilder.UseInMemoryDatabase("inmemory"));
         }
         else

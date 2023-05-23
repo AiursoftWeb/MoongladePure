@@ -17,7 +17,7 @@ public class GetRssStringQueryHandler : IRequestHandler<GetRssStringQuery, strin
         _sdds = sdds;
 
         var acc = httpContextAccessor;
-        var baseUrl = $"{acc.HttpContext.Request.Scheme}://{acc.HttpContext.Request.Host}";
+        var baseUrl = $"{acc.HttpContext?.Request.Scheme}://{acc.HttpContext?.Request.Host}";
 
         _feedGenerator = new(
             baseUrl,

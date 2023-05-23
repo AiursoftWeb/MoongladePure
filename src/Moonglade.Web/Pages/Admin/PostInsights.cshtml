@@ -29,13 +29,16 @@
                         {
                             <tr id="tr-@post.Id">
                                 <td>
-                                    <a asp-page="/Post"
-                                       asp-route-year="@post.PubDateUtc.Value.Year"
-                                       asp-route-month="@post.PubDateUtc.Value.Month"
-                                       asp-route-day="@post.PubDateUtc.Value.Day"
-                                       asp-route-slug="@post.Slug" target="_blank">
-                                        @post.Title
-                                    </a>
+                                    @if (post.PubDateUtc != null)
+                                    {
+                                        <a asp-page="/Post"
+                                           asp-route-year="@post.PubDateUtc.Value.Year"
+                                           asp-route-month="@post.PubDateUtc.Value.Month"
+                                           asp-route-day="@post.PubDateUtc.Value.Day"
+                                           asp-route-slug="@post.Slug" target="_blank">
+                                            @post.Title
+                                        </a>
+                                    }
                                 </td>
                                 <td class="text-muted" data-utc-time="@post.PubDateUtc.GetValueOrDefault().ToString(CultureInfo.InvariantCulture)"></td>
                                 <td>
@@ -60,13 +63,16 @@
                         {
                             <tr id="tr-@post.Id">
                                 <td>
-                                    <a asp-page="/Post"
-                                       asp-route-year="@post.PubDateUtc.Value.Year"
-                                       asp-route-month="@post.PubDateUtc.Value.Month"
-                                       asp-route-day="@post.PubDateUtc.Value.Day"
-                                       asp-route-slug="@post.Slug" target="_blank">
-                                        @post.Title
-                                    </a>
+                                    @if (post.PubDateUtc != null)
+                                    {
+                                        <a asp-page="/Post"
+                                           asp-route-year="@post.PubDateUtc.Value.Year"
+                                           asp-route-month="@post.PubDateUtc.Value.Month"
+                                           asp-route-day="@post.PubDateUtc.Value.Day"
+                                           asp-route-slug="@post.Slug" target="_blank">
+                                            @post.Title
+                                        </a>
+                                    }
                                 </td>
                                 <td class="text-muted" data-utc-time="@post.CreateTimeUtc.ToString(CultureInfo.InvariantCulture)"></td>
                             </tr>

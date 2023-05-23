@@ -2,7 +2,6 @@
 using Edi.Captcha;
 using Microsoft.AspNetCore.HttpOverrides;
 using MoongladePure.Data.MySql;
-using MoongladePure.Pingback;
 using MoongladePure.Syndication;
 using SixLabors.Fonts;
 using System.Globalization;
@@ -93,8 +92,7 @@ void ConfigureServices(IServiceCollection services)
     });
 
     services.AddHealthChecks();
-    services.AddPingback()
-            .AddSyndication()
+    services.AddSyndication()
             .AddBlogCache()
             .AddMetaWeblog<MoongladePure.Web.MetaWeblogService>()
             .AddScoped<ValidateCaptcha>()

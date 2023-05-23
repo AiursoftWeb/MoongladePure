@@ -1,6 +1,4 @@
-﻿using MoongladePure.ImageStorage.Providers;
-
-namespace MoongladePure.ImageStorage;
+﻿namespace MoongladePure.ImageStorage;
 
 public class ImageStorageSettings
 {

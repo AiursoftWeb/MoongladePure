@@ -4,7 +4,8 @@
 @inject IOptions<RequestLocalizationOptions> LocOptions
 @{
     var cultureItems = LocOptions.Value.SupportedUICultures
-        .Select(c => new { Value = c.Name, c.NativeName });
+        ?.Select(c => new { Value = c.Name, c.NativeName })
+        .ToList();
     var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 }
 
@@ -24,11 +25,14 @@
 
             <section id="footer-language" class="col d-none d-sm-block text-end">
                 <ul class="list-unstyled">
-                    @foreach (var item in cultureItems)
+                    @if (cultureItems != null)
                     {
-                        <li>
-                            <a asp-controller="Settings" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" asp-route-culture="@item.Value">@item.NativeName</a>
-                        </li>
+                        foreach (var item in cultureItems)
+                        {
+                            <li>
+                                <a asp-controller="Settings" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" asp-route-culture="@item.Value">@item.NativeName</a>
+                            </li>
+                        }
                     }
                 </ul>
             </section>
@@ -50,11 +54,14 @@
             </div>
             <div class="modal-body">
                 <ul class="list-unstyled">
-                    @foreach (var item in cultureItems)
+                    @if (cultureItems != null)
                     {
-                        <li>
-                            <a asp-controller="Settings" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" asp-route-culture="@item.Value" rel="nofollow">@item.NativeName</a>
-                        </li>
+                        foreach (var item in cultureItems)
+                        {
+                            <li>
+                                <a asp-controller="Settings" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" asp-route-culture="@item.Value" rel="nofollow">@item.NativeName</a>
+                            </li>
+                        }
                     }
                 </ul>
             </div>

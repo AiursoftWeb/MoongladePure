@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using MoongladePure.Caching;
 using MoongladePure.Configuration;
 using MoongladePure.Core.TagFeature;
@@ -16,7 +15,6 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
     private readonly IRepository<PostEntity> _postRepo;
     private readonly IBlogCache _cache;
     private readonly IBlogConfig _blogConfig;
-    private readonly IConfiguration _configuration;
 
     public UpdatePostCommandHandler(
         IRepository<PostCategoryEntity> pcRepository,
@@ -24,7 +22,7 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
         IRepository<TagEntity> tagRepo,
         IRepository<PostEntity> postRepo,
         IBlogCache cache,
-        IBlogConfig blogConfig, IConfiguration configuration)
+        IBlogConfig blogConfig)
     {
         _ptRepository = ptRepository;
         _pcRepository = pcRepository;
@@ -32,7 +30,6 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
         _postRepo = postRepo;
         _cache = cache;
         _blogConfig = blogConfig;
-        _configuration = configuration;
     }
 
     public async Task<PostEntity> Handle(UpdatePostCommand request, CancellationToken ct)

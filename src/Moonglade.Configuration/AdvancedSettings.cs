@@ -9,12 +9,6 @@ public class AdvancedSettings : IBlogSettings
     [MaxLength(1024)]
     public string RobotsTxtContent { get; set; }
 
-    [Display(Name = "Enable Pingback send")]
-    public bool EnablePingbackSend { get; set; } = true;
-
-    [Display(Name = "Enable Pingback receive")]
-    public bool EnablePingbackReceive { get; set; } = true;
-
     [Display(Name = "Enable MetaWeblog API")]
     public bool EnableMetaWeblog { get; set; } = true;
 

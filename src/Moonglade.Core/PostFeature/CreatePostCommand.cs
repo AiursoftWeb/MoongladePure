@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoongladePure.Configuration;
 using MoongladePure.Core.TagFeature;
 using MoongladePure.Data.Spec;
@@ -15,19 +14,16 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostE
     private readonly ILogger<CreatePostCommandHandler> _logger;
     private readonly IRepository<TagEntity> _tagRepo;
     private readonly IBlogConfig _blogConfig;
-    private readonly IConfiguration _configuration;
 
     public CreatePostCommandHandler(
         IRepository<PostEntity> postRepo,
         ILogger<CreatePostCommandHandler> logger,
         IRepository<TagEntity> tagRepo,
-        IConfiguration configuration,
         IBlogConfig blogConfig)
     {
         _postRepo = postRepo;
         _logger = logger;
         _tagRepo = tagRepo;
-        _configuration = configuration;
         _blogConfig = blogConfig;
     }
 

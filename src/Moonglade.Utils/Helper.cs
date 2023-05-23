@@ -425,7 +425,6 @@ public static class Helper
         }
 
         string password;
-        int index;
 
         do
         {
@@ -438,7 +437,7 @@ public static class Helper
 
             for (int iter = 0; iter < length; iter++)
             {
-                int i = (int)(buf[iter] % 87);
+                int i = (buf[iter] % 87);
                 switch (i)
                 {
                     case < 10:
@@ -477,16 +476,15 @@ public static class Helper
 
             password = new(cBuf);
         }
-        while (IsDangerousString(password, out index));
+        while (IsDangerousString(password));
 
         return password;
     }
 
     private static readonly char[] StartingChars = { '<', '&' };
-    private static bool IsDangerousString(string s, out int matchIndex)
+    private static bool IsDangerousString(string s)
     {
         //bool inComment = false;
-        matchIndex = 0;
 
         for (int i = 0; ;)
         {
@@ -498,8 +496,6 @@ public static class Helper
 
             // If it's the last char, it's safe
             if (n == s.Length - 1) return false;
-
-            matchIndex = n;
 
             switch (s[n])
             {

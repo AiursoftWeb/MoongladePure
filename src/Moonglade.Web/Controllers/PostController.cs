@@ -1,7 +1,5 @@
 ﻿using MoongladePure.Caching.Filters;
 using MoongladePure.Core.PostFeature;
-using MoongladePure.Data.Spec;
-using MoongladePure.Pingback;
 using MoongladePure.Web.Attributes;
 using NUglify;
 using System.ComponentModel.DataAnnotations;
@@ -15,19 +13,13 @@ public class PostController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    private readonly IBlogConfig _blogConfig;
-    private readonly IPingbackSender _pingbackSender;
     private readonly ILogger<PostController> _logger;
 
     public PostController(
         IMediator mediator,
-        IBlogConfig blogConfig,
-        IPingbackSender pingbackSender,
         ILogger<PostController> logger)
     {
         _mediator = mediator;
-        _blogConfig = blogConfig;
-        _pingbackSender = pingbackSender;
         _logger = logger;
     }
 
@@ -71,27 +63,6 @@ public class PostController : ControllerBase
             var postEntity = model.PostId == Guid.Empty ?
                 await _mediator.Send(new CreatePostCommand(model)) :
                 await _mediator.Send(new UpdatePostCommand(model.PostId, model));
-
-            if (model.IsPublished)
-            {
-                _logger.LogInformation($"Trying to Ping URL for post: {postEntity.Id}");
-
-                var pubDate = postEntity.PubDateUtc.GetValueOrDefault();
-
-                var link = linkGenerator.GetUriByPage(HttpContext, "/Post", null,
-                    new
-                    {
-                        year = pubDate.Year,
-                        month = pubDate.Month,
-                        day = pubDate.Day,
-                        postEntity.Slug
-                    });
-
-                if (_blogConfig.AdvancedSettings.EnablePingbackSend)
-                {
-                    _ = Task.Run(async () => { await _pingbackSender.TrySendPingAsync(link, postEntity.PostContent); });
-                }
-            }
 
             return Ok(new { PostId = postEntity.Id });
         }

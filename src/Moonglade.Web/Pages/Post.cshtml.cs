@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MoongladePure.Core.PostFeature;
-using MoongladePure.Pingback;
 
 namespace MoongladePure.Web.Pages;
 
-[AddPingbackHeader("pingback")]
 public class PostModel : PageModel
 {
     private readonly IMediator _mediator;

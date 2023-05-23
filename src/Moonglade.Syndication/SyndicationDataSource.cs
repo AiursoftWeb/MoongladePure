@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using MoongladePure.Configuration;
 using MoongladePure.Data.Entities;
 using MoongladePure.Data.Infrastructure;
@@ -19,22 +18,19 @@ public class SyndicationDataSource : ISyndicationDataSource
     private readonly IBlogConfig _blogConfig;
     private readonly IRepository<CategoryEntity> _catRepo;
     private readonly IRepository<PostEntity> _postRepo;
-    private readonly IConfiguration _configuration;
 
     public SyndicationDataSource(
         IBlogConfig blogConfig,
         IHttpContextAccessor httpContextAccessor,
         IRepository<CategoryEntity> catRepo,
-        IRepository<PostEntity> postRepo,
-        IConfiguration configuration)
+        IRepository<PostEntity> postRepo)
     {
         _blogConfig = blogConfig;
         _catRepo = catRepo;
         _postRepo = postRepo;
-        _configuration = configuration;
 
         var acc = httpContextAccessor;
-        _baseUrl = $"{acc.HttpContext.Request.Scheme}://{acc.HttpContext.Request.Host}";
+        _baseUrl = $"{acc.HttpContext?.Request.Scheme}://{acc.HttpContext?.Request.Host}";
     }
 
     public async Task<IReadOnlyList<FeedEntry>> GetFeedDataAsync(string catRoute = null)

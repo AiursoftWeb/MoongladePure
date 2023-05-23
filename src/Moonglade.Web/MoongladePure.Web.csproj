@@ -51,7 +51,6 @@
 		<ProjectReference Include="..\Moonglade.FriendLink\MoongladePure.FriendLink.csproj" />
 		<ProjectReference Include="..\Moonglade.ImageStorage\MoongladePure.ImageStorage.csproj" />
 		<ProjectReference Include="..\Moonglade.Menus\MoongladePure.Menus.csproj" />
-		<ProjectReference Include="..\Moonglade.Pingback\MoongladePure.Pingback.csproj" />
 		<ProjectReference Include="..\Moonglade.Syndication\MoongladePure.Syndication.csproj" />
 		<ProjectReference Include="..\Moonglade.Theme\MoongladePure.Theme.csproj" />
 	</ItemGroup>

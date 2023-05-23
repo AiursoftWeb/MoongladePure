@@ -12,16 +12,13 @@ public class CommentController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly IBlogConfig _blogConfig;
-    private readonly ILogger<CommentController> _logger;
 
     public CommentController(
         IMediator mediator,
-        IBlogConfig blogConfig,
-        ILogger<CommentController> logger)
+        IBlogConfig blogConfig)
     {
         _mediator = mediator;
         _blogConfig = blogConfig;
-        _logger = logger;
     }
 
     [HttpPost("{postId:guid}")]
@@ -89,18 +86,5 @@ public class CommentController : ControllerBase
         var reply = await _mediator.Send(new ReplyCommentCommand(commentId, replyContent));
 
         return Ok(reply);
-    }
-
-    private string GetPostUrl(LinkGenerator linkGenerator, DateTime pubDate, string slug)
-    {
-        var link = linkGenerator.GetUriByPage(HttpContext, "/Post", null,
-            new
-            {
-                year = pubDate.Year,
-                month = pubDate.Month,
-                day = pubDate.Day,
-                slug
-            });
-        return link;
     }
 }

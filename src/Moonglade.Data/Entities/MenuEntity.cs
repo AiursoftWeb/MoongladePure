@@ -4,11 +4,6 @@ namespace MoongladePure.Data.Entities;
 
 public class MenuEntity
 {
-    public MenuEntity()
-    {
-        SubMenus = new HashSet<SubMenuEntity>();
-    }
-
     public Guid Id { get; set; }
 
     public string Title { get; set; }
@@ -21,7 +16,7 @@ public class MenuEntity
 
     public bool IsOpenInNewTab { get; set; }
 
-    public virtual ICollection<SubMenuEntity> SubMenus { get; set; }
+    public virtual ICollection<SubMenuEntity> SubMenus { get; set; } = new HashSet<SubMenuEntity>();
 }
 
 internal class MenuConfiguration : IEntityTypeConfiguration<MenuEntity>
