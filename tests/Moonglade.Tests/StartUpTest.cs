@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MoongladePure.Tests;
 
@@ -8,7 +9,10 @@ public class StartUpTest
     [TestMethod]
     public void StartTest()
     {
-        MoongladePure.Web.
-        Assert.AreEqual(1, 2 - 1);
+        var builder = WebApplication.CreateBuilder();
+
+        Program.ConfigureServices(builder.Services, builder.Configuration);
+
+        _ = builder.Build();
     }
 }

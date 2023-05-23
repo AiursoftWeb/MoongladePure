@@ -28,7 +28,7 @@ public class Program
         await app.RunAsync();
     }
 
-    static void ConfigureServices(IServiceCollection services, IConfiguration config)
+    public static void ConfigureServices(IServiceCollection services, IConfiguration config)
     {
         AppDomain.CurrentDomain.Load("MoongladePure.Core");
         AppDomain.CurrentDomain.Load("MoongladePure.FriendLink");
@@ -100,7 +100,7 @@ public class Program
         services.AddDatabase(connStr, useTestDb: false);
     }
 
-    static async Task FirstRun(WebApplication app)
+    public static async Task FirstRun(WebApplication app)
     {
         try
         {
@@ -126,11 +126,11 @@ public class Program
         catch (Exception e)
         {
             app.MapGet("/", _ => throw new("Start up failed: " + e.Message));
-            app.Run();
+            await app.RunAsync();
         }
     }
 
-    static void ConfigureMiddleware(WebApplication app)
+    public static void ConfigureMiddleware(WebApplication app)
     {
         app.UseForwardedHeaders();
         app.UseHealthChecks(new PathString("/health"));
