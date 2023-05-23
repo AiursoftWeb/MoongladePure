@@ -6,17 +6,19 @@
 [![NuGet version (MoongladePure.Core](https://img.shields.io/nuget/v/MoongladePure.Core.svg)](https://www.nuget.org/packages/MoongladePure.Core/)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fanduin.aiursoft.com%2F%3Fshow%3Ddirect)](https://anduin.aiursoft.com)
 
-MoongladePure is a fork of Moonglade. Regain control over your data.
+MoongladePure, regain control over your data.
 
-MoongladePure can be deployed completely on-premises without coupling to any particular cloud.
+MoongladePure can be deployed completely on-premises without coupling to any particular cloud. 100% local!
 
-MoongladePure supports AirGap deployment. It doesn't require an Internet connection to use. 100% local!
+MoongladePure uses MySQL as database and file system as data store. It's extremely easy to try and deploy!
+
+<div align=center>
+    <img src="./assets/demo.png">
+</div>
 
 ## Run locally
 
-Requirements about how to run
-
-1. [.NET 6 SDK](http://dot.net/)
+Install [.NET 6 SDK](http://dot.net/).
 
 Clone the project and go to the web project to run it. **Only for development, NOT for production!**
 
