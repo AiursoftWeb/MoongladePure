@@ -39,7 +39,7 @@ public class Program
         AppDomain.CurrentDomain.Load("MoongladePure.Configuration");
         AppDomain.CurrentDomain.Load("MoongladePure.Data");
 
-        services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
+        services.AddMediatR(config => config.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
         services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
