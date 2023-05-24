@@ -130,7 +130,7 @@ sudo chown -R www-data:www-data /opt/apps/MoongladePure
 Then build it:
 
 ```bash
-dotnet publish -c Release -o ./bin -r linux-x64 --no-self-contained ./moongladepure/src/Moonglade.Web/MoongladePure.Web.csproj
+dotnet publish -c Release -o ./bin -r linux-x64 --no-self-contained ./moongladepure-master/src/Moonglade.Web/MoongladePure.Web.csproj
 ```
 
 Copy the files to the directory:
