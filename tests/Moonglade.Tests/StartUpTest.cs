@@ -20,7 +20,7 @@ public class StartUpTest
 
         var builder = WebApplication.CreateBuilder();
 
-        builder.WebHost.UseUrls("http://0.0.0.0:61237");
+        builder.WebHost.UseUrls("http://localhost:61237");
 
         Program.ConfigureServices(builder.Services, builder.Configuration, isTest: true);
 
@@ -43,10 +43,10 @@ public class StartUpTest
     }
 
     [TestMethod]
-    public async Task StartTest()
+    public async Task HealthCheck()
     {
         var http = new HttpClient();
-        _ = await http.GetAsync("http://localhost:61237/admin");
-        //response.EnsureSuccessStatusCode(); // Status Code 200-299
+        var response = await http.GetAsync("http://localhost:61237/health");
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
 }
