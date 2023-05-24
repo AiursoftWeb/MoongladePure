@@ -108,7 +108,7 @@ You can download MoongladePure via:
 
 ```bash
 wget https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/archive/master/moongladepure-master.tar.gz
-tar -zxvf ./master.tar.gz
+tar -zxvf ./moongladepure-master.tar.gz moongladepure-master/
 ls
 ```
 
