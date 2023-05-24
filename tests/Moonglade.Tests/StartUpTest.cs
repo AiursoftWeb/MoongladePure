@@ -12,15 +12,18 @@ namespace MoongladePure.Tests;
 public class StartUpTest
 {
     [CanBeNull] private WebApplication app;
+    private int _port;
 
     [TestInitialize]
     public async Task PrepareServer()
     {
+        _port = Network.GetAvailablePort();
+
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
         var builder = WebApplication.CreateBuilder();
 
-        builder.WebHost.UseUrls("http://localhost:61237");
+        builder.WebHost.UseUrls($"http://localhost:{_port}");
 
         Program.ConfigureServices(builder.Services, builder.Configuration, isTest: true);
 
@@ -46,7 +49,7 @@ public class StartUpTest
     public async Task HealthCheck()
     {
         var http = new HttpClient();
-        var response = await http.GetAsync("http://localhost:61237/health");
+        var response = await http.GetAsync($"http://localhost:{_port}/health");
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
 }
