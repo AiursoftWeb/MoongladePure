@@ -39,7 +39,7 @@ info: Microsoft.Hosting.Lifetime[0]
       Application started. Press Ctrl+C to shut down.
 ```
 
-Now open your browser and browse to [http://0.0.0.0:8080](http://0.0.0.0:8080). You should see the MoongladePure welcome page.
+Now open your browser and browse to [http://localhost:8080](http://localhost:8080). You should see the MoongladePure welcome page.
 
 ## Run in a production server
 

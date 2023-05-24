@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MoongladePure.Tests;
@@ -19,7 +20,7 @@ public class StartUpTest
 
         var builder = WebApplication.CreateBuilder();
 
-        //builder.WebHost.UseUrls("http://0.0.0.0:61237");
+        builder.WebHost.UseUrls("http://0.0.0.0:61237");
 
         Program.ConfigureServices(builder.Services, builder.Configuration, isTest: true);
 
@@ -45,7 +46,7 @@ public class StartUpTest
     public async Task StartTest()
     {
         var http = new HttpClient();
-        _ = await http.GetAsync("http://localhost:5000/admin");
+        _ = await http.GetAsync("http://localhost:61237/admin");
         //response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
 }
