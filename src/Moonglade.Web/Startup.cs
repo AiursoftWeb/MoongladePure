@@ -8,6 +8,7 @@ using WilderMinds.MetaWeblog;
 using System.Globalization;
 using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
+using Aiursoft.XelNaga.Tools;
 
 namespace MoongladePure.Web
 {
@@ -93,11 +94,11 @@ namespace MoongladePure.Web
                 .AddBlogConfig(Configuration)
                 .AddBlogAuthenticaton(Configuration)
                 .AddComments(Configuration)
-                .AddImageStorage(Configuration, Environment.IsDevelopment())
+                .AddImageStorage(Configuration, Environment.IsDevelopment() || EntryExtends.IsInUT())
                 .Configure<List<ManifestIcon>>(Configuration.GetSection("ManifestIcons"));
 
             var connStr = Configuration.GetConnectionString("MoongladeDatabase");
-            services.AddDatabase(connStr, useTestDb: Environment.IsDevelopment());
+            services.AddDatabase(connStr, useTestDb: Environment.IsDevelopment() || EntryExtends.IsInUT());
 
         }
 
@@ -124,7 +125,7 @@ namespace MoongladePure.Web
                 .UseMiddleware<PoweredByMiddleware>()
                 .UseMiddleware<DNTMiddleware>();
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || EntryExtends.IsInUT())
             {
                 app.UseDeveloperExceptionPage();
             }
