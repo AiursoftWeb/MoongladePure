@@ -161,7 +161,7 @@ public class SettingsController : ControllerBase
     {
         _logger.LogWarning($"System reset is requested by '{User.Identity?.Name}', IP: {Helper.GetClientIP(HttpContext)}.");
 
-        await context.ClearAllData();
+        await context.ClearAllDataAsync();
 
         applicationLifetime.StopApplication();
         return Accepted();

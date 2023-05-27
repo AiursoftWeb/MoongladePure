@@ -58,7 +58,7 @@ public class BlogDbContext : DbContext
 
 public static class BlogDbContextExtension
 {
-    public static async Task ClearAllData(this BlogDbContext context)
+    public static async Task ClearAllDataAsync(this BlogDbContext context)
     {
         context.PostTag.RemoveRange();
         context.PostCategory.RemoveRange();

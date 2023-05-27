@@ -154,24 +154,6 @@
 
                     <div class="row g-3 align-items-center settings-entry mb-4">
                         <div class="col-auto">
-                            <i class="bi-puzzle settings-entry-icon"></i>
-                        </div>
-                        <div class="col">
-                            <label asp-for="ViewModel.EnableMetaWeblog" class="form-check-label"></label>
-                            <div class="form-text">
-                                @SharedLocalizer["* Requires restarting application"]
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <div class="form-check form-switch">
-                                <input type="hidden" name="EnableMetaWeblog" value="false">
-                                <input type="checkbox" name="EnableMetaWeblog" value="true" class="form-check-input" @(Model.ViewModel.EnableMetaWeblog ? "checked" : null)>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 align-items-center settings-entry mb-4">
-                        <div class="col-auto">
                             <i class="bi-key settings-entry-icon"></i>
                         </div>
                         <div class="col">

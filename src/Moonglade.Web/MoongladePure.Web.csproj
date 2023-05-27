@@ -11,11 +11,9 @@
 
 	<ItemGroup>
 		<Using Include="System.Text" />
-		
 		<Using Include="Microsoft.AspNetCore.Mvc" />
 		<Using Include="Microsoft.AspNetCore.Authorization" />
 		<Using Include="MediatR" />
-
 		<Using Include="MoongladePure.Web" />
 		<Using Include="MoongladePure.Web.Configuration" />
 		<Using Include="MoongladePure.Web.Filters" />
@@ -41,7 +39,7 @@
 		<PackageReference Include="UAParser" Version="3.1.47" />
 		<PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.1" />
 		<PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
-		
+		<PackageReference Include="Aiursoft.SDK" Version="6.0.19" />
 	</ItemGroup>
 
 	<ItemGroup>

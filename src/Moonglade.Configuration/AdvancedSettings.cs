@@ -9,9 +9,6 @@ public class AdvancedSettings : IBlogSettings
     [MaxLength(1024)]
     public string RobotsTxtContent { get; set; }
 
-    [Display(Name = "Enable MetaWeblog API")]
-    public bool EnableMetaWeblog { get; set; } = true;
-
     [Display(Name = "Enable OpenSearch")]
     public bool EnableOpenSearch { get; set; } = true;
 
