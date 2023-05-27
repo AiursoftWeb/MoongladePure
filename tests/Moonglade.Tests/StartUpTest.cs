@@ -60,10 +60,66 @@ public class StartUpTest
     }
 
     [TestMethod]
+    public async Task GetTags()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/tags");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+
+    [TestMethod]
+    public async Task GetCatagory()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/category/default");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+
+    [TestMethod]
+    public async Task GetArchive()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/archive");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+
+    [TestMethod]
+    public async Task GetPost()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/post/2023/5/27/welcome-to-moonglade-pure");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+
+    [TestMethod]
+    public async Task GetAdmin()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/admin");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+
+    [TestMethod]
+    public async Task GetRss()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/rss");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+
+    [TestMethod]
     public async Task HealthCheck()
     {
         var http = new HttpClient();
         var response = await http.GetAsync($"{_endpointUrl}/health");
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+
+    [TestMethod]
+    public async Task Ping()
+    {
+        var http = new HttpClient();
+        var response = await http.GetAsync($"{_endpointUrl}/ping");
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
 }
