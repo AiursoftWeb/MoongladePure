@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Aiursoft.Handler.Attributes;
 using Microsoft.Extensions.Hosting;
@@ -86,7 +87,7 @@ public class StartUpTest
     [TestMethod]
     public async Task GetPost()
     {
-        var response = await _http.GetAsync($"{_endpointUrl}/post/2023/5/27/welcome-to-moonglade-pure");
+        var response = await _http.GetAsync($"{_endpointUrl}/post/{DateTime.UtcNow.Year}/{DateTime.UtcNow.Month}/{DateTime.UtcNow.Day}/welcome-to-moonglade-pure");
         await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
