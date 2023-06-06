@@ -68,17 +68,25 @@ namespace MoongladePure.Web.BackgroundJobs
 
                     foreach (var post in posts)
                     {
-                        var commented = await context.Comment
+                        // Get all GPT comments.
+                        var chatGptComments = await context.Comment
                             .AsNoTracking()
                             .Where(c => c.PostId == post.Id)
                             .Where(c => c.IPAddress == "127.0.0.1")
                             .Where(c => c.Username == "ChatGPT")
-                            .AnyAsync();
-                        if (commented)
+                            .ToListAsync();
+                        
+                        // Skip valid posts.
+                        if (chatGptComments.Count == 1)
                         {
                             continue;
                         }
+                        
+                        // Clear obsolete comments.
+                        context.Comment.RemoveRange(chatGptComments);
+                        await context.SaveChangesAsync();
 
+                        // Insert a new comment.
                         logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
                         try
                         {
