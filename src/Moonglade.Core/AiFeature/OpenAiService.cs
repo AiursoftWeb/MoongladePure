@@ -63,10 +63,18 @@ namespace MoongladePure.Core.AiFeature
 
             request.Headers.Add("Authorization", $"Bearer {_token}");
             var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            var responseJson = await response.Content.ReadAsStringAsync();
-            var responseModel = JsonSerializer.Deserialize<CompletionData>(responseJson);
-            return responseModel;
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                var responseJson = await response.Content.ReadAsStringAsync();
+                var responseModel = JsonSerializer.Deserialize<CompletionData>(responseJson);
+                return responseModel;
+            }
+            catch (HttpRequestException)
+            {
+                var remoteError = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(remoteError);
+            }
         }
     }
 
@@ -87,8 +95,11 @@ namespace MoongladePure.Core.AiFeature
         [JsonPropertyName("stream")]
         public bool Stream { get; set; } = false;
 
+        [JsonPropertyName("max_tokens")]
+        public int MaxTokens { get; set; } = 32000;
+
         [JsonPropertyName("model")] 
-        public string Model { get; set; } = "gpt-3.5-turbo";
+        public string Model { get; set; } = "gpt-4";
 
         [JsonPropertyName("temperature")] 
         public double Temperature { get; set; } = 0.5;

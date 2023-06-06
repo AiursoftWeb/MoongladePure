@@ -1,7 +1,5 @@
 ﻿using Aiursoft.SDK;
 using Microsoft.EntityFrameworkCore;
-using MoongladePure.Core.AiFeature;
-using MoongladePure.Data.Entities;
 using MoongladePure.Data.MySql;
 using static Aiursoft.WebTools.Extends;
 

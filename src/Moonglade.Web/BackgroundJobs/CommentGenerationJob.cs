@@ -1,7 +1,5 @@
-﻿using Aiursoft.Scanner.Abstract;
-using Aiursoft.XelNaga.Tools;
+﻿using Aiursoft.XelNaga.Tools;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Data.Entities;
 using MoongladePure.Data.MySql;
@@ -89,7 +87,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 await context.SaveChangesAsync();
 
                                 // Sleep to avoid too many requests.
-                                await Task.Delay(30 * 1000);
+                                await Task.Delay(10 * 1000);
                             }
                             catch (Exception e)
                             {
