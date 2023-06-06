@@ -32,6 +32,11 @@ namespace MoongladePure.Core.AiFeature
 
         public async Task<CompletionData> Ask(string content, string prompt)
         {
+            if (string.IsNullOrWhiteSpace(_token))
+            {
+                throw new ArgumentNullException(nameof(_token));
+            }
+
             _logger.LogInformation("Asking OpenAi to generate a comment...");
             var model = new OpenAiModel
             {
