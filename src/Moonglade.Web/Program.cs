@@ -68,6 +68,7 @@ public static class ProgramExtends
         {
             if (post.Comments.All(c => c.Username != "ChatGPT"))
             {
+                logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
                 try
                 {
                     var newComment = await openAi.GenerateComment(post.PostContent);
