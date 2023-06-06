@@ -63,13 +63,13 @@ namespace MoongladePure.Web.BackgroundJobs
                         .AsNoTracking()
                         .Where(p => p.IsPublished)
                         .Where(p => !p.IsDeleted)
-                        .Include(p => p.Comments)
                         .OrderByDescending(p => p.PubDateUtc)
                         .ToListAsync();
 
                     foreach (var post in posts)
                     {
-                        if (post.Comments.All(c => c.Username != "ChatGPT"))
+                        var comments = await context.Comment.AsNoTracking().Where(c => c.PostId == post.Id).ToListAsync();
+                        if (comments.All(c => c.Username != "ChatGPT"))
                         {
                             logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
                             try
