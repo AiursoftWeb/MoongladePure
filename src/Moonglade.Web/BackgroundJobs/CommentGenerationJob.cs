@@ -37,7 +37,7 @@ namespace MoongladePure.Web.BackgroundJobs
             }
 
             _logger.LogInformation("Comment generator job is starting.");
-            _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(10));
+            _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24));
             return Task.CompletedTask;
         }
 
@@ -52,7 +52,7 @@ namespace MoongladePure.Web.BackgroundJobs
         {
             try
             {
-                _logger.LogInformation("Cleaner task started!");
+                _logger.LogInformation("Comment task started!");
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var services = scope.ServiceProvider;
@@ -68,12 +68,20 @@ namespace MoongladePure.Web.BackgroundJobs
 
                     foreach (var post in posts)
                     {
-                        // Get all GPT comments.
-                        var chatGptComments = await context.Comment
-                            .AsNoTracking()
+                        // Clear all GPT-3.5 comments.
+                        var gpt35Comments = await context.Comment
                             .Where(c => c.PostId == post.Id)
                             .Where(c => c.IPAddress == "127.0.0.1")
                             .Where(c => c.Username == "ChatGPT")
+                            .ToListAsync();
+                        context.Comment.RemoveRange(gpt35Comments);
+                        await context.SaveChangesAsync();
+
+                        // Get all GPT comments.
+                        var chatGptComments = await context.Comment
+                            .Where(c => c.PostId == post.Id)
+                            .Where(c => c.IPAddress == "127.0.0.1")
+                            .Where(c => c.Username == "GPT-4")
                             .ToListAsync();
                         
                         // Skip valid posts.
@@ -81,7 +89,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         {
                             continue;
                         }
-                        
+
                         // Clear obsolete comments.
                         context.Comment.RemoveRange(chatGptComments);
                         await context.SaveChangesAsync();
@@ -90,7 +98,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
                         try
                         {
-                            var newComment = await openAi.GenerateComment(post.Title + "\r\n\r\n" + post.PostContent);
+                            var newComment = await openAi.GenerateComment($"# {post.Title}" + "\r\n" + post.PostContent);
                             await context.Comment.AddAsync(new CommentEntity
                             {
                                 Id = Guid.NewGuid(),
@@ -100,7 +108,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 IsApproved = true,
                                 CommentContent = newComment,
                                 CreateTimeUtc = DateTime.UtcNow,
-                                Username = "ChatGPT"
+                                Username = "GPT-4"
                             });
                             await context.SaveChangesAsync();
                         }
@@ -111,7 +119,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         finally
                         {
                             // Sleep to avoid too many requests.
-                            await Task.Delay(50 * 1000);
+                            await Task.Delay(TimeSpan.FromMinutes(30));
                         }
                     }
 
