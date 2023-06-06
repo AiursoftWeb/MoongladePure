@@ -85,13 +85,15 @@ namespace MoongladePure.Web.BackgroundJobs
                                     Username = "ChatGPT"
                                 });
                                 await context.SaveChangesAsync();
-
-                                // Sleep to avoid too many requests.
-                                await Task.Delay(10 * 1000);
                             }
                             catch (Exception e)
                             {
                                 logger.LogCritical(e, "Failed to generate OpenAi comment!");
+                            }
+                            finally
+                            {
+                                // Sleep to avoid too many requests.
+                                await Task.Delay(50 * 1000);
                             }
                         }
                     }
