@@ -85,6 +85,9 @@ public static class ProgramExtends
                         Username = "ChatGPT"
                     });
                     await context.SaveChangesAsync();
+
+                    // Sleep to avoid too many requests.
+                    await Task.Delay(30 * 1000);
                 }
                 catch (Exception e)
                 {
