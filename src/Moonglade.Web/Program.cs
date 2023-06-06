@@ -60,6 +60,7 @@ public static class ProgramExtends
         var logger = services.GetRequiredService<ILogger<Startup>>();
         var context = services.GetRequiredService<MySqlBlogDbContext>();
         var posts = await context.Post
+            .AsNoTracking()
             .Include(p => p.Comments)
             .OrderByDescending(p => p.PubDateUtc)
             .ToListAsync();
