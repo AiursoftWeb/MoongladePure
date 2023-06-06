@@ -96,9 +96,6 @@ namespace MoongladePure.Core.AiFeature
         [JsonPropertyName("stream")]
         public bool Stream { get; set; } = false;
 
-        [JsonPropertyName("max_tokens")]
-        public int MaxTokens { get; set; } = 32000;
-
         [JsonPropertyName("model")] 
         public string Model { get; set; } = "gpt-3.5-turbo";
 
