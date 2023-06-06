@@ -61,6 +61,8 @@ namespace MoongladePure.Web.BackgroundJobs
                     var context = services.GetRequiredService<MySqlBlogDbContext>();
                     var posts = await context.Post
                         .AsNoTracking()
+                        .Where(p => p.IsPublished)
+                        .Where(p => !p.IsDeleted)
                         .Include(p => p.Comments)
                         .OrderByDescending(p => p.PubDateUtc)
                         .ToListAsync();
@@ -72,7 +74,7 @@ namespace MoongladePure.Web.BackgroundJobs
                             logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
                             try
                             {
-                                var newComment = await openAi.GenerateComment(post.PostContent);
+                                var newComment = await openAi.GenerateComment(post.Title + "\r\n\r\n" + post.PostContent);
                                 await context.Comment.AddAsync(new CommentEntity
                                 {
                                     Id = Guid.NewGuid(),
