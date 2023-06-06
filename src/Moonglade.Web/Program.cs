@@ -57,6 +57,7 @@ public static class ProgramExtends
         using var scope = host.Services.CreateScope();
         var services = scope.ServiceProvider;
         var openAi = services.GetRequiredService<OpenAiService>();
+        var logger = services.GetRequiredService<ILogger<Startup>>();
         var context = services.GetRequiredService<MySqlBlogDbContext>();
         var posts = await context.Post
             .Include(p => p.Comments)
@@ -67,19 +68,26 @@ public static class ProgramExtends
         {
             if (post.Comments.All(c => c.Username != "ChatGPT"))
             {
-                var newComment = await openAi.GenerateComment(post.PostContent);
-                await context.Comment.AddAsync(new CommentEntity
+                try
                 {
+                    var newComment = await openAi.GenerateComment(post.PostContent);
+                    await context.Comment.AddAsync(new CommentEntity
+                    {
 
-                    PostId = post.Id,
-                    IPAddress = "127.0.0.1",
-                    Email = "chatgpt@domain.com",
-                    IsApproved = true,
-                    CommentContent = newComment,
-                    CreateTimeUtc = DateTime.UtcNow,
-                    Username = "ChatGPT"
-                });
-                await context.SaveChangesAsync();
+                        PostId = post.Id,
+                        IPAddress = "127.0.0.1",
+                        Email = "chatgpt@domain.com",
+                        IsApproved = true,
+                        CommentContent = newComment,
+                        CreateTimeUtc = DateTime.UtcNow,
+                        Username = "ChatGPT"
+                    });
+                    await context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    logger.LogCritical(e, "Failed to generate OpenAi comment!");
+                }
             }
         }
 
