@@ -19,6 +19,7 @@ namespace MoongladePure.Core.AiFeature
             IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _httpClient.Timeout = TimeSpan.FromMinutes(5);
             _logger = logger;
             _token = configuration["OpenAI:Token"];
             _instance = configuration["OpenAI:Instance"];
