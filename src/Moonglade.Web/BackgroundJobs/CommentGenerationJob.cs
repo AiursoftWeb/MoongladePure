@@ -68,35 +68,42 @@ namespace MoongladePure.Web.BackgroundJobs
 
                     foreach (var post in posts)
                     {
-                        var comments = await context.Comment.AsNoTracking().Where(c => c.PostId == post.Id).ToListAsync();
-                        if (comments.All(c => c.Username != "ChatGPT"))
+                        var commented = await context.Comment
+                            .AsNoTracking()
+                            .Where(c => c.PostId == post.Id)
+                            .Where(c => c.IPAddress == "127.0.0.1")
+                            .Where(c => c.Username == "ChatGPT")
+                            .AnyAsync();
+                        if (commented)
                         {
-                            logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
-                            try
+                            continue;
+                        }
+
+                        logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
+                        try
+                        {
+                            var newComment = await openAi.GenerateComment(post.Title + "\r\n\r\n" + post.PostContent);
+                            await context.Comment.AddAsync(new CommentEntity
                             {
-                                var newComment = await openAi.GenerateComment(post.Title + "\r\n\r\n" + post.PostContent);
-                                await context.Comment.AddAsync(new CommentEntity
-                                {
-                                    Id = Guid.NewGuid(),
-                                    PostId = post.Id,
-                                    IPAddress = "127.0.0.1",
-                                    Email = "chatgpt@domain.com",
-                                    IsApproved = true,
-                                    CommentContent = newComment,
-                                    CreateTimeUtc = DateTime.UtcNow,
-                                    Username = "ChatGPT"
-                                });
-                                await context.SaveChangesAsync();
-                            }
-                            catch (Exception e)
-                            {
-                                logger.LogCritical(e, "Failed to generate OpenAi comment!");
-                            }
-                            finally
-                            {
-                                // Sleep to avoid too many requests.
-                                await Task.Delay(50 * 1000);
-                            }
+                                Id = Guid.NewGuid(),
+                                PostId = post.Id,
+                                IPAddress = "127.0.0.1",
+                                Email = "chatgpt@domain.com",
+                                IsApproved = true,
+                                CommentContent = newComment,
+                                CreateTimeUtc = DateTime.UtcNow,
+                                Username = "ChatGPT"
+                            });
+                            await context.SaveChangesAsync();
+                        }
+                        catch (Exception e)
+                        {
+                            logger.LogCritical(e, "Failed to generate OpenAi comment!");
+                        }
+                        finally
+                        {
+                            // Sleep to avoid too many requests.
+                            await Task.Delay(50 * 1000);
                         }
                     }
 

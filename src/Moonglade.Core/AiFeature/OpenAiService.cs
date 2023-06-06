@@ -70,11 +70,10 @@ namespace MoongladePure.Core.AiFeature
                 var responseModel = JsonSerializer.Deserialize<CompletionData>(responseJson);
                 return responseModel;
             }
-            catch (HttpRequestException e)
+            catch (HttpRequestException raw)
             {
-                _logger.LogCritical(e, "Crashed when calling OpenAI API!");
                 var remoteError = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException(remoteError);
+                throw new HttpRequestException(remoteError, raw);
             }
         }
     }
