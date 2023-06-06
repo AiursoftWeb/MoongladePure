@@ -75,7 +75,7 @@ public static class ProgramExtends
                     var newComment = await openAi.GenerateComment(post.PostContent);
                     await context.Comment.AddAsync(new CommentEntity
                     {
-
+                        Id = Guid.NewGuid(),
                         PostId = post.Id,
                         IPAddress = "127.0.0.1",
                         Email = "chatgpt@domain.com",
