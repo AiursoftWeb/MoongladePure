@@ -9,6 +9,7 @@ using System.Globalization;
 using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 using Aiursoft.XelNaga.Tools;
+using MoongladePure.Core.AiFeature;
 
 namespace MoongladePure.Web
 {
@@ -86,6 +87,8 @@ namespace MoongladePure.Web
             });
 
             services.AddHealthChecks();
+            services.AddHttpClient();
+            services.AddScoped<OpenAiService>();
             services
                 .AddSyndication()
                 .AddBlogCache()

@@ -1,5 +1,7 @@
 ﻿using Aiursoft.SDK;
 using Microsoft.EntityFrameworkCore;
+using MoongladePure.Core.AiFeature;
+using MoongladePure.Data.Entities;
 using MoongladePure.Data.MySql;
 using static Aiursoft.WebTools.Extends;
 
@@ -9,9 +11,10 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        await (await App<Startup>(args)
+        await (await (await App<Startup>(args)
             .Update<MySqlBlogDbContext>()
             .SeedAsync())
+            .GenerateAiCommentAsync())
             .RunAsync();
     }
 
@@ -46,6 +49,40 @@ public static class ProgramExtends
 
         var iconData = await mediator.Send(new GetAssetQuery(AssetId.SiteIconBase64));
         MemoryStreamIconGenerator.GenerateIcons(iconData, env.WebRootPath, logger);
+        return host;
+    }
+
+    public static async Task<IHost> GenerateAiCommentAsync(this IHost host)
+    {
+        using var scope = host.Services.CreateScope();
+        var services = scope.ServiceProvider;
+        var openAi = services.GetRequiredService<OpenAiService>();
+        var context = services.GetRequiredService<MySqlBlogDbContext>();
+        var posts = await context.Post
+            .Include(p => p.Comments)
+            .OrderByDescending(p => p.PubDateUtc)
+            .ToListAsync();
+
+        foreach (var post in posts)
+        {
+            if (post.Comments.All(c => c.Username != "ChatGPT"))
+            {
+                var newComment = await openAi.GenerateComment(post.PostContent);
+                await context.Comment.AddAsync(new CommentEntity
+                {
+
+                    PostId = post.Id,
+                    IPAddress = "127.0.0.1",
+                    Email = "chatgpt@domain.com",
+                    IsApproved = true,
+                    CommentContent = newComment,
+                    CreateTimeUtc = DateTime.UtcNow,
+                    Username = "ChatGPT"
+                });
+                await context.SaveChangesAsync();
+            }
+        }
+
         return host;
     }
 }
