@@ -10,6 +10,7 @@ using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 using Aiursoft.XelNaga.Tools;
 using MoongladePure.Core.AiFeature;
+using MoongladePure.Web.BackgroundJobs;
 
 namespace MoongladePure.Web
 {
@@ -67,7 +68,6 @@ namespace MoongladePure.Web
 
             // Fix Chinese character being encoded in HTML output
             services.AddSingleton(Encoder.MoongladeHtmlEncoder);
-
             services.AddAntiforgery(options =>
             {
                 const string csrfName = "CSRF-TOKEN-MOONGLADE";
@@ -87,6 +87,7 @@ namespace MoongladePure.Web
             });
 
             services.AddHealthChecks();
+            services.AddSingleton<IHostedService, CommentGenerationJob>();
             services.AddHttpClient();
             services.AddScoped<OpenAiService>();
             services

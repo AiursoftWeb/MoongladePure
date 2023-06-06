@@ -11,10 +11,9 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        await (await (await App<Startup>(args)
+        await (await App<Startup>(args)
             .Update<MySqlBlogDbContext>()
             .SeedAsync())
-            .GenerateAiCommentAsync())
             .RunAsync();
     }
 
@@ -49,53 +48,6 @@ public static class ProgramExtends
 
         var iconData = await mediator.Send(new GetAssetQuery(AssetId.SiteIconBase64));
         MemoryStreamIconGenerator.GenerateIcons(iconData, env.WebRootPath, logger);
-        return host;
-    }
-
-    public static async Task<IHost> GenerateAiCommentAsync(this IHost host)
-    {
-        using var scope = host.Services.CreateScope();
-        var services = scope.ServiceProvider;
-        var openAi = services.GetRequiredService<OpenAiService>();
-        var logger = services.GetRequiredService<ILogger<Startup>>();
-        var context = services.GetRequiredService<MySqlBlogDbContext>();
-        var posts = await context.Post
-            .AsNoTracking()
-            .Include(p => p.Comments)
-            .OrderByDescending(p => p.PubDateUtc)
-            .ToListAsync();
-
-        foreach (var post in posts)
-        {
-            if (post.Comments.All(c => c.Username != "ChatGPT"))
-            {
-                logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
-                try
-                {
-                    var newComment = await openAi.GenerateComment(post.PostContent);
-                    await context.Comment.AddAsync(new CommentEntity
-                    {
-                        Id = Guid.NewGuid(),
-                        PostId = post.Id,
-                        IPAddress = "127.0.0.1",
-                        Email = "chatgpt@domain.com",
-                        IsApproved = true,
-                        CommentContent = newComment,
-                        CreateTimeUtc = DateTime.UtcNow,
-                        Username = "ChatGPT"
-                    });
-                    await context.SaveChangesAsync();
-
-                    // Sleep to avoid too many requests.
-                    await Task.Delay(30 * 1000);
-                }
-                catch (Exception e)
-                {
-                    logger.LogCritical(e, "Failed to generate OpenAi comment!");
-                }
-            }
-        }
-
         return host;
     }
 }
