@@ -70,8 +70,9 @@ namespace MoongladePure.Core.AiFeature
                 var responseModel = JsonSerializer.Deserialize<CompletionData>(responseJson);
                 return responseModel;
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException e)
             {
+                _logger.LogCritical(e, "Crashed when calling OpenAI API!");
                 var remoteError = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException(remoteError);
             }
@@ -99,7 +100,7 @@ namespace MoongladePure.Core.AiFeature
         public int MaxTokens { get; set; } = 32000;
 
         [JsonPropertyName("model")] 
-        public string Model { get; set; } = "gpt-4";
+        public string Model { get; set; } = "gpt-3.5-turbo";
 
         [JsonPropertyName("temperature")] 
         public double Temperature { get; set; } = 0.5;
