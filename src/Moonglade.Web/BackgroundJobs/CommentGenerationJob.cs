@@ -68,15 +68,6 @@ namespace MoongladePure.Web.BackgroundJobs
 
                     foreach (var post in posts)
                     {
-                        // Clear all GPT-3.5 comments.
-                        var gpt35Comments = await context.Comment
-                            .Where(c => c.PostId == post.Id)
-                            .Where(c => c.IPAddress == "127.0.0.1")
-                            .Where(c => c.Username == "ChatGPT")
-                            .ToListAsync();
-                        context.Comment.RemoveRange(gpt35Comments);
-                        await context.SaveChangesAsync();
-
                         // Get all GPT comments.
                         var chatGptComments = await context.Comment
                             .Where(c => c.PostId == post.Id)
