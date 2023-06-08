@@ -98,11 +98,9 @@ namespace MoongladePure.Web.BackgroundJobs
                         logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
                         try
                         {
-                            var content = post.PostContent;
-                            if (content.Length > 6000)
-                            {
-                                content = content.Substring(content.Length - 6000, content.Length);
-                            }
+                            var content = post.PostContent.Length > 6000 ? 
+                                post.PostContent.Substring(post.PostContent.Length - 6000, 6000) :
+                                post.PostContent;
 
                             var newComment = await openAi.GenerateComment($"# {post.Title}" + "\r\n" + content);
                             await context.Comment.AddAsync(new CommentEntity
