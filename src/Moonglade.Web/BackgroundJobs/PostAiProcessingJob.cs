@@ -81,6 +81,11 @@ namespace MoongladePure.Web.BackgroundJobs
 
                                 var abstractForPost =
                                     await openAi.GenerateAbstract($"# {trackedPost.Title}" + "\r\n" + content);
+
+                                if (abstractForPost.Length > 390)
+                                {
+                                    abstractForPost = abstractForPost[..390];
+                                }
                                 
                                 trackedPost.ContentAbstract = abstractForPost + "--By GPT 4";
                                 context.Post.Update(trackedPost);
