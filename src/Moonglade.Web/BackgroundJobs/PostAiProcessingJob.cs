@@ -71,7 +71,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         // Fetch again. Because this job may run in a long time.
                         var trackedPost = await context.Post.FindAsync(postId) ??
                                           throw new InvalidOperationException("Failed to locate post with ID: " + postId);
-                        if (!trackedPost.ContentAbstract.EndsWith("--By GPT 4"))
+                        if (!trackedPost.ContentAbstract.EndsWith("--GPT 4"))
                         {
                             try
                             {
@@ -82,12 +82,12 @@ namespace MoongladePure.Web.BackgroundJobs
                                 var abstractForPost =
                                     await openAi.GenerateAbstract($"# {trackedPost.Title}" + "\r\n" + content);
 
-                                if (abstractForPost.Length > 390)
+                                if (abstractForPost.Length > 1000)
                                 {
-                                    abstractForPost = abstractForPost[..390];
+                                    abstractForPost = abstractForPost[..1000] + "...";
                                 }
                                 
-                                trackedPost.ContentAbstract = abstractForPost + "--By GPT 4";
+                                trackedPost.ContentAbstract = abstractForPost + "--GPT 4";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
