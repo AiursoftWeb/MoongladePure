@@ -87,7 +87,7 @@ namespace MoongladePure.Web
             });
 
             services.AddHealthChecks();
-            services.AddSingleton<IHostedService, CommentGenerationJob>();
+            services.AddSingleton<IHostedService, PostAiProcessingJob>();
             services.AddHttpClient();
             services.AddScoped<OpenAiService>();
             services

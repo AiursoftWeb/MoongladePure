@@ -6,15 +6,15 @@ using MoongladePure.Data.MySql;
 
 namespace MoongladePure.Web.BackgroundJobs
 {
-    public class CommentGenerationJob : IHostedService, IDisposable
+    public class PostAiProcessingJob : IHostedService, IDisposable
     {
         private readonly IWebHostEnvironment _env;
         private readonly ILogger _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private Timer _timer;
 
-        public CommentGenerationJob(
-            ILogger<CommentGenerationJob> logger,
+        public PostAiProcessingJob(
+            ILogger<PostAiProcessingJob> logger,
             IServiceScopeFactory scopeFactory,
             IWebHostEnvironment env)
         {
@@ -36,14 +36,14 @@ namespace MoongladePure.Web.BackgroundJobs
                 return Task.CompletedTask;
             }
 
-            _logger.LogInformation("Comment generator job is starting");
+            _logger.LogInformation("Post AI Processing job is starting");
             _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24));
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Comment generator job is stopping");
+            _logger.LogInformation("Post AI Processing job is stopping");
             _timer?.Change(Timeout.Infinite, 0);
             return Task.CompletedTask;
         }
@@ -52,7 +52,7 @@ namespace MoongladePure.Web.BackgroundJobs
         {
             try
             {
-                _logger.LogInformation("Comment task started!");
+                _logger.LogInformation("Post AI Processing task started!");
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var services = scope.ServiceProvider;
@@ -66,21 +66,22 @@ namespace MoongladePure.Web.BackgroundJobs
                         .OrderByDescending(p => p.PubDateUtc)
                         .ToListAsync();
 
-                    foreach (var post in posts)
+                    foreach (var postId in posts.Select(p => p.Id))
                     {
-                        if (!post.ContentAbstract.EndsWith("--By GPT 4"))
+                        // Fetch again. Because this job may run in a long time.
+                        var trackedPost = await context.Post.FindAsync(postId) ??
+                                          throw new InvalidOperationException("Failed to locate post with ID: " + postId);
+                        if (!trackedPost.ContentAbstract.EndsWith("--By GPT 4"))
                         {
                             try
                             {
-                                var content = post.PostContent.Length > 6000
-                                    ? post.PostContent.Substring(post.PostContent.Length - 6000, 6000)
-                                    : post.PostContent;
+                                var content = trackedPost.PostContent.Length > 6000
+                                    ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - 6000, 6000)
+                                    : trackedPost.PostContent;
 
                                 var abstractForPost =
-                                    await openAi.GenerateAbstract($"# {post.Title}" + "\r\n" + content);
-                                var trackedPost = await context.Post.FindAsync(post.Id) ??
-                                                  throw new InvalidOperationException(
-                                                      "Failed to locate post with ID: " + post.Id);
+                                    await openAi.GenerateAbstract($"# {trackedPost.Title}" + "\r\n" + content);
+                                
                                 trackedPost.ContentAbstract = abstractForPost + "--By GPT 4";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
@@ -98,7 +99,7 @@ namespace MoongladePure.Web.BackgroundJobs
 
                         // Get all GPT comments.
                         var chatGptComments = await context.Comment
-                            .Where(c => c.PostId == post.Id)
+                            .Where(c => c.PostId == postId)
                             .Where(c => c.IPAddress == "127.0.0.1")
                             .Where(c => c.Username == "GPT-4")
                             .ToListAsync();
@@ -108,19 +109,19 @@ namespace MoongladePure.Web.BackgroundJobs
                         if (!chatGptComments.Any())
                         {
                             // Insert a new comment.
-                            logger.LogInformation("Generating ChatGPT\'s comment for post with slug: {PostSlug}...",
-                                post.Slug);
+                            logger.LogInformation("Generating ChatGPT\'s comment for post with Id: {PostSlug}...",
+                                trackedPost.Slug);
                             try
                             {
-                                var content = post.PostContent.Length > 6000
-                                    ? post.PostContent.Substring(post.PostContent.Length - 6000, 6000)
-                                    : post.PostContent;
+                                var content = trackedPost.PostContent.Length > 6000
+                                    ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - 6000, 6000)
+                                    : trackedPost.PostContent;
 
-                                var newComment = await openAi.GenerateComment($"# {post.Title}" + "\r\n" + content);
+                                var newComment = await openAi.GenerateComment($"# {trackedPost.Title}" + "\r\n" + content);
                                 await context.Comment.AddAsync(new CommentEntity
                                 {
                                     Id = Guid.NewGuid(),
-                                    PostId = post.Id,
+                                    PostId = postId,
                                     IPAddress = "127.0.0.1",
                                     Email = "chatgpt@domain.com",
                                     IsApproved = true,
@@ -143,11 +144,11 @@ namespace MoongladePure.Web.BackgroundJobs
                     }
                 }
 
-                _logger.LogInformation("Comment generator job task finished!");
+                _logger.LogInformation("Post AI Processing task finished!");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Comment generator job crashed!");
+                _logger.LogError(ex, "Post AI Processing job crashed!");
             }
         }
     }
