@@ -71,6 +71,11 @@ namespace MoongladePure.Web.BackgroundJobs
                         // Fetch again. Because this job may run in a long time.
                         var trackedPost = await context.Post.FindAsync(postId) ??
                                           throw new InvalidOperationException("Failed to locate post with ID: " + postId);
+                        
+                        // Log.
+                        logger.LogInformation("Processing AI for post with slug: {PostSlug}...",
+                            trackedPost.Slug);
+                        
                         if (!trackedPost.ContentAbstract.EndsWith("--GPT 4"))
                         {
                             try
@@ -113,9 +118,6 @@ namespace MoongladePure.Web.BackgroundJobs
                         // ReSharper disable once InvertIf
                         if (!chatGptComments.Any())
                         {
-                            // Insert a new comment.
-                            logger.LogInformation("Generating ChatGPT\'s comment for post with Id: {PostSlug}...",
-                                trackedPost.Slug);
                             try
                             {
                                 var content = trackedPost.PostContent.Length > 6000
