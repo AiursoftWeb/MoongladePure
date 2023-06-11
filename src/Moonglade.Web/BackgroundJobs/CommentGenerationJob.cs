@@ -68,9 +68,9 @@ namespace MoongladePure.Web.BackgroundJobs
 
                     foreach (var post in posts)
                     {
-                        try
+                        if (!post.ContentAbstract.EndsWith("--By GPT 4"))
                         {
-                            if (!post.ContentAbstract.EndsWith("--By GPT 4"))
+                            try
                             {
                                 var content = post.PostContent.Length > 6000
                                     ? post.PostContent.Substring(post.PostContent.Length - 6000, 6000)
@@ -85,15 +85,15 @@ namespace MoongladePure.Web.BackgroundJobs
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            logger.LogCritical(e, "Failed to generate OpenAi abstract!");
-                        }
-                        finally
-                        {
-                            // Sleep to avoid too many requests.
-                            await Task.Delay(TimeSpan.FromMinutes(15));
+                            catch (Exception e)
+                            {
+                                logger.LogCritical(e, "Failed to generate OpenAi abstract!");
+                            }
+                            finally
+                            {
+                                // Sleep to avoid too many requests.
+                                await Task.Delay(TimeSpan.FromMinutes(15));
+                            }
                         }
 
                         // Get all GPT comments.
@@ -108,7 +108,8 @@ namespace MoongladePure.Web.BackgroundJobs
                         if (!chatGptComments.Any())
                         {
                             // Insert a new comment.
-                            logger.LogInformation("Generating ChatGPT\'s comment for post with slug: {PostSlug}...", post.Slug);
+                            logger.LogInformation("Generating ChatGPT\'s comment for post with slug: {PostSlug}...",
+                                post.Slug);
                             try
                             {
                                 var content = post.PostContent.Length > 6000
