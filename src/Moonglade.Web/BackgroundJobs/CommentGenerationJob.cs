@@ -32,18 +32,18 @@ namespace MoongladePure.Web.BackgroundJobs
         {
             if (_env.IsDevelopment() || !EntryExtends.IsProgramEntry())
             {
-                _logger.LogInformation("Skip running in development environment.");
+                _logger.LogInformation("Skip running in development environment");
                 return Task.CompletedTask;
             }
 
-            _logger.LogInformation("Comment generator job is starting.");
+            _logger.LogInformation("Comment generator job is starting");
             _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24));
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Comment generator job is stopping.");
+            _logger.LogInformation("Comment generator job is stopping");
             _timer?.Change(Timeout.Infinite, 0);
             return Task.CompletedTask;
         }
@@ -68,56 +68,78 @@ namespace MoongladePure.Web.BackgroundJobs
 
                     foreach (var post in posts)
                     {
+                        try
+                        {
+                            if (!post.ContentAbstract.StartsWith("[GPT]"))
+                            {
+                                var content = post.PostContent.Length > 6000
+                                    ? post.PostContent.Substring(post.PostContent.Length - 6000, 6000)
+                                    : post.PostContent;
+
+                                var abstractForPost =
+                                    await openAi.GenerateAbstract($"# {post.Title}" + "\r\n" + content);
+                                var trackedPost = await context.Post.FindAsync(post.Id) ??
+                                                  throw new InvalidOperationException(
+                                                      "Failed to locate post with ID: " + post.Id);
+                                trackedPost.ContentAbstract = "[GPT] " + abstractForPost;
+                                context.Post.Update(trackedPost);
+                                await context.SaveChangesAsync();
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            logger.LogCritical(e, "Failed to generate OpenAi abstract!");
+                        }
+                        finally
+                        {
+                            // Sleep to avoid too many requests.
+                            await Task.Delay(TimeSpan.FromMinutes(15));
+                        }
+
                         // Get all GPT comments.
                         var chatGptComments = await context.Comment
                             .Where(c => c.PostId == post.Id)
                             .Where(c => c.IPAddress == "127.0.0.1")
                             .Where(c => c.Username == "GPT-4")
                             .ToListAsync();
-                        
+
                         // Skip valid posts.
-                        if (chatGptComments.Count == 1)
+                        // ReSharper disable once InvertIf
+                        if (!chatGptComments.Any())
                         {
-                            continue;
-                        }
-
-                        // Clear obsolete comments.
-                        context.Comment.RemoveRange(chatGptComments);
-                        await context.SaveChangesAsync();
-
-                        // Insert a new comment.
-                        logger.LogInformation($"Generating ChatGPT's comment for post with slug: {post.Slug}...");
-                        try
-                        {
-                            var content = post.PostContent.Length > 6000 ? 
-                                post.PostContent.Substring(post.PostContent.Length - 6000, 6000) :
-                                post.PostContent;
-
-                            var newComment = await openAi.GenerateComment($"# {post.Title}" + "\r\n" + content);
-                            await context.Comment.AddAsync(new CommentEntity
+                            // Insert a new comment.
+                            logger.LogInformation("Generating ChatGPT\'s comment for post with slug: {PostSlug}...", post.Slug);
+                            try
                             {
-                                Id = Guid.NewGuid(),
-                                PostId = post.Id,
-                                IPAddress = "127.0.0.1",
-                                Email = "chatgpt@domain.com",
-                                IsApproved = true,
-                                CommentContent = newComment,
-                                CreateTimeUtc = DateTime.UtcNow,
-                                Username = "GPT-4"
-                            });
-                            await context.SaveChangesAsync();
-                        }
-                        catch (Exception e)
-                        {
-                            logger.LogCritical(e, "Failed to generate OpenAi comment!");
-                        }
-                        finally
-                        {
-                            // Sleep to avoid too many requests.
-                            await Task.Delay(TimeSpan.FromMinutes(30));
+                                var content = post.PostContent.Length > 6000
+                                    ? post.PostContent.Substring(post.PostContent.Length - 6000, 6000)
+                                    : post.PostContent;
+
+                                var newComment = await openAi.GenerateComment($"# {post.Title}" + "\r\n" + content);
+                                await context.Comment.AddAsync(new CommentEntity
+                                {
+                                    Id = Guid.NewGuid(),
+                                    PostId = post.Id,
+                                    IPAddress = "127.0.0.1",
+                                    Email = "chatgpt@domain.com",
+                                    IsApproved = true,
+                                    CommentContent = newComment,
+                                    CreateTimeUtc = DateTime.UtcNow,
+                                    Username = "GPT-4"
+                                });
+                                await context.SaveChangesAsync();
+                            }
+                            catch (Exception e)
+                            {
+                                logger.LogCritical(e, "Failed to generate OpenAi comment!");
+                            }
+                            finally
+                            {
+                                // Sleep to avoid too many requests.
+                                await Task.Delay(TimeSpan.FromMinutes(30));
+                            }
                         }
                     }
-
                 }
 
                 _logger.LogInformation("Comment generator job task finished!");
