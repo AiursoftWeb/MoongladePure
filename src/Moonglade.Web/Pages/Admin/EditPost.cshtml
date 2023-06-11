@@ -172,19 +172,6 @@
                     <div class="mt-1">
                         <input type="text" asp-for="ViewModel.Tags" placeholder="@SharedLocalizer["Tags"]" />
                     </div>
-                    <div class="mt-1">
-                        <div class="form-floating">
-                            <textarea asp-for="ViewModel.Abstract"
-                                  placeholder="@SharedLocalizer["Abstract"]"
-                                  class="form-control form-control-sm"
-                                  data-bs-toggle="tooltip"
-                                  data-placement="top"
-                                  maxlength="400"
-                                  title="@SharedLocalizer["The first {0} character(s) will be used as abstract if you leave this field blank.", BlogConfig.ContentSettings.PostAbstractWords]"
-                                  style="height: 90px"></textarea>
-                            <label for="ViewModel_Abstract">@SharedLocalizer["Abstract"]</label>
-                        </div>
-                    </div>
                 </div>
                 <div class="col-md-3 col-xl-2">
                     <div class="card mb-3">

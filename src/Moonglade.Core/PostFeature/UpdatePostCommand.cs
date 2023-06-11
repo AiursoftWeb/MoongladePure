@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoongladePure.Caching;
-using MoongladePure.Configuration;
 using MoongladePure.Core.TagFeature;
 using MoongladePure.Utils;
 
@@ -14,22 +13,19 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
     private readonly IRepository<TagEntity> _tagRepo;
     private readonly IRepository<PostEntity> _postRepo;
     private readonly IBlogCache _cache;
-    private readonly IBlogConfig _blogConfig;
 
     public UpdatePostCommandHandler(
         IRepository<PostCategoryEntity> pcRepository,
         IRepository<PostTagEntity> ptRepository,
         IRepository<TagEntity> tagRepo,
         IRepository<PostEntity> postRepo,
-        IBlogCache cache,
-        IBlogConfig blogConfig)
+        IBlogCache cache)
     {
         _ptRepository = ptRepository;
         _pcRepository = pcRepository;
         _tagRepo = tagRepo;
         _postRepo = postRepo;
         _cache = cache;
-        _blogConfig = blogConfig;
     }
 
     public async Task<PostEntity> Handle(UpdatePostCommand request, CancellationToken ct)
@@ -43,9 +39,6 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
         post.CommentEnabled = postEditModel.EnableComment;
         post.PostContent = postEditModel.EditorContent;
-        post.ContentAbstract = ContentProcessor.GetPostAbstract(
-            string.IsNullOrEmpty(postEditModel.Abstract) ? postEditModel.EditorContent : postEditModel.Abstract.Trim(),
-            _blogConfig.ContentSettings.PostAbstractWords);
 
         if (postEditModel.IsPublished && !post.IsPublished)
         {

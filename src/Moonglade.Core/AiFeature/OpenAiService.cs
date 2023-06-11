@@ -48,7 +48,7 @@ namespace MoongladePure.Core.AiFeature
                 throw new ArgumentNullException(nameof(_token));
             }
 
-            _logger.LogInformation("Asking OpenAi to generate a comment...");
+            _logger.LogInformation("Asking OpenAi...");
             var model = new OpenAiModel
             {
                 Messages = new List<MessagesItem>

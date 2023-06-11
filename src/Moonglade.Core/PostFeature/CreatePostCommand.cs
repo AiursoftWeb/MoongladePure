@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using MoongladePure.Configuration;
 using MoongladePure.Core.TagFeature;
 using MoongladePure.Data.Spec;
 using MoongladePure.Utils;
@@ -13,32 +12,25 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostE
     private readonly IRepository<PostEntity> _postRepo;
     private readonly ILogger<CreatePostCommandHandler> _logger;
     private readonly IRepository<TagEntity> _tagRepo;
-    private readonly IBlogConfig _blogConfig;
 
     public CreatePostCommandHandler(
         IRepository<PostEntity> postRepo,
         ILogger<CreatePostCommandHandler> logger,
-        IRepository<TagEntity> tagRepo,
-        IBlogConfig blogConfig)
+        IRepository<TagEntity> tagRepo)
     {
         _postRepo = postRepo;
         _logger = logger;
         _tagRepo = tagRepo;
-        _blogConfig = blogConfig;
     }
 
     public async Task<PostEntity> Handle(CreatePostCommand request, CancellationToken ct)
     {
-        var abs = ContentProcessor.GetPostAbstract(
-            string.IsNullOrEmpty(request.Payload.Abstract) ? request.Payload.EditorContent : request.Payload.Abstract.Trim(),
-            _blogConfig.ContentSettings.PostAbstractWords);
-
         var post = new PostEntity
         {
             CommentEnabled = request.Payload.EnableComment,
             Id = Guid.NewGuid(),
             PostContent = request.Payload.EditorContent,
-            ContentAbstract = abs,
+            ContentAbstract = "...",
             CreateTimeUtc = DateTime.UtcNow,
             LastModifiedUtc = DateTime.UtcNow, // Fix draft orders
             Slug = request.Payload.Slug.ToLower().Trim(),
@@ -67,7 +59,7 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostE
         {
             var uid = Guid.NewGuid();
             post.Slug += $"-{uid.ToString().ToLower()[..8]}";
-            _logger.LogInformation($"Found conflict for post slug, generated new slug: {post.Slug}");
+            _logger.LogInformation("Found conflict for post slug, generated new slug: {PostSlug}", post.Slug);
         }
 
         // compute hash

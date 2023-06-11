@@ -58,7 +58,6 @@ public class EditPostModel : PageModel
             EnableComment = post.CommentEnabled,
             FeedIncluded = post.IsFeedIncluded,
             LanguageCode = post.ContentLanguageCode,
-            Abstract = post.ContentAbstract.Replace("\u00A0\u2026", string.Empty),
             Featured = post.Featured,
             OriginLink = post.OriginLink,
             HeroImageUrl = post.HeroImageUrl,
