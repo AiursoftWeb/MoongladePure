@@ -70,7 +70,7 @@ namespace MoongladePure.Web.BackgroundJobs
                     {
                         try
                         {
-                            if (!post.ContentAbstract.StartsWith("[GPT]"))
+                            if (!post.ContentAbstract.EndsWith("--By GPT 4"))
                             {
                                 var content = post.PostContent.Length > 6000
                                     ? post.PostContent.Substring(post.PostContent.Length - 6000, 6000)
@@ -81,7 +81,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 var trackedPost = await context.Post.FindAsync(post.Id) ??
                                                   throw new InvalidOperationException(
                                                       "Failed to locate post with ID: " + post.Id);
-                                trackedPost.ContentAbstract = "[GPT] " + abstractForPost;
+                                trackedPost.ContentAbstract = abstractForPost + "--By GPT 4";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
