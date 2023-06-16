@@ -34,6 +34,7 @@ public static class ProgramExtends
         var context = services.GetRequiredService<MySqlBlogDbContext>();
         var bc = services.GetRequiredService<IBlogConfig>();
 
+        await context.Database.EnsureCreatedAsync();
         bool isNew = !await context.BlogConfiguration.AnyAsync();
         if (isNew)
         {
