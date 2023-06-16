@@ -10,7 +10,6 @@ public class Program
     public static async Task Main(string[] args)
     {
         await (await App<Startup>(args)
-            .Update<MySqlBlogDbContext>()
             .SeedAsync())
             .RunAsync();
     }
