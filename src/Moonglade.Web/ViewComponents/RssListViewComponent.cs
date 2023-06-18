@@ -25,7 +25,7 @@ public class RssListViewComponent : ViewComponent
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error.");
+            _logger.LogError(e, "Error");
             return Content(e.Message);
         }
     }

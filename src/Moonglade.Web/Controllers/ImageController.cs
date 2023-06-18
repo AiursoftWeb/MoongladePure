@@ -75,7 +75,7 @@ public class ImageController : ControllerBase
     {
         if (file is null or { Length: <= 0 })
         {
-            _logger.LogError("file is null.");
+            _logger.LogError("file is null");
             return BadRequest();
         }
 
@@ -91,7 +91,7 @@ public class ImageController : ControllerBase
 
         if (!allowedExts.Contains(ext))
         {
-            _logger.LogError($"Invalid file extension: {ext}");
+            _logger.LogError("Invalid file extension: {Ext}", ext);
             return BadRequest();
         }
 
@@ -124,7 +124,7 @@ public class ImageController : ControllerBase
             }
             else
             {
-                _logger.LogInformation($"Skipped watermark for extension name: {ext}");
+                _logger.LogInformation("Skipped watermark for extension name: {Ext}", ext);
             }
         }
 
@@ -139,7 +139,7 @@ public class ImageController : ControllerBase
             _ = Task.Run(async () => await _imageStorage.InsertAsync(secondaryFieName, arr));
         }
 
-        _logger.LogInformation($"Image '{primaryFileName}' uploaded.");
+        _logger.LogInformation("Image {PrimaryFileName} uploaded", primaryFileName);
         var location = $"/image/{finalName}";
         var filename = location;
 

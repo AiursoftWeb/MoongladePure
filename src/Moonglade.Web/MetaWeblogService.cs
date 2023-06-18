@@ -453,7 +453,7 @@ public class MetaWeblogService : IMetaWeblogProvider
         }
         catch (Exception e)
         {
-            _logger.LogError(e, e.Message);
+            _logger.LogError(e, "Crashed in meta web blog service");
             throw new MetaWeblogException(e.Message);
         }
     }
@@ -466,7 +466,7 @@ public class MetaWeblogService : IMetaWeblogProvider
         }
         catch (Exception e)
         {
-            _logger.LogError(e, e.Message);
+            _logger.LogError(e, "Crashed in meta web blog service");
             throw new MetaWeblogException(e.Message);
         }
     }

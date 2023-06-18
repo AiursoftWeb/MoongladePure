@@ -15,7 +15,7 @@ public static class MemoryStreamIconGenerator
         // Fall back to default image
         if (string.IsNullOrWhiteSpace(base64Data))
         {
-            logger.LogWarning("SiteIconBase64 is empty or not valid, fall back to default image.");
+            logger.LogWarning("SiteIconBase64 is empty or not valid, fall back to default image");
 
             var defaultIconImage = Path.Join($"{webRootPath}", "images", "siteicon-default.png");
             if (!File.Exists(defaultIconImage))

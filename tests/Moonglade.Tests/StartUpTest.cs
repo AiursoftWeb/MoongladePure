@@ -29,7 +29,7 @@ public class StartUpTest
     [TestInitialize]
     public async Task CreateServer()
     {
-        _server = await App<Startup>(port: _port).Update<MySqlBlogDbContext>().SeedAsync();
+        _server = await (await App<Startup>(port: _port).UpdateDbAsync<MySqlBlogDbContext>()).SeedAsync();
         _http = new HttpClient();
         await _server.StartAsync();
     }

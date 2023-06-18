@@ -9,15 +9,10 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        await (await App<Startup>(args)
-            .SeedAsync())
-            .RunAsync();
-    }
-
-    // For EF
-    public static IHostBuilder CreateHostBuilder(string[] args)
-    {
-        return BareApp<Startup>(args);
+        var app = App<Startup>(args);
+        await app.UpdateDbAsync<MySqlBlogDbContext>();
+        await app.SeedAsync();
+        await app.RunAsync();
     }
 }
 
@@ -33,8 +28,7 @@ public static class ProgramExtends
         var context = services.GetRequiredService<MySqlBlogDbContext>();
         var bc = services.GetRequiredService<IBlogConfig>();
 
-        await context.Database.EnsureCreatedAsync();
-        bool isNew = !await context.BlogConfiguration.AnyAsync();
+        var isNew = !await context.BlogConfiguration.AnyAsync();
         if (isNew)
         {
             await Seed.SeedAsync(context, logger);

@@ -63,7 +63,7 @@ public class AssetsController : ControllerBase
         base64Img = base64Img.Trim();
         if (!Helper.TryParseBase64(base64Img, out var base64Chars))
         {
-            _logger.LogWarning("Bad base64 is used when setting avatar.");
+            _logger.LogWarning("Bad base64 is used when setting avatar");
             return Conflict("Bad base64 data");
         }
 
@@ -141,7 +141,7 @@ public class AssetsController : ControllerBase
         base64Img = base64Img.Trim();
         if (!Helper.TryParseBase64(base64Img, out var base64Chars))
         {
-            _logger.LogWarning("Bad base64 is used when setting site icon.");
+            _logger.LogWarning("Bad base64 is used when setting site icon");
             return Conflict("Bad base64 data");
         }
 

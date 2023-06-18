@@ -68,7 +68,7 @@ public class PostController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error Creating New Post.");
+            _logger.LogError(ex, "Error Creating New Post");
             return Conflict(ex.Message);
         }
     }

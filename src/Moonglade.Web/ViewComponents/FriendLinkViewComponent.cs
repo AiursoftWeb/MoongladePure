@@ -22,7 +22,7 @@ public class FriendLinkViewComponent : ViewComponent
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error Reading FriendLink.");
+            _logger.LogError(e, "Error Reading FriendLink");
             return Content(e.Message);
         }
     }

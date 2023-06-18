@@ -45,7 +45,7 @@ public class SettingsController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, e.Message, culture, returnUrl);
+            _logger.LogError(e, "Crashed when setting language for {Culture} with {ReturnUrl}", culture, returnUrl);
 
             // We shall not respect the return URL now, because the returnUrl might be hacking.
             return LocalRedirect("~/");
@@ -149,7 +149,7 @@ public class SettingsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public IActionResult Shutdown([FromServices] IHostApplicationLifetime applicationLifetime)
     {
-        _logger.LogWarning($"Shutdown is requested by '{User.Identity?.Name}'.");
+        _logger.LogWarning("Shutdown is requested by \'{IdentityName}\'", User.Identity?.Name);
         applicationLifetime.StopApplication();
         return Accepted();
     }
@@ -159,7 +159,7 @@ public class SettingsController : ControllerBase
     public async Task<IActionResult> Reset([FromServices] BlogDbContext context,
         [FromServices] IHostApplicationLifetime applicationLifetime)
     {
-        _logger.LogWarning($"System reset is requested by '{User.Identity?.Name}', IP: {Helper.GetClientIP(HttpContext)}.");
+        _logger.LogWarning("System reset is requested by \'{IdentityName}\', IP: {ClientIp}", User.Identity?.Name, Helper.GetClientIP(HttpContext));
 
         await context.ClearAllDataAsync();
 
