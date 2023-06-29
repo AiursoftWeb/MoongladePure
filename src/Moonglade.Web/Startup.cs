@@ -6,9 +6,9 @@ using System.Text.Json.Serialization;
 using SixLabors.Fonts;
 using WilderMinds.MetaWeblog;
 using System.Globalization;
+using Aiursoft.CSTools.Tools;
 using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
-using Aiursoft.XelNaga.Tools;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Web.BackgroundJobs;
 
@@ -98,11 +98,11 @@ namespace MoongladePure.Web
                 .AddBlogConfig(Configuration)
                 .AddBlogAuthenticaton(Configuration)
                 .AddComments(Configuration)
-                .AddImageStorage(Configuration, Environment.IsDevelopment() || EntryExtends.IsInUT())
+                .AddImageStorage(Configuration, Environment.IsDevelopment() || EntryExtends.IsInUnitTests())
                 .Configure<List<ManifestIcon>>(Configuration.GetSection("ManifestIcons"));
 
             var connStr = Configuration.GetConnectionString("MoongladeDatabase");
-            services.AddDatabase(connStr, useTestDb: Environment.IsDevelopment() || EntryExtends.IsInUT());
+            services.AddDatabase(connStr, useTestDb: Environment.IsDevelopment() || EntryExtends.IsInUnitTests());
 
         }
 
@@ -129,7 +129,7 @@ namespace MoongladePure.Web
                 .UseMiddleware<PoweredByMiddleware>()
                 .UseMiddleware<DNTMiddleware>();
 
-            if (env.IsDevelopment() || EntryExtends.IsInUT())
+            if (env.IsDevelopment() || EntryExtends.IsInUnitTests())
             {
                 app.UseDeveloperExceptionPage();
             }

@@ -1,4 +1,4 @@
-﻿using Aiursoft.XelNaga.Tools;
+﻿using Aiursoft.CSTools.Tools;
 using Microsoft.EntityFrameworkCore;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Data.Entities;

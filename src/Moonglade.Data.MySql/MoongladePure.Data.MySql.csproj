@@ -9,6 +9,7 @@
 
   <ItemGroup>
 	  <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
+      <PackageReference Include="Aiursoft.DBTools" Version="6.0.28" />
   </ItemGroup>
 
   <ItemGroup>

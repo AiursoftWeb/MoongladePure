@@ -2,9 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using MoongladePure.Data.Infrastructure;
 using MoongladePure.Data.MySql.Infrastructure;
+using Aiursoft.DbTools;
 
 namespace MoongladePure.Data.MySql;
-
 
 public static class ServiceCollectionExtensions
 {
@@ -14,11 +14,11 @@ public static class ServiceCollectionExtensions
 
         if (useTestDb)
         {
-            services.AddDbContext<MySqlBlogDbContext>((_, optionsBuilder) =>
-                optionsBuilder.UseInMemoryDatabase("inmemory"));
+            services.AddAiurInMemoryDb<MySqlBlogDbContext>();
         }
         else
         {
+            // TODO: Aiursoft.DbTools support Aiursoft.DbTools.MySQL
             services.AddDbContext<MySqlBlogDbContext>(optionsAction => optionsAction
                 .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), builder =>
                 {

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Aiursoft.Handler.Attributes;
+using Aiursoft.DbTools;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoongladePure.Web;
-using Aiursoft.SDK;
 using MoongladePure.Data.MySql;
 using static Aiursoft.WebTools.Extends;
 using AngleSharp.Html.Dom;
@@ -29,15 +28,16 @@ public class StartUpTest
     [TestInitialize]
     public async Task CreateServer()
     {
-        _server = await (await App<Startup>(port: _port).UpdateDbAsync<MySqlBlogDbContext>()).SeedAsync();
-        _http = new HttpClient();
+        _server = App<Startup>(port: _port);
+        await _server.UpdateDbAsync<MySqlBlogDbContext>(UpdateMode.RecreateThenUse);
+        await _server.SeedAsync();
         await _server.StartAsync();
+        _http = new HttpClient();
     }
 
     [TestCleanup]
     public async Task CleanServer()
     {
-        LimitPerMin.ClearMemory();
         if (_server != null)
         {
             await _server.StopAsync();

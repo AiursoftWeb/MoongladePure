@@ -1,4 +1,4 @@
-﻿using Aiursoft.SDK;
+﻿using Aiursoft.DbTools;
 using Microsoft.EntityFrameworkCore;
 using MoongladePure.Data.MySql;
 using static Aiursoft.WebTools.Extends;
@@ -10,7 +10,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var app = App<Startup>(args);
-        await app.UpdateDbAsync<MySqlBlogDbContext>();
+        await app.UpdateDbAsync<MySqlBlogDbContext>(UpdateMode.CreateThenUse);
         await app.SeedAsync();
         await app.RunAsync();
     }
