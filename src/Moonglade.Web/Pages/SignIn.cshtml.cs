@@ -76,9 +76,8 @@ public class SignInModel : PageModel
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, p);
                     await _mediator.Send(new LogSuccessLoginCommand(uid, Helper.GetClientIP(HttpContext)));
 
-                    var successMessage = $@"Authentication success for local account ""{Username}""";
 
-                    _logger.LogInformation(successMessage);
+                    _logger.LogInformation("Authentication success for local account \"\"{Username}\"\"", Username);
 
                     return RedirectToPage("/Admin/Post");
                 }
@@ -86,9 +85,7 @@ public class SignInModel : PageModel
                 return Page();
             }
 
-            var failMessage = $@"Authentication failed for local account ""{Username}""";
-
-            _logger.LogWarning(failMessage);
+            _logger.LogWarning("Authentication failed for local account \"\"{Username}\"\"", Username);
 
             Response.StatusCode = StatusCodes.Status400BadRequest;
             ModelState.AddModelError(string.Empty, "Bad Request.");
@@ -96,7 +93,7 @@ public class SignInModel : PageModel
         }
         catch (Exception e)
         {
-            _logger.LogWarning($@"Authentication failed for local account ""{Username}""");
+            _logger.LogWarning("Authentication failed for local account \"\"{Username}\"\"", Username);
 
             ModelState.AddModelError(string.Empty, e.Message);
             return Page();

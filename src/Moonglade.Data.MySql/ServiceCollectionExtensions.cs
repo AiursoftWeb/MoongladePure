@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using MoongladePure.Data.Infrastructure;
 using MoongladePure.Data.MySql.Infrastructure;
-using Aiursoft.DbTools;
+using Aiursoft.DbTools.InMemory;
 
 namespace MoongladePure.Data.MySql;
 
@@ -18,13 +17,7 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            // TODO: Aiursoft.DbTools support Aiursoft.DbTools.MySQL
-            services.AddDbContext<MySqlBlogDbContext>(optionsAction => optionsAction
-                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), builder =>
-                {
-                    builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(30), null);
-                })
-                .EnableDetailedErrors());
+            services.AddAiurMySqlWithCache<MySqlBlogDbContext>(connectionString);
         }
 
         return services;

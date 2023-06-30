@@ -25,14 +25,12 @@ public class ErrorModel : PageModel
         var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
         if (exceptionFeature is not null)
         {
-            // Get which route the exception occurred at
-            var routeWhereExceptionOccurred = exceptionFeature.Path;
-
             // Get the exception that occurred
             var exceptionThatOccurred = exceptionFeature.Error;
-            _logger.LogError($"Error: {routeWhereExceptionOccurred}, " +
-                             $"client IP: {Helper.GetClientIP(HttpContext)}, " +
-                             $"request id: {requestId}", exceptionThatOccurred);
+            _logger.LogError("Error: {RouteWhereExceptionOccurred}, client IP: {ClientIp}, request id: {RequestId}", 
+                exceptionThatOccurred.Message, 
+                Helper.GetClientIP(HttpContext), 
+                requestId);
         }
 
         RequestId = requestId;

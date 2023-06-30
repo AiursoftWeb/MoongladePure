@@ -18,7 +18,7 @@ public class CommentListViewComponent : ViewComponent
         {
             if (postId == Guid.Empty)
             {
-                _logger.LogError($"postId: {postId} is not a valid GUID");
+                _logger.LogError("postId: {PostId} is not a valid GUID", postId);
                 throw new ArgumentOutOfRangeException(nameof(postId));
             }
 
@@ -27,7 +27,7 @@ public class CommentListViewComponent : ViewComponent
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Error reading comments for post id: {postId}");
+            _logger.LogError(e, "Error reading comments for post id: {PostId}", postId);
             return Content(e.Message);
         }
     }

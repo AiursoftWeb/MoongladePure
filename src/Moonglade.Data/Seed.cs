@@ -61,7 +61,7 @@ public class Seed
 
             retryForAvailability++;
 
-            logger.LogError(e.Message);
+            logger.LogError(e, "Failed to seed!");
             await SeedAsync(dbContext, logger, retryForAvailability);
             throw;
         }
