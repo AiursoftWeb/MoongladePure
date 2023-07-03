@@ -37,7 +37,7 @@ namespace MoongladePure.Web.BackgroundJobs
             }
 
             _logger.LogInformation("Post AI Processing job is starting");
-            _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(24));
+            _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(5));
             return Task.CompletedTask;
         }
 
