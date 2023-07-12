@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <PackageReference Include="Aiursoft.DbTools.MySql" Version="6.0.29" />
-      <PackageReference Include="Aiursoft.DbTools.InMemory" Version="6.0.29" />
+      <PackageReference Include="Aiursoft.DbTools.MySql" Version="6.0.30" />
+      <PackageReference Include="Aiursoft.DbTools.InMemory" Version="6.0.30" />
   </ItemGroup>
 
   <ItemGroup>
