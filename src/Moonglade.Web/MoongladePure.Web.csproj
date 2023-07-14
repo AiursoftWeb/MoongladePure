@@ -39,7 +39,7 @@
 		<PackageReference Include="UAParser" Version="3.1.47" />
 		<PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.1" />
 		<PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
-		<PackageReference Include="Aiursoft.WebTools" Version="6.0.24" />
+		<PackageReference Include="Aiursoft.WebTools" Version="6.0.25" />
 	</ItemGroup>
 
 	<ItemGroup>
