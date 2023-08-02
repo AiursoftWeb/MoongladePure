@@ -1,0 +1,20 @@
+version: '3'
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: MoongladePure
+      MYSQL_DATABASE: MoongladePure
+      MYSQL_USER: moongladepure
+      MYSQL_PASSWORD: MoongladePure
+    ports:
+      - "3306:3306"
+  web:
+    build: .
+    environment:
+      ConnectionStrings__MoongladeDatabase: "Server=db;Database=MoongladePure;Uid=moongladepure;Pwd=MoongladePure;"
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
