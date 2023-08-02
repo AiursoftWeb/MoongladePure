@@ -114,7 +114,6 @@ namespace MoongladePure.Web
             app.UseCustomCss(options => options.MaxContentLength = 10240);
             app.UseManifest(options => options.ThemeColor = "#333333");
             app.UseRobotsTxt();
-
             app.UseOpenSearch(options =>
             {
                 options.RequestPath = "/opensearch";

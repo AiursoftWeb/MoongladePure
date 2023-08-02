@@ -41,6 +41,19 @@ info: Microsoft.Hosting.Lifetime[0]
 
 Now open your browser and browse to [http://localhost:8080](http://localhost:8080). You should see the MoongladePure welcome page.
 
+## Run in Docker
+
+Install Docker and Docker-Compose [here](https://docs.docker.com/compose/install/).
+
+Then run the following commands in the project path:
+
+```bash
+docker-compose build
+docker-compose up
+```
+
+That will start a web server at `http://localhost:8080` and you can test the app.
+
 ## Run in a production server
 
 It is suggested to use Ubuntu 22.04 LTS as the operating system.
