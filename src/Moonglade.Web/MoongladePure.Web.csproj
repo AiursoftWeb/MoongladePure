@@ -6,14 +6,15 @@
         <AssemblyName>MoongladePure.Web</AssemblyName>
         <RootNamespace>MoongladePure.Web</RootNamespace>
         <IsTestProject>false</IsTestProject>
-        <IsPackable>false</IsPackable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IsPackable>true</IsPackable>
         <ImplicitUsings>enable</ImplicitUsings>
         <Company>Aiursoft</Company>
         <Product>MoongladePure</Product>
         <Description>Nuget package of 'Web' provided by MoongladePure</Description>
         <PackageId>MoongladePure.Web</PackageId>
         <PackageTags>nuget package dotnet csproj dependencies</PackageTags>
-        <PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
+        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
         <PackageProjectUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</PackageProjectUrl>
         <RepositoryUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</RepositoryUrl>
     </PropertyGroup>
