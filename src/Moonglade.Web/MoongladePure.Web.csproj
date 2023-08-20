@@ -1,56 +1,61 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<Version>1.0.4</Version>
-		<PackageLicenseExpression>GNU General Public License v3.0</PackageLicenseExpression>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<PackageProjectUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</PackageProjectUrl>
-		<RepositoryUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</RepositoryUrl>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<Using Include="System.Text" />
-		<Using Include="Microsoft.AspNetCore.Mvc" />
-		<Using Include="Microsoft.AspNetCore.Authorization" />
-		<Using Include="MediatR" />
-		<Using Include="MoongladePure.Web" />
-		<Using Include="MoongladePure.Web.Configuration" />
-		<Using Include="MoongladePure.Web.Filters" />
-		<Using Include="MoongladePure.Web.Middleware" />
-		<Using Include="MoongladePure.Auth" />
-		<Using Include="MoongladePure.Core" />
-		<Using Include="MoongladePure.Caching" />
-		<Using Include="MoongladePure.Configuration" />
-		<Using Include="MoongladePure.Comments" />
-		<Using Include="MoongladePure.Theme" />
-		<Using Include="MoongladePure.Utils" />
-		<Using Include="MoongladePure.Data" />
-		<Using Include="MoongladePure.ImageStorage" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
-		<PackageReference Include="Edi.ImageWatermark" Version="2.8.0" />
-		<PackageReference Include="UAParser" Version="3.1.47" />
-		<PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.1" />
-		<PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
-		<PackageReference Include="Aiursoft.WebTools" Version="6.0.25" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Moonglade.Auth\MoongladePure.Auth.csproj" />
-		<ProjectReference Include="..\Moonglade.Comments\MoongladePure.Comments.csproj" />
-		<ProjectReference Include="..\Moonglade.Core\MoongladePure.Core.csproj" />
-		<ProjectReference Include="..\Moonglade.Data.MySql\MoongladePure.Data.MySql.csproj" />
-		<ProjectReference Include="..\Moonglade.FriendLink\MoongladePure.FriendLink.csproj" />
-		<ProjectReference Include="..\Moonglade.ImageStorage\MoongladePure.ImageStorage.csproj" />
-		<ProjectReference Include="..\Moonglade.Menus\MoongladePure.Menus.csproj" />
-		<ProjectReference Include="..\Moonglade.Syndication\MoongladePure.Syndication.csproj" />
-		<ProjectReference Include="..\Moonglade.Theme\MoongladePure.Theme.csproj" />
-	</ItemGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <Version>1.1.0</Version>
+        <TargetFramework>net6.0</TargetFramework>
+        <AssemblyName>MoongladePure.Web</AssemblyName>
+        <RootNamespace>MoongladePure.Web</RootNamespace>
+        <IsTestProject>false</IsTestProject>
+        <IsPackable>false</IsPackable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Company>Aiursoft</Company>
+        <Product>MoongladePure</Product>
+        <Description>Nuget package of 'Web' provided by MoongladePure</Description>
+        <PackageId>MoongladePure.Web</PackageId>
+        <PackageTags>nuget package dotnet csproj dependencies</PackageTags>
+        <PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</PackageProjectUrl>
+        <RepositoryUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</RepositoryUrl>
+    </PropertyGroup>
+    <ItemGroup>
+        <Using Include="System.Text" />
+        <Using Include="Microsoft.AspNetCore.Mvc" />
+        <Using Include="Microsoft.AspNetCore.Authorization" />
+        <Using Include="MediatR" />
+        <Using Include="MoongladePure.Web" />
+        <Using Include="MoongladePure.Web.Configuration" />
+        <Using Include="MoongladePure.Web.Filters" />
+        <Using Include="MoongladePure.Web.Middleware" />
+        <Using Include="MoongladePure.Auth" />
+        <Using Include="MoongladePure.Core" />
+        <Using Include="MoongladePure.Caching" />
+        <Using Include="MoongladePure.Configuration" />
+        <Using Include="MoongladePure.Comments" />
+        <Using Include="MoongladePure.Theme" />
+        <Using Include="MoongladePure.Utils" />
+        <Using Include="MoongladePure.Data" />
+        <Using Include="MoongladePure.ImageStorage" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
+        <PackageReference Include="Edi.ImageWatermark" Version="2.8.0" />
+        <PackageReference Include="UAParser" Version="3.1.47" />
+        <PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.1" />
+        <PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
+        <PackageReference Include="Aiursoft.WebTools" Version="6.0.25" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Moonglade.Auth\MoongladePure.Auth.csproj" />
+        <ProjectReference Include="..\Moonglade.Comments\MoongladePure.Comments.csproj" />
+        <ProjectReference Include="..\Moonglade.Core\MoongladePure.Core.csproj" />
+        <ProjectReference Include="..\Moonglade.Data.MySql\MoongladePure.Data.MySql.csproj" />
+        <ProjectReference Include="..\Moonglade.FriendLink\MoongladePure.FriendLink.csproj" />
+        <ProjectReference Include="..\Moonglade.ImageStorage\MoongladePure.ImageStorage.csproj" />
+        <ProjectReference Include="..\Moonglade.Menus\MoongladePure.Menus.csproj" />
+        <ProjectReference Include="..\Moonglade.Syndication\MoongladePure.Syndication.csproj" />
+        <ProjectReference Include="..\Moonglade.Theme\MoongladePure.Theme.csproj" />
+    </ItemGroup>
 </Project>

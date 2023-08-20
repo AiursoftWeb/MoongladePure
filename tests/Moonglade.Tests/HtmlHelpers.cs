@@ -2,9 +2,6 @@
 using AngleSharp.Io;
 using AngleSharp;
 using System.Net.Http.Headers;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace MoongladePure.Tests
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Aiursoft.DbTools;
-using Microsoft.Extensions.Hosting;
+﻿using Aiursoft.DbTools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoongladePure.Web;
 using MoongladePure.Data.MySql;
