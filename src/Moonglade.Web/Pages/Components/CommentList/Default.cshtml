@@ -22,7 +22,7 @@
 @if (null != Model && Model.Any())
 {
     <div class="comment-list row">
-        @foreach (var item in Model.OrderBy(m => m.CreateTimeUtc))
+        @foreach (var item in Model.OrderByDescending(m => m.CreateTimeUtc))
         {
             <div class="col-md-1 mb-3 d-none d-sm-block">
                 @if (BlogConfig.ContentSettings.EnableGravatar && !string.IsNullOrWhiteSpace(item.Email))
