@@ -25,7 +25,7 @@ public class BlogPageModel : PageModel
 
         var page = await _cache.GetOrCreateAsync(CacheDivision.Page, slug.ToLower(), async entry =>
         {
-            entry.SlidingExpiration = TimeSpan.FromMinutes(int.Parse(_configuration["CacheSlidingExpirationMinutes:Page"]));
+            entry.SlidingExpiration = TimeSpan.FromMinutes(int.Parse(_configuration["CacheSlidingExpirationMinutes:Page"] ?? "0"));
 
             var p = await _mediator.Send(new GetPageBySlugQuery(slug));
             return p;
