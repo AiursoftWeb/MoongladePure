@@ -92,7 +92,7 @@ namespace MoongladePure.Web
                 .AddImageStorage(configuration, environment.IsDevelopment() || EntryExtends.IsInUnitTests())
                 .Configure<List<ManifestIcon>>(configuration.GetSection("ManifestIcons"));
 
-            var connStr = configuration.GetConnectionString("MoongladeDatabase");
+            var connStr = configuration.GetConnectionString("MoongladeDatabase")!; 
             services.AddDatabase(connStr, useTestDb: environment.IsDevelopment() || EntryExtends.IsInUnitTests());
 
         }
