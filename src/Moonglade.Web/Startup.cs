@@ -7,6 +7,7 @@ using SixLabors.Fonts;
 using WilderMinds.MetaWeblog;
 using System.Globalization;
 using Aiursoft.CSTools.Tools;
+using Aiursoft.WebTools.Models;
 using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Core.AiFeature;
@@ -14,21 +15,11 @@ using MoongladePure.Web.BackgroundJobs;
 
 namespace MoongladePure.Web
 {
-    public class Startup
+    public class Startup : IWebStartup
     {
-        private IHostEnvironment Environment { get; }
-        public IConfiguration Configuration { get; }
         private static readonly List<CultureInfo> Cultures = new[] { "en-US", "zh-CN" }.Select(p => new CultureInfo(p)).ToList();
 
-        public Startup(
-            IHostEnvironment environment,
-            IConfiguration configuration)
-        {
-            Environment = environment;
-            Configuration = configuration;
-        }
-
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IConfiguration configuration, IWebHostEnvironment environment, IServiceCollection services)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -45,7 +36,7 @@ namespace MoongladePure.Web
 
             services.AddOptions()
                     .AddHttpContextAccessor()
-                    .AddRateLimit(Configuration.GetSection("IpRateLimiting"));
+                    .AddRateLimit(configuration.GetSection("IpRateLimiting"));
 
             services.AddSession(options =>
             {
@@ -95,18 +86,18 @@ namespace MoongladePure.Web
                 .AddBlogCache()
                 .AddMetaWeblog<MetaWeblogService>()
                 .AddScoped<ValidateCaptcha>()
-                .AddBlogConfig(Configuration)
-                .AddBlogAuthenticaton(Configuration)
-                .AddComments(Configuration)
-                .AddImageStorage(Configuration, Environment.IsDevelopment() || EntryExtends.IsInUnitTests())
-                .Configure<List<ManifestIcon>>(Configuration.GetSection("ManifestIcons"));
+                .AddBlogConfig(configuration)
+                .AddBlogAuthenticaton(configuration)
+                .AddComments(configuration)
+                .AddImageStorage(configuration, environment.IsDevelopment() || EntryExtends.IsInUnitTests())
+                .Configure<List<ManifestIcon>>(configuration.GetSection("ManifestIcons"));
 
-            var connStr = Configuration.GetConnectionString("MoongladeDatabase");
-            services.AddDatabase(connStr, useTestDb: Environment.IsDevelopment() || EntryExtends.IsInUnitTests());
+            var connStr = configuration.GetConnectionString("MoongladeDatabase");
+            services.AddDatabase(connStr, useTestDb: environment.IsDevelopment() || EntryExtends.IsInUnitTests());
 
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
         {
             app.UseForwardedHeaders();
             app.UseHealthChecks(new PathString("/health"));
@@ -128,7 +119,7 @@ namespace MoongladePure.Web
                 .UseMiddleware<PoweredByMiddleware>()
                 .UseMiddleware<DNTMiddleware>();
 
-            if (env.IsDevelopment() || EntryExtends.IsInUnitTests())
+            if (environment.IsDevelopment() || EntryExtends.IsInUnitTests())
             {
                 app.UseDeveloperExceptionPage();
             }

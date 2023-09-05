@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <AssemblyName>MoongladePure.Data.MySql</AssemblyName>
         <RootNamespace>MoongladePure.Data.MySql</RootNamespace>
         <IsTestProject>false</IsTestProject>
@@ -10,8 +10,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Aiursoft.DbTools.MySql" Version="6.0.32" />
-        <PackageReference Include="Aiursoft.DbTools.InMemory" Version="6.0.32" />
+        <PackageReference Include="Aiursoft.DbTools.MySql" Version="7.0.0" />
+        <PackageReference Include="Aiursoft.DbTools.InMemory" Version="7.0.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Moonglade.Data\MoongladePure.Data.csproj" />
