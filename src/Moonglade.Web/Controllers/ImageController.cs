@@ -57,7 +57,7 @@ public class ImageController : ControllerBase
 
         var image = await _cache.GetOrCreateAsync(filename, async entry =>
         {
-            entry.SlidingExpiration = TimeSpan.FromMinutes(int.Parse(_configuration["CacheSlidingExpirationMinutes:Image"]));
+            entry.SlidingExpiration = TimeSpan.FromMinutes(int.Parse(_configuration["CacheSlidingExpirationMinutes:Image"] ?? "0"));
             var imageInfo = await _imageStorage.GetAsync(filename);
             return imageInfo;
         });
