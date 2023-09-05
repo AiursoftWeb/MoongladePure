@@ -4,18 +4,19 @@ using MoongladePure.Web;
 using MoongladePure.Data.MySql;
 using static Aiursoft.WebTools.Extends;
 using AngleSharp.Html.Dom;
+using Microsoft.Extensions.Hosting;
 
 namespace MoongladePure.Tests;
 
 [TestClass]
-public class StartUpTest
+public class IntegrationTests
 {
     private readonly string _endpointUrl;
     private readonly int _port;
     private HttpClient _http;
     private IHost _server;
 
-    public StartUpTest()
+    public IntegrationTests()
     {
         _port = Network.GetAvailablePort();
         _endpointUrl = $"http://localhost:{_port}";

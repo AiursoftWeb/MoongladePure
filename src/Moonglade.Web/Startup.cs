@@ -46,6 +46,7 @@ namespace MoongladePure.Web
 
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddControllers(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+                    .AddApplicationPart(typeof(Startup).Assembly)
                     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
                     .ConfigureApiBehaviorOptions(ConfigureApiBehavior.BlogApiBehavior);
             services.AddRazorPages()
