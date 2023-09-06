@@ -18,7 +18,7 @@ MoongladePure uses MySQL as database and file system as data store. It's extreme
 
 ## Run locally
 
-Install [.NET 6 SDK](http://dot.net/).
+Install [.NET 7 SDK](http://dot.net/).
 
 Clone the project and go to the web project to run it. **Only for development, NOT for production!**
 
