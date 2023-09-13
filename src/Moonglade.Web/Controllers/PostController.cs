@@ -45,7 +45,7 @@ public class PostController : ControllerBase
                 {
                     foreach (var err in uglifyTest.Errors)
                     {
-                        ModelState.AddModelError(model.InlineCss, err.ToString());
+                        ModelState.AddModelError(model.InlineCss, err?.ToString() ?? string.Empty);
                     }
                     return BadRequest(ModelState.CombineErrorMessages());
                 }

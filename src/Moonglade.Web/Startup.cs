@@ -12,7 +12,6 @@ using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Web.BackgroundJobs;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace MoongladePure.Web
 {
@@ -152,7 +151,7 @@ namespace MoongladePure.Web
 
             app.MapHealthChecks("/ping", new()
             {
-                ResponseWriter = (HttpContext context, HealthReport result) =>
+                ResponseWriter = (context, _) =>
                 {
                     var obj = new
                     {

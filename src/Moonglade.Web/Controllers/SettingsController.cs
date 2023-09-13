@@ -183,7 +183,7 @@ public class SettingsController : ControllerBase
         {
             foreach (var err in uglifyTest.Errors)
             {
-                ModelState.AddModelError(model.CssCode, err.ToString());
+                ModelState.AddModelError(model.CssCode, err?.ToString() ?? string.Empty );
             }
             return BadRequest(ModelState.CombineErrorMessages());
         }
