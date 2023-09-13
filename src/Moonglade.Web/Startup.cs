@@ -12,6 +12,7 @@ using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Web.BackgroundJobs;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace MoongladePure.Web
 {
@@ -149,7 +150,25 @@ namespace MoongladePure.Web
             app.UseRouting();
             app.UseAuthentication().UseAuthorization();
 
-            app.UseEndpoints(ConfigureEndpoints.BlogEndpoints);
+            app.MapHealthChecks("/ping", new()
+            {
+                ResponseWriter = (HttpContext context, HealthReport result) =>
+                {
+                    var obj = new
+                    {
+                        Helper.AppVersion,
+                        DotNetVersion = Environment.Version.ToString(),
+                        EnvironmentTags = Helper.GetEnvironmentTags(),
+                        GeoMatch = context.Request.Headers["geo-match"],
+                        RequestIpAddress = context.Connection.RemoteIpAddress?.ToString()
+                    };
+
+                    return context.Response.WriteAsJsonAsync(obj);
+                }
+            });
+
+            app.MapControllers();
+            app.MapRazorPages();
         }
     }
 }
