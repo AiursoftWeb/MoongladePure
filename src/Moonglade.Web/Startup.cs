@@ -98,7 +98,7 @@ namespace MoongladePure.Web
 
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
+        public void Configure(WebApplication app)
         {
             app.UseForwardedHeaders();
             app.UseHealthChecks(new PathString("/health"));
@@ -120,7 +120,7 @@ namespace MoongladePure.Web
                 .UseMiddleware<PoweredByMiddleware>()
                 .UseMiddleware<DNTMiddleware>();
 
-            if (environment.IsDevelopment() || EntryExtends.IsInUnitTests())
+            if (app.Environment.IsDevelopment() || EntryExtends.IsInUnitTests())
             {
                 app.UseDeveloperExceptionPage();
             }

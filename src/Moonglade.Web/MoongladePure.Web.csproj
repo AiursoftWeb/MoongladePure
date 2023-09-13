@@ -46,7 +46,7 @@
         <PackageReference Include="UAParser" Version="3.1.47" />
         <PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.1" />
         <PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
-        <PackageReference Include="Aiursoft.WebTools" Version="7.0.2" />
+        <PackageReference Include="Aiursoft.WebTools" Version="7.0.3" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Moonglade.Auth\MoongladePure.Auth.csproj" />
