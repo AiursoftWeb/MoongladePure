@@ -127,10 +127,10 @@ ls
 
 ### Build MoongladePure
 
-Install dotnet6 first.
+Install dotnet7 first.
 
 ```bash
-sudo apt install -y dotnet6
+sudo apt install -y dotnet7
 ```
 
 Prepare a directory:
