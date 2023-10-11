@@ -1,19 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Library</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>MoongladePure.Data.MySql</AssemblyName>
-        <RootNamespace>MoongladePure.Data.MySql</RootNamespace>
-        <IsTestProject>false</IsTestProject>
-        <IsPackable>false</IsPackable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Aiursoft.DbTools.MySql" Version="7.0.0" />
-        <PackageReference Include="Aiursoft.DbTools.InMemory" Version="7.0.1" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Moonglade.Data\MoongladePure.Data.csproj" />
-    </ItemGroup>
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <AssemblyName>MoongladePure.Data.MySql</AssemblyName>
+    <RootNamespace>MoongladePure.Data.MySql</RootNamespace>
+    <IsTestProject>false</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aiursoft.DbTools.MySql" Version="7.0.1" />
+    <PackageReference Include="Aiursoft.DbTools.InMemory" Version="7.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Moonglade.Data\MoongladePure.Data.csproj" />
+  </ItemGroup>
 </Project>
