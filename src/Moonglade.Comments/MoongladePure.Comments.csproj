@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Library</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>MoongladePure.Comments</AssemblyName>
-        <RootNamespace>MoongladePure.Comments</RootNamespace>
-        <IsTestProject>false</IsTestProject>
-        <IsPackable>false</IsPackable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Edi.WordFilter" Version="1.7.0" />
-        <PackageReference Include="Edi.Captcha" Version="3.18.0" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Moonglade.Configuration\MoongladePure.Configuration.csproj" />
-    </ItemGroup>
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <AssemblyName>MoongladePure.Comments</AssemblyName>
+    <RootNamespace>MoongladePure.Comments</RootNamespace>
+    <IsTestProject>false</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Edi.WordFilter" Version="1.7.1" />
+    <PackageReference Include="Edi.Captcha" Version="3.18.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Moonglade.Configuration\MoongladePure.Configuration.csproj" />
+  </ItemGroup>
 </Project>
