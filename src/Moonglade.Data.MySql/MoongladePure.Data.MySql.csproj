@@ -10,7 +10,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.MySql" Version="7.0.1" />
+    <PackageReference Include="Aiursoft.DbTools.MySql" Version="7.0.2" />
     <PackageReference Include="Aiursoft.DbTools.InMemory" Version="7.0.2" />
   </ItemGroup>
   <ItemGroup>
