@@ -4,7 +4,7 @@
 [![Pipeline stat](https://gitlab.aiursoft.cn/aiursoft/moongladepure/badges/master/pipeline.svg)](https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/pipelines)
 [![Test Coverage](https://gitlab.aiursoft.cn/aiursoft/moongladepure/badges/master/coverage.svg)](https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/pipelines)
 [![NuGet version (MoongladePure.Core](https://img.shields.io/nuget/v/MoongladePure.Core.svg)](https://www.nuget.org/packages/MoongladePure.Core/)
-[![ManHours](https://manhours.aiursoft.cn/gitlab/gitlab.aiursoft.cn/aiursoft/MoongladePure)](https://gitlab.aiursoft.cn/aiursoft/MoongladePure/-/commits/master?ref_type=heads)
+[![ManHours](https://manhours.aiursoft.cn/gitlab/gitlab.aiursoft.cn/aiursoft/MoongladePure.svg)](https://gitlab.aiursoft.cn/aiursoft/MoongladePure/-/commits/master?ref_type=heads)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fanduin.aiursoft.cn%2F)](https://anduin.aiursoft.cn)
 
 MoongladePure, regain control over your data.
