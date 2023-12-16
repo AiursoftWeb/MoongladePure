@@ -10,7 +10,7 @@ public class LocalWordFilterModerator : ICommentModerator
     public LocalWordFilterModerator(IBlogConfig blogConfig)
     {
         var sw = new StringWordSource(blogConfig.ContentSettings.DisharmonyWords);
-        _filter = new MaskWordFilter(sw);
+        _filter = new TrieTreeWordFilter(sw);
     }
 
     public Task<string> ModerateContent(string input) => Task.FromResult(_filter.FilterContent(input));
