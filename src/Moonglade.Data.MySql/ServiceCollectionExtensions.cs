@@ -17,7 +17,8 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            services.AddAiurMySqlWithCache<MySqlBlogDbContext>(connectionString);
+            // Don't allow cache to avoid multi-instance conflict
+            services.AddAiurMySqlWithCache<MySqlBlogDbContext>(connectionString, allowCache: false);
         }
 
         return services;
