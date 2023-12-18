@@ -137,20 +137,33 @@ export function submitComment(pid) {
             captchaCode: document.querySelector('#input-comment-captcha').value
         },
         (success) => {
-            document.querySelector('#comment-form').reset();
-            resetCaptchaImage();
-
+            let anchor = null;
             var httpCode = success.status;
             if (httpCode === 201) {
-                document.querySelector('#thx-for-comment').style.display = 'block';
+                anchor = 'thx-for-comment';
             }
             if (httpCode === 200) {
-                document.querySelector('#thx-for-comment-non-review').style.display = 'block';
+                anchor = 'thx-for-comment-non-review';
             }
+            let anchors = new Set(location.hash.split('#'));
+            anchors.add(anchor);
+            anchors = Array.from(anchors).join('#');
+            location.href = location.href.substring(0, location.href.indexOf('#')) + anchors;
+            location.reload();
         },
         (always) => {
             document.querySelector('#loadingIndicator').style.display = 'none';
             document.querySelector(btnSubmitComment).classList.remove('disabled');
             document.querySelector(btnSubmitComment).removeAttribute('disabled');
         });
+}
+
+window.onload = function() {
+    const anchors = new Set(location.hash.split('#'));
+    if (anchors.has('thx-for-comment')) {
+        document.querySelector('#thx-for-comment').style.display = 'block';
+    }
+    if (anchors.has('thx-for-comment-non-review')) {
+        document.querySelector('#thx-for-comment-non-review').style.display = 'block';
+    }
 }
