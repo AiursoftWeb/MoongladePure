@@ -24,7 +24,7 @@
 
             callApi(`/api/post/${postid}/recycle`, 'DELETE', {},
                 (resp) => {
-                    $(`#tr-${postid}`).hide();
+                    $(`#post-${postid}`).hide();
                 });
         }
     </script>
