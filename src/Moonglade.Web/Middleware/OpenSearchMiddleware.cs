@@ -29,7 +29,7 @@ public class OpenSearchMiddleware
     {
         var sb = new StringBuilder();
 
-        var writerSettings = new XmlWriterSettings { Encoding = Encoding.UTF8, Async = true };
+        var writerSettings = new XmlWriterSettings { Encoding = Encoding.Default, Async = true };
         await using (var writer = XmlWriter.Create(sb, writerSettings))
         {
             await writer.WriteStartDocumentAsync();
