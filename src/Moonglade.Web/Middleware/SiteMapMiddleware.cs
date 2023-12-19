@@ -24,7 +24,7 @@ public class SiteMapMiddleware
         {
             var xml = await cache.GetOrCreateAsync(CacheDivision.General, "sitemap", async _ =>
             {
-                var url = Helper.ResolveRootUrl(httpContext, blogConfig.GeneralSettings.CanonicalPrefix, true, true);
+                var url = Helper.ResolveRootUrl(httpContext, true);
                 var data = await GetSiteMapData(url, configuration.GetSection("SiteMap"), postRepo, pageRepo);
                 return data;
             });

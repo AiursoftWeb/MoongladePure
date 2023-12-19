@@ -9,11 +9,6 @@ public class GeneralSettings : IBlogSettings
     [MaxLength(1024)]
     public string MetaKeyword { get; set; }
 
-    [Display(Name = "Canonical URL prefix")]
-    [DataType(DataType.Url)]
-    [MaxLength(64)]
-    public string CanonicalPrefix { get; set; }
-
     [Required]
     [Display(Name = "Logo text")]
     [MaxLength(16)]

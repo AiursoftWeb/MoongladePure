@@ -51,10 +51,8 @@
     <meta property="og:title" content="@Model.Post.Title">
     <meta property="og:type" content="article" />
     <meta property="og:description" content="@Model.Post.ContentAbstract" />
-    @if (!string.IsNullOrWhiteSpace(BlogConfig.GeneralSettings.CanonicalPrefix))
-    {
-        <meta property="og:url" content="@(Helper.ResolveCanonicalUrl(BlogConfig.GeneralSettings.CanonicalPrefix, HttpContext.Request.Path))" />
-    }
+    <meta property="og:url" content="@($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/post/{Model.Post.PubDateUtc.GetValueOrDefault().Year}/{Model.Post.PubDateUtc.GetValueOrDefault().Month}/{Model.Post.PubDateUtc.GetValueOrDefault().Day}/{Model.Post.Slug}")" />
+    <link rel="canonical" href="@($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/post/{Model.Post.PubDateUtc.GetValueOrDefault().Year}/{Model.Post.PubDateUtc.GetValueOrDefault().Month}/{Model.Post.PubDateUtc.GetValueOrDefault().Day}/{Model.Post.Slug}")" />
 }
 
 @section metadescription{

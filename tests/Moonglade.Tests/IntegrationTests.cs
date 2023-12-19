@@ -104,7 +104,31 @@ public class IntegrationTests
         await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
-
+    
+    [TestMethod]
+    public async Task GetFoaF()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/foaf.xml");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+    
+    [TestMethod]
+    public async Task GetOpenSearch()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/opensearch");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+    
+    [TestMethod]
+    public async Task GetSitemap()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/sitemap.xml");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+    
     [TestMethod]
     public async Task HealthCheck()
     {

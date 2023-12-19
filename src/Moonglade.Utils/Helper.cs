@@ -171,16 +171,14 @@ public static class Helper
         return Convert.ToBase64String(salt);
     }
 
-    public static string ResolveRootUrl(HttpContext ctx, string canonicalPrefix, bool preferCanonical = false, bool removeTailSlash = false)
+    public static string ResolveRootUrl(HttpContext ctx, bool removeTailSlash = false)
     {
-        if (ctx is null && !preferCanonical)
+        if (ctx is null)
         {
-            throw new ArgumentNullException(nameof(ctx), "HttpContext must not be null when preferCanonical is 'false'");
+            throw new ArgumentNullException(nameof(ctx), "HttpContext must not be null!");
         }
 
-        var url = preferCanonical ?
-            ResolveCanonicalUrl(canonicalPrefix, string.Empty) :
-            $"{ctx.Request.Scheme}://{ctx.Request.Host}";
+        var url = $"{ctx.Request.Scheme}://{ctx.Request.Host}";
 
         if (removeTailSlash && url.EndsWith('/'))
         {
@@ -238,22 +236,6 @@ public static class Helper
         }
 
         return rawUrl;
-    }
-
-    public static string ResolveCanonicalUrl(string prefix, string path)
-    {
-        if (string.IsNullOrWhiteSpace(prefix)) return string.Empty;
-        path ??= string.Empty;
-
-        if (!prefix.IsValidUrl())
-        {
-            throw new UriFormatException($"Prefix '{prefix}' is not a valid URL.");
-        }
-
-        var prefixUri = new Uri(prefix);
-        return Uri.TryCreate(baseUri: prefixUri, relativeUri: path, out var newUri) ?
-            newUri.ToString() :
-            string.Empty;
     }
 
     /// <summary>

@@ -4,7 +4,6 @@ using MoongladePure.Data.MySql;
 using MoongladePure.Syndication;
 using System.Text.Json.Serialization;
 using SixLabors.Fonts;
-using WilderMinds.MetaWeblog;
 using System.Globalization;
 using Aiursoft.CSTools.Tools;
 using Aiursoft.WebTools.Models;
@@ -85,7 +84,6 @@ namespace MoongladePure.Web
             services
                 .AddSyndication()
                 .AddBlogCache()
-                .AddMetaWeblog<MetaWeblogService>()
                 .AddScoped<ValidateCaptcha>()
                 .AddBlogConfig(configuration)
                 .AddBlogAuthenticaton(configuration)
@@ -101,7 +99,7 @@ namespace MoongladePure.Web
         public void Configure(WebApplication app)
         {
             app.UseForwardedHeaders();
-            app.UseHealthChecks(new PathString("/health"));
+            app.MapHealthChecks("/health");
 
             app.UseCustomCss(options => options.MaxContentLength = 10240);
             app.UseManifest(options => options.ThemeColor = "#333333");
@@ -115,7 +113,6 @@ namespace MoongladePure.Web
 
             app.UseMiddleware<FoafMiddleware>();
 
-            app.UseMiddleware<RSDMiddleware>().UseMetaWeblog("/metaweblog");
             app.UseMiddleware<SiteMapMiddleware>()
                 .UseMiddleware<PoweredByMiddleware>()
                 .UseMiddleware<DNTMiddleware>();

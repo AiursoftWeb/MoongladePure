@@ -26,7 +26,7 @@ public class SubscriptionController : ControllerBase
     {
         var cats = await _mediator.Send(new GetCategoriesQuery());
         var catInfos = cats.Select(c => new KeyValuePair<string, string>(c.DisplayName, c.RouteName));
-        var rootUrl = Helper.ResolveRootUrl(HttpContext, _blogConfig.GeneralSettings.CanonicalPrefix);
+        var rootUrl = Helper.ResolveRootUrl(HttpContext);
 
         var oi = new OpmlDoc
         {

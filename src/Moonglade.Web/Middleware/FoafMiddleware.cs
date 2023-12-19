@@ -34,7 +34,7 @@ public class FoafMiddleware
             var foafDoc = new FoafDoc
             {
                 Name = blogConfig.GeneralSettings.OwnerName,
-                BlogUrl = Helper.ResolveRootUrl(context, blogConfig.GeneralSettings.CanonicalPrefix, true),
+                BlogUrl = Helper.ResolveRootUrl(context),
                 Email = blogConfig.GeneralSettings.OwnerEmail,
                 PhotoUrl = linkGenerator.GetUriByAction(context, "Avatar", "Assets")
             };
