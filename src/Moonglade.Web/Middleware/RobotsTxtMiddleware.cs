@@ -12,14 +12,10 @@ public class RobotsTxtMiddleware
         if (httpContext.Request.Path == "/robots.txt")
         {
             var robotsTxtContent = blogConfig.AdvancedSettings.RobotsTxtContent;
-            if (string.IsNullOrWhiteSpace(robotsTxtContent))
-            {
-                httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-                await httpContext.Response.WriteAsync("No robots.txt is present.", httpContext.RequestAborted);
-            }
-
+            
+            robotsTxtContent += "\n\nsitemap: " + Helper.ResolveRootUrl(httpContext) + "/sitemap.xml";
             httpContext.Response.ContentType = "text/plain";
-            await httpContext.Response.WriteAsync(blogConfig.AdvancedSettings.RobotsTxtContent, Encoding.UTF8, httpContext.RequestAborted);
+            await httpContext.Response.WriteAsync(robotsTxtContent, Encoding.UTF8, httpContext.RequestAborted);
         }
         else
         {

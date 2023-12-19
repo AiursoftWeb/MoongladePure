@@ -130,6 +130,14 @@ public class IntegrationTests
     }
     
     [TestMethod]
+    public async Task GetManifest()
+    {
+        var response = await _http.GetAsync($"{_endpointUrl}/manifest.webmanifest");
+        await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+    }
+    
+    [TestMethod]
     public async Task HealthCheck()
     {
         var http = new HttpClient();

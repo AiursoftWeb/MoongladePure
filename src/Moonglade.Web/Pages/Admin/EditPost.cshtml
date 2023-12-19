@@ -7,11 +7,11 @@
     ViewBag.Title = "Manage Posts";
 
     var cultureItems = LocOptions.Value.SupportedUICultures
-        ?.Select(c => new { Value = c.Name, c.NativeName })
+        !.Select(c => new { Value = c.Name, c.NativeName })
         .ToList();
 
     var langList = cultureItems
-        ?.Select(t => new SelectListItem
+        .Select(t => new SelectListItem
         {
             Text = t.NativeName,
             Value = t.Value.ToLower()

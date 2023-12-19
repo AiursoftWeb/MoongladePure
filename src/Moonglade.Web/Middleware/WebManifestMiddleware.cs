@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace MoongladePure.Web.Middleware;
 
@@ -12,7 +11,7 @@ public class WebManifestMiddleware
     public WebManifestMiddleware(RequestDelegate next) => _next = next;
 
     public async Task Invoke(
-        HttpContext context, IBlogConfig blogConfig, IOptions<List<ManifestIcon>> manifestIcons)
+        HttpContext context, IBlogConfig blogConfig)
     {
         if (context.Request.Path == "/manifest.webmanifest")
         {
@@ -20,13 +19,20 @@ public class WebManifestMiddleware
             {
                 ShortName = blogConfig.GeneralSettings.SiteTitle,
                 Name = blogConfig.GeneralSettings.SiteTitle,
-                Description = blogConfig.GeneralSettings.SiteTitle,
+                Description = blogConfig.GeneralSettings.ShortDescription,
                 StartUrl = "/",
-                Icons = manifestIcons?.Value,
+                Icons = new List<ManifestIcon>
+                {
+                    new()
+                    {
+                        Src = "/avatar",
+                        Sizes = "300x300",
+                    }
+                },
                 BackgroundColor = Options.ThemeColor,
                 ThemeColor = Options.ThemeColor,
                 Display = "standalone",
-                Orientation = "portrait"
+                Orientation = "portrait",
             };
 
             context.Response.StatusCode = StatusCodes.Status200OK;
@@ -49,13 +55,16 @@ public class ManifestModel
     [JsonPropertyName("short_name")]
     public string ShortName { get; set; }
 
+    [JsonPropertyName("name")]
     public string Name { get; set; }
 
+    [JsonPropertyName("description")]
     public string Description { get; set; }
 
     [JsonPropertyName("start_url")]
     public string StartUrl { get; set; }
 
+    [JsonPropertyName("icons")]
     public IEnumerable<ManifestIcon> Icons { get; set; }
 
     [JsonPropertyName("background_color")]
@@ -64,21 +73,23 @@ public class ManifestModel
     [JsonPropertyName("theme_color")]
     public string ThemeColor { get; set; }
 
+    [JsonPropertyName("display")]
     public string Display { get; set; }
+    
+    [JsonPropertyName("orientation")]
     public string Orientation { get; set; }
 }
 
 public class ManifestIcon
 {
-    public string Src => "/" + string.Format(SrcTemplate ?? string.Empty, Sizes);
-    public string Sizes => $"{Pixel}x{Pixel}";
+    [JsonPropertyName("src")]
+    public string Src { get; set; }
+    
+    [JsonPropertyName("sizes")]
+    public string Sizes { get; set; }
+    
+    [JsonPropertyName("type")]
     public string Type => "image/png";
-
-    [JsonIgnore]
-    public string SrcTemplate { get; set; }
-
-    [JsonIgnore]
-    public int Pixel { get; set; }
 }
 
 public static partial class ApplicationBuilderExtensions
