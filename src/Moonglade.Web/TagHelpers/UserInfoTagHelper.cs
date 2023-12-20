@@ -3,19 +3,10 @@ using System.Security.Claims;
 
 namespace MoongladePure.Web.TagHelpers;
 
-public enum UserInfoDisplay
-{
-    PreferName,
-    PreferEmail,
-    Both
-}
-
 [HtmlTargetElement("userinfo", TagStructure = TagStructure.NormalOrSelfClosing)]
 public class UserInfoTagHelper : TagHelper
 {
     public ClaimsPrincipal User { get; set; }
-
-    public UserInfoDisplay UserInfoDisplay { get; set; } = UserInfoDisplay.Both;
 
     public static string TagClassBase => "aspnet-tag-moonglade-userinfo";
 
@@ -28,26 +19,9 @@ public class UserInfoTagHelper : TagHelper
         else
         {
             var name = GetName();
-            var email = GetEmail();
-
             output.TagName = "div";
             output.Attributes.SetAttribute("class", TagClassBase);
-
-            switch (UserInfoDisplay)
-            {
-                case UserInfoDisplay.PreferName:
-                    output.Content.SetContent(name ?? email);
-                    break;
-                case UserInfoDisplay.PreferEmail:
-                    output.Content.SetContent(email ?? name);
-                    break;
-                case UserInfoDisplay.Both:
-                    output.Content.SetHtmlContent(
-                        $"<div class='{TagClassBase}-name'>{name}</div><email class='{TagClassBase}-email'>{email}</email>");
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            output.Content.SetContent(name);
         }
     }
 
@@ -68,23 +42,4 @@ public class UserInfoTagHelper : TagHelper
         return name;
     }
 
-    private string GetEmail()
-    {
-        string email = null;
-        if (User.HasClaim(c => c.Type == ClaimTypes.Email))
-        {
-            email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-        }
-
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            // non-standard name
-            if (User.HasClaim(c => c.Type.ToLower() == "email"))
-            {
-                email = User.Claims.FirstOrDefault(c => c.Type.ToLower() == "email")?.Value;
-            }
-        }
-
-        return email;
-    }
 }

@@ -234,7 +234,7 @@ namespace MoongladePure.Core.AiFeature
         /// </summary>
         [JsonPropertyName("choices")]
         // ReSharper disable once CollectionNeverUpdated.Global
-        public List<ChoicesItemData> Choices { get; set; } = new List<ChoicesItemData>();
+        public List<ChoicesItemData> Choices { get; set; } = new();
     }
 
     /// <summary>
