@@ -1,4 +1,4 @@
-﻿using Aiursoft.CSTools.Tools;
+using Aiursoft.CSTools.Tools;
 using Microsoft.EntityFrameworkCore;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Data.Entities;
@@ -37,7 +37,7 @@ namespace MoongladePure.Web.BackgroundJobs
             }
 
             _logger.LogInformation("Post AI Processing job is starting");
-            _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(5));
+            _timer = new Timer(DoWork, null, TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(25));
             return Task.CompletedTask;
         }
 
