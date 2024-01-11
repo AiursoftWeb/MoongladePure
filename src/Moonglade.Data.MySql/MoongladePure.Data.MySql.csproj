@@ -10,8 +10,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.MySql" Version="7.0.16" />
-    <PackageReference Include="Aiursoft.DbTools.InMemory" Version="7.0.13" />
+    <PackageReference Include="Aiursoft.DbTools.MySql" Version="7.0.17" />
+    <PackageReference Include="Aiursoft.DbTools.InMemory" Version="7.0.14" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Moonglade.Data\MoongladePure.Data.csproj" />
