@@ -35,7 +35,7 @@
 <div class="ps-4 pe-4">
     @if (posts.Any())
     {
-        @Html.AntiForgeryToken()
+        
 
         @foreach (var post in posts.OrderByDescending(p => p.LastModifiedUtc))
         {
