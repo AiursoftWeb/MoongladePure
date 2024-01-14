@@ -119,7 +119,6 @@ public class PostController : ControllerBase
         return NoContent();
     }
 
-    [IgnoreAntiforgeryToken]
     [HttpPost("keep-alive")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult KeepAlive([MaxLength(16)] string nonce)

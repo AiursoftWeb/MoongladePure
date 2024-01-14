@@ -8,24 +8,23 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddImageStorage(
         this IServiceCollection services, 
-        IConfiguration configuration,
+        IConfigurationSection section,
         bool isTest)
     {
-        var section = configuration.GetSection(nameof(ImageStorage));
         var settings = section.Get<ImageStorageSettings>();
         services.Configure<ImageStorageSettings>(section);
 
-        if (string.IsNullOrWhiteSpace(settings.FileSystemPath))
+        if (string.IsNullOrWhiteSpace(settings.Path))
         {
-            throw new ArgumentNullException(nameof(settings.FileSystemPath), "FileSystemPath can not be null or empty.");
+            throw new ArgumentNullException(nameof(settings.Path), "Path can not be null or empty.");
         }
 
         if (isTest)
         {
-            settings.FileSystemPath = Path.GetTempPath();
+            settings.Path = Path.GetTempPath();
         }
 
-        services.AddFileSystemStorage(settings.FileSystemPath);
+        services.AddFileSystemStorage(settings.Path);
 
         return services;
     }

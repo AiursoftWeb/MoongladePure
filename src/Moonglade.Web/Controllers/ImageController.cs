@@ -68,7 +68,7 @@ public class ImageController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost, IgnoreAntiforgeryToken]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Image(IFormFile file, [FromQuery] bool skipWatermark = false)

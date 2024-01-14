@@ -44,7 +44,7 @@ namespace MoongladePure.Web
             }).AddSessionBasedCaptcha(options => options.FontStyle = FontStyle.Bold);
 
             services.AddLocalization(options => options.ResourcesPath = "Resources");
-            services.AddControllers(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+            services.AddControllers()
                     .AddApplicationPart(typeof(Startup).Assembly)
                     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
                     .ConfigureApiBehaviorOptions(ConfigureApiBehavior.BlogApiBehavior);
@@ -59,13 +59,8 @@ namespace MoongladePure.Web
 
             // Fix Chinese character being encoded in HTML output
             services.AddSingleton(Encoder.MoongladeHtmlEncoder);
-            services.AddAntiforgery(options =>
-            {
-                const string csrfName = "CSRF-TOKEN-MOONGLADE";
-                options.Cookie.Name = $"X-{csrfName}";
-                options.FormFieldName = $"{csrfName}-FORM";
-                options.HeaderName = "XSRF-TOKEN";
-            }).Configure<RequestLocalizationOptions>(options =>
+            services
+            .Configure<RequestLocalizationOptions>(options =>
             {
                 options.DefaultRequestCulture = new("en-US");
                 options.SupportedCultures = Cultures;
@@ -88,11 +83,19 @@ namespace MoongladePure.Web
                 .AddBlogConfig(configuration)
                 .AddBlogAuthenticaton(configuration)
                 .AddComments(configuration)
-                .AddImageStorage(configuration, environment.IsDevelopment() || EntryExtends.IsInUnitTests())
+                .AddImageStorage(configuration.GetSection("Storage"), isTest: environment.IsDevelopment() || EntryExtends.IsInUnitTests())
                 .Configure<List<ManifestIcon>>(configuration.GetSection("ManifestIcons"));
 
-            var connStr = configuration.GetConnectionString("MoongladeDatabase")!; 
-            services.AddDatabase(connStr, useTestDb: environment.IsDevelopment() || EntryExtends.IsInUnitTests());
+            // "ConnectionStrings": {
+            //     "AllowCache": "True",
+            //     "DbType": "Sqlite",
+            //     "DefaultConnection": "Server=localhost;Port=3306;Database=MoongladePure;uid=moongladepure;Password=YOUR_STRONG_PASSWORD;"
+            // },
+            var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var dbType = configuration.GetSection("ConnectionStrings:DbType").Get<DbType>();
+            var allowCache = configuration.GetSection("ConnectionStrings:AllowCache").Get<bool>();
+            Console.WriteLine($"DbType: {dbType}, AllowCache: {allowCache}");
+            services.AddDatabase(connectionString, dbType: dbType, allowCache: allowCache);
 
         }
 

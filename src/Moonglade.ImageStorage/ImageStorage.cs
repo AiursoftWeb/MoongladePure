@@ -4,5 +4,5 @@ public class ImageStorageSettings
 {
     public string[] AllowedExtensions { get; set; }
 
-    public string FileSystemPath { get; set; }
+    public string Path { get; set; }
 }

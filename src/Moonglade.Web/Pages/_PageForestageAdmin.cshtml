@@ -1,6 +1,6 @@
 ﻿@if (User.Identity is { IsAuthenticated: true })
 {
-    @Html.AntiForgeryToken()
+    
     <script>
         function deletePage(pageid) {
             callApi(`/api/page/${pageid}`,
