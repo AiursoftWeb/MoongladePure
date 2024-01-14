@@ -15,6 +15,8 @@ MoongladePure uses MySQL as database and file system as data store. It's extreme
 
 ![demo](./assets/demo.png)
 
+Default user name is `admin` and default password is `admin123`.
+
 ## Try
 
 Try a running MoongladePure [here](https://anduin.aiursoft.cn).
