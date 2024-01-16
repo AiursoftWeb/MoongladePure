@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <meta name="keywords" content="@Html.Raw(BlogConfig.GeneralSettings.MetaKeyword)" />
     <link rel="start" title="@BlogConfig.GeneralSettings.SiteTitle" href="~/" />
-    <rss title="@BlogConfig.FeedSettings.RssTitle" href="@Url.Action("Rss", "Subscription")" />
+    <rss title="@BlogConfig.FeedSettings.RssTitle" href="@(Url.Action("Rss", "Subscription") ?? string.Empty)" />
     @if (BlogConfig.AdvancedSettings.EnableOpenSearch)
     {
         <opensearch href="/opensearch" title="@BlogConfig.GeneralSettings.SiteTitle" />
