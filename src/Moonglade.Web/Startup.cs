@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using SixLabors.Fonts;
 using System.Globalization;
 using Aiursoft.CSTools.Tools;
-using Aiursoft.WebTools.Models;
+using Aiursoft.WebTools.Abstractions.Models;
 using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Core.AiFeature;
