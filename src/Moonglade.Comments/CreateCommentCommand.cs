@@ -7,50 +7,34 @@ using MoongladePure.Data.Spec;
 
 namespace MoongladePure.Comments;
 
-public class CreateCommentCommand : IRequest<CommentDetailedItem>
+public class CreateCommentCommand(Guid postId, CommentRequest payload, string ipAddress) : IRequest<CommentDetailedItem>
 {
-    public CreateCommentCommand(Guid postId, CommentRequest payload, string ipAddress)
-    {
-        PostId = postId;
-        Payload = payload;
-        IpAddress = ipAddress;
-    }
+    public Guid PostId { get; set; } = postId;
 
-    public Guid PostId { get; set; }
+    public CommentRequest Payload { get; set; } = payload;
 
-    public CommentRequest Payload { get; set; }
-
-    public string IpAddress { get; set; }
+    public string IpAddress { get; set; } = ipAddress;
 }
 
-public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, CommentDetailedItem>
+public class CreateCommentCommandHandler(
+    IBlogConfig blogConfig,
+    IRepository<PostEntity> postRepo,
+    ICommentModerator moderator,
+    IRepository<CommentEntity> commentRepo)
+    : IRequestHandler<CreateCommentCommand, CommentDetailedItem>
 {
-    private readonly IBlogConfig _blogConfig;
-    private readonly IRepository<PostEntity> _postRepo;
-    private readonly ICommentModerator _moderator;
-    private readonly IRepository<CommentEntity> _commentRepo;
-
-    public CreateCommentCommandHandler(
-        IBlogConfig blogConfig, IRepository<PostEntity> postRepo, ICommentModerator moderator, IRepository<CommentEntity> commentRepo)
-    {
-        _blogConfig = blogConfig;
-        _postRepo = postRepo;
-        _moderator = moderator;
-        _commentRepo = commentRepo;
-    }
-
     public async Task<CommentDetailedItem> Handle(CreateCommentCommand request, CancellationToken ct)
     {
-        if (_blogConfig.ContentSettings.EnableWordFilter)
+        if (blogConfig.ContentSettings.EnableWordFilter)
         {
-            switch (_blogConfig.ContentSettings.WordFilterMode)
+            switch (blogConfig.ContentSettings.WordFilterMode)
             {
                 case WordFilterMode.Mask:
-                    request.Payload.Username = await _moderator.ModerateContent(request.Payload.Username);
-                    request.Payload.Content = await _moderator.ModerateContent(request.Payload.Content);
+                    request.Payload.Username = await moderator.ModerateContent(request.Payload.Username);
+                    request.Payload.Content = await moderator.ModerateContent(request.Payload.Content);
                     break;
                 case WordFilterMode.Block:
-                    if (await _moderator.HasBadWord(request.Payload.Username, request.Payload.Content))
+                    if (await moderator.HasBadWord(request.Payload.Username, request.Payload.Content))
                     {
                         await Task.CompletedTask;
                         return null;
@@ -68,13 +52,13 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
             CreateTimeUtc = DateTime.UtcNow,
             Email = request.Payload.Email,
             IPAddress = request.IpAddress,
-            IsApproved = !_blogConfig.ContentSettings.RequireCommentReview
+            IsApproved = !blogConfig.ContentSettings.RequireCommentReview
         };
 
-        await _commentRepo.AddAsync(model, ct);
+        await commentRepo.AddAsync(model, ct);
 
         var spec = new PostSpec(request.PostId, false);
-        var postTitle = await _postRepo.FirstOrDefaultAsync(spec, p => p.Title);
+        var postTitle = await postRepo.FirstOrDefaultAsync(spec, p => p.Title);
 
         var item = new CommentDetailedItem
         {

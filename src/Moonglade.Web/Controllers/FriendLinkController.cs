@@ -6,17 +6,13 @@ namespace MoongladePure.Web.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class FriendLinkController : ControllerBase
+public class FriendLinkController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public FriendLinkController(IMediator mediator) => _mediator = mediator;
-
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(AddLinkCommand command)
     {
-        await _mediator.Send(command);
+        await mediator.Send(command);
         return Created(new Uri(command.LinkUrl), command);
     }
 
@@ -25,7 +21,7 @@ public class FriendLinkController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([NotEmpty] Guid id)
     {
-        var link = await _mediator.Send(new GetLinkQuery(id));
+        var link = await mediator.Send(new GetLinkQuery(id));
         if (null == link) return NotFound();
 
         return Ok(link);
@@ -36,7 +32,7 @@ public class FriendLinkController : ControllerBase
     public async Task<IActionResult> Update([NotEmpty] Guid id, UpdateLinkCommand command)
     {
         command.Id = id;
-        await _mediator.Send(command);
+        await mediator.Send(command);
         return NoContent();
     }
 
@@ -44,7 +40,7 @@ public class FriendLinkController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete([NotEmpty] Guid id)
     {
-        await _mediator.Send(new DeleteLinkCommand(id));
+        await mediator.Send(new DeleteLinkCommand(id));
         return NoContent();
     }
 }

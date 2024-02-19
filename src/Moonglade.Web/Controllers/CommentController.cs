@@ -8,19 +8,10 @@ namespace MoongladePure.Web.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [CommentProviderGate]
-public class CommentController : ControllerBase
+public class CommentController(
+    IMediator mediator,
+    IBlogConfig blogConfig) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly IBlogConfig _blogConfig;
-
-    public CommentController(
-        IMediator mediator,
-        IBlogConfig blogConfig)
-    {
-        _mediator = mediator;
-        _blogConfig = blogConfig;
-    }
-
     [HttpPost("{postId:guid}")]
     [AllowAnonymous]
     [ServiceFilter(typeof(ValidateCaptcha))]
@@ -37,10 +28,10 @@ public class CommentController : ControllerBase
             return BadRequest(ModelState.CombineErrorMessages());
         }
 
-        if (!_blogConfig.ContentSettings.EnableComments) return Forbid();
+        if (!blogConfig.ContentSettings.EnableComments) return Forbid();
 
         var ip = (bool)HttpContext.Items["DNT"] ? "N/A" : Helper.GetClientIP(HttpContext);
-        var item = await _mediator.Send(new CreateCommentCommand(postId, request, ip));
+        var item = await mediator.Send(new CreateCommentCommand(postId, request, ip));
 
         if (item is null)
         {
@@ -48,7 +39,7 @@ public class CommentController : ControllerBase
             return Conflict(ModelState);
         }
 
-        if (_blogConfig.ContentSettings.RequireCommentReview)
+        if (blogConfig.ContentSettings.RequireCommentReview)
         {
             return Created("moonglade://empty", item);
         }
@@ -60,7 +51,7 @@ public class CommentController : ControllerBase
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Approval([NotEmpty] Guid commentId)
     {
-        await _mediator.Send(new ToggleApprovalCommand(new[] { commentId }));
+        await mediator.Send(new ToggleApprovalCommand(new[] { commentId }));
         return Ok(commentId);
     }
 
@@ -69,7 +60,7 @@ public class CommentController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Delete([FromBody][MinLength(1)] Guid[] commentIds)
     {
-        await _mediator.Send(new DeleteCommentsCommand(commentIds));
+        await mediator.Send(new DeleteCommentsCommand(commentIds));
         return Ok(commentIds);
     }
 
@@ -81,9 +72,9 @@ public class CommentController : ControllerBase
         [Required][FromBody] string replyContent,
         [FromServices] LinkGenerator linkGenerator)
     {
-        if (!_blogConfig.ContentSettings.EnableComments) return Forbid();
+        if (!blogConfig.ContentSettings.EnableComments) return Forbid();
 
-        var reply = await _mediator.Send(new ReplyCommentCommand(commentId, replyContent));
+        var reply = await mediator.Send(new ReplyCommentCommand(commentId, replyContent));
 
         return Ok(reply);
     }

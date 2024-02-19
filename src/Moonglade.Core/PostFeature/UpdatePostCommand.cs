@@ -6,32 +6,18 @@ using MoongladePure.Utils;
 namespace MoongladePure.Core.PostFeature;
 
 public record UpdatePostCommand(Guid Id, PostEditModel Payload) : IRequest<PostEntity>;
-public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostEntity>
+public class UpdatePostCommandHandler(
+    IRepository<PostCategoryEntity> pcRepository,
+    IRepository<PostTagEntity> ptRepository,
+    IRepository<TagEntity> tagRepo,
+    IRepository<PostEntity> postRepo,
+    IBlogCache cache)
+    : IRequestHandler<UpdatePostCommand, PostEntity>
 {
-    private readonly IRepository<PostCategoryEntity> _pcRepository;
-    private readonly IRepository<PostTagEntity> _ptRepository;
-    private readonly IRepository<TagEntity> _tagRepo;
-    private readonly IRepository<PostEntity> _postRepo;
-    private readonly IBlogCache _cache;
-
-    public UpdatePostCommandHandler(
-        IRepository<PostCategoryEntity> pcRepository,
-        IRepository<PostTagEntity> ptRepository,
-        IRepository<TagEntity> tagRepo,
-        IRepository<PostEntity> postRepo,
-        IBlogCache cache)
-    {
-        _ptRepository = ptRepository;
-        _pcRepository = pcRepository;
-        _tagRepo = tagRepo;
-        _postRepo = postRepo;
-        _cache = cache;
-    }
-
     public async Task<PostEntity> Handle(UpdatePostCommand request, CancellationToken ct)
     {
         var (guid, postEditModel) = request;
-        var post = await _postRepo.GetAsync(guid, ct);
+        var post = await postRepo.GetAsync(guid, ct);
         if (null == post)
         {
             throw new InvalidOperationException($"Post {guid} is not found.");
@@ -78,9 +64,9 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
 
         foreach (var item in tags)
         {
-            if (!await _tagRepo.AnyAsync(p => p.DisplayName == item, ct))
+            if (!await tagRepo.AnyAsync(p => p.DisplayName == item, ct))
             {
-                await _tagRepo.AddAsync(new()
+                await tagRepo.AddAsync(new()
                 {
                     DisplayName = item,
                     NormalizedName = Tag.NormalizeName(item, Helper.TagNormalizationDictionary)
@@ -89,8 +75,8 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
         }
 
         // 2. update tags
-        var oldTags = await _ptRepository.AsQueryable().Where(pc => pc.PostId == post.Id).ToListAsync();
-        await _ptRepository.DeleteAsync(oldTags);
+        var oldTags = await ptRepository.AsQueryable().Where(pc => pc.PostId == post.Id).ToListAsync();
+        await ptRepository.DeleteAsync(oldTags);
         post.Tags.Clear();
         if (tags.Any())
         {
@@ -101,14 +87,14 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
                     continue;
                 }
 
-                var tag = await _tagRepo.GetAsync(t => t.DisplayName == tagName);
+                var tag = await tagRepo.GetAsync(t => t.DisplayName == tagName);
                 if (tag is not null) post.Tags.Add(tag);
             }
         }
 
         // 3. update categories
-        var oldpcs = await _pcRepository.AsQueryable().Where(pc => pc.PostId == post.Id).ToListAsync();
-        await _pcRepository.DeleteAsync(oldpcs);
+        var oldpcs = await pcRepository.AsQueryable().Where(pc => pc.PostId == post.Id).ToListAsync();
+        await pcRepository.DeleteAsync(oldpcs);
 
         post.PostCategory.Clear();
         if (postEditModel.SelectedCatIds.Any())
@@ -123,9 +109,9 @@ public class UpdatePostCommandHandler : IRequestHandler<UpdatePostCommand, PostE
             }
         }
 
-        await _postRepo.UpdateAsync(post, ct);
+        await postRepo.UpdateAsync(post, ct);
 
-        _cache.Remove(CacheDivision.Post, guid.ToString());
+        cache.Remove(CacheDivision.Post, guid.ToString());
         return post;
     }
 }

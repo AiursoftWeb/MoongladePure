@@ -2,13 +2,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MoongladePure.Web.Pages.Settings;
 
-public class SubscriptionModel : PageModel
+public class SubscriptionModel(IBlogConfig blogConfig) : PageModel
 {
-    private readonly IBlogConfig _blogConfig;
-
     public FeedSettings ViewModel { get; set; }
 
-    public SubscriptionModel(IBlogConfig blogConfig) => _blogConfig = blogConfig;
-
-    public void OnGet() => ViewModel = _blogConfig.FeedSettings;
+    public void OnGet() => ViewModel = blogConfig.FeedSettings;
 }

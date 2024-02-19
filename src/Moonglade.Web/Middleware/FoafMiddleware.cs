@@ -2,12 +2,8 @@ using MoongladePure.FriendLink;
 
 namespace MoongladePure.Web.Middleware;
 
-public class FoafMiddleware
+public class FoafMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public FoafMiddleware(RequestDelegate next) => _next = next;
-
     public async Task Invoke(
         HttpContext context,
         IBlogConfig blogConfig,
@@ -47,7 +43,7 @@ public class FoafMiddleware
         }
         else
         {
-            await _next(context);
+            await next(context);
         }
     }
 }

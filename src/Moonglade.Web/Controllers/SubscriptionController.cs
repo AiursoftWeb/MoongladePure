@@ -5,32 +5,22 @@ using System.ComponentModel.DataAnnotations;
 namespace MoongladePure.Web.Controllers;
 
 [ApiController]
-public class SubscriptionController : ControllerBase
+public class SubscriptionController(
+    IBlogConfig blogConfig,
+    IBlogCache cache,
+    IMediator mediator)
+    : ControllerBase
 {
-    private readonly IBlogConfig _blogConfig;
-    private readonly IBlogCache _cache;
-    private readonly IMediator _mediator;
-
-    public SubscriptionController(
-        IBlogConfig blogConfig,
-        IBlogCache cache,
-        IMediator mediator)
-    {
-        _blogConfig = blogConfig;
-        _cache = cache;
-        _mediator = mediator;
-    }
-
     [HttpGet("opml")]
     public async Task<IActionResult> Opml()
     {
-        var cats = await _mediator.Send(new GetCategoriesQuery());
+        var cats = await mediator.Send(new GetCategoriesQuery());
         var catInfos = cats.Select(c => new KeyValuePair<string, string>(c.DisplayName, c.RouteName));
         var rootUrl = Helper.ResolveRootUrl(HttpContext);
 
         var oi = new OpmlDoc
         {
-            SiteTitle = $"{_blogConfig.GeneralSettings.SiteTitle} - OPML",
+            SiteTitle = $"{blogConfig.GeneralSettings.SiteTitle} - OPML",
             ContentInfo = catInfos,
             HtmlUrl = $"{rootUrl}/post",
             XmlUrl = $"{rootUrl}/rss",
@@ -38,7 +28,7 @@ public class SubscriptionController : ControllerBase
             HtmlUrlTemplate = $"{rootUrl}/category/[catTitle]"
         };
 
-        var xml = await _mediator.Send(new GetOpmlQuery(oi));
+        var xml = await mediator.Send(new GetOpmlQuery(oi));
         return Content(xml, "text/xml");
     }
 
@@ -48,12 +38,12 @@ public class SubscriptionController : ControllerBase
         bool hasRoute = !string.IsNullOrWhiteSpace(routeName);
         var route = hasRoute ? routeName.ToLower().Trim() : null;
 
-        return await _cache.GetOrCreateAsync(
+        return await cache.GetOrCreateAsync(
             hasRoute ? CacheDivision.RssCategory : CacheDivision.General, route ?? "rss", async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromHours(1);
 
-                var xml = await _mediator.Send(new GetRssStringQuery(routeName));
+                var xml = await mediator.Send(new GetRssStringQuery(routeName));
                 if (string.IsNullOrWhiteSpace(xml))
                 {
                     return (IActionResult)NotFound();
@@ -66,11 +56,11 @@ public class SubscriptionController : ControllerBase
     [HttpGet("atom")]
     public async Task<IActionResult> Atom()
     {
-        return await _cache.GetOrCreateAsync(CacheDivision.General, "atom", async entry =>
+        return await cache.GetOrCreateAsync(CacheDivision.General, "atom", async entry =>
         {
             entry.SlidingExpiration = TimeSpan.FromHours(1);
 
-            var xml = await _mediator.Send(new GetAtomStringQuery());
+            var xml = await mediator.Send(new GetAtomStringQuery());
             return Content(xml, "text/xml");
         });
     }

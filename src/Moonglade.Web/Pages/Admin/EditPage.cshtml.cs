@@ -3,25 +3,17 @@ using MoongladePure.Core.PageFeature;
 
 namespace MoongladePure.Web.Pages.Admin;
 
-public class EditPageModel : PageModel
+public class EditPageModel(IMediator mediator) : PageModel
 {
-    private readonly IMediator _mediator;
-
     public Guid PageId { get; set; }
 
-    public EditPageRequest EditPageRequest { get; set; }
-
-    public EditPageModel(IMediator mediator)
-    {
-        _mediator = mediator;
-        EditPageRequest = new();
-    }
+    public EditPageRequest EditPageRequest { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync(Guid? id)
     {
         if (id is null) return Page();
 
-        var page = await _mediator.Send(new GetPageByIdQuery(id.Value));
+        var page = await mediator.Send(new GetPageByIdQuery(id.Value));
         if (page is null) return NotFound();
 
         PageId = page.Id;

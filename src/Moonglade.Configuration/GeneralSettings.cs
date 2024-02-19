@@ -63,7 +63,7 @@ public class GeneralSettings : IBlogSettings
     [Display(Name = "Auto Light / Dark theme regarding client system settings")]
     public bool AutoDarkLightTheme { get; set; }
 
-    public int ThemeId { get; set; }
+    public int ThemeId { get; set; } = 1;
 
     [Display(Name = "Profile")]
     public bool WidgetsProfile { get; set; } = true;
@@ -82,8 +82,6 @@ public class GeneralSettings : IBlogSettings
 
     [MaxLength(64)]
     public string AvatarUrl { get; set; }
-
-    public GeneralSettings() => ThemeId = 1;
 }
 
 public enum SideBarOption

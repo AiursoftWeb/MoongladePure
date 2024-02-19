@@ -134,12 +134,7 @@ public class FeedGenerator : IFeedGenerator, IRssGenerator, IAtomGenerator
     }
 }
 
-public class StringWriterWithEncoding : StringWriter
+public class StringWriterWithEncoding(Encoding encoding) : StringWriter
 {
-    public StringWriterWithEncoding(Encoding encoding)
-    {
-        Encoding = encoding;
-    }
-
-    public override Encoding Encoding { get; }
+    public override Encoding Encoding { get; } = encoding;
 }

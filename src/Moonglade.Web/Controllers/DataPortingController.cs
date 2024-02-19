@@ -5,23 +5,19 @@ namespace MoongladePure.Web.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class DataPortingController : ControllerBase
+public class DataPortingController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public DataPortingController(IMediator mediator) => _mediator = mediator;
-
     [HttpGet("export/{type}")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ExportDownload(ExportType type, CancellationToken ct)
     {
         var exportResult = type switch
         {
-            ExportType.Tags => await _mediator.Send(new ExportTagsDataCommand(), ct),
-            ExportType.Categories => await _mediator.Send(new ExportCategoryDataCommand(), ct),
-            ExportType.FriendLinks => await _mediator.Send(new ExportLinkDataCommand(), ct),
-            ExportType.Pages => await _mediator.Send(new ExportPageDataCommand(), ct),
-            ExportType.Posts => await _mediator.Send(new ExportPostDataCommand(), ct),
+            ExportType.Tags => await mediator.Send(new ExportTagsDataCommand(), ct),
+            ExportType.Categories => await mediator.Send(new ExportCategoryDataCommand(), ct),
+            ExportType.FriendLinks => await mediator.Send(new ExportLinkDataCommand(), ct),
+            ExportType.Pages => await mediator.Send(new ExportPageDataCommand(), ct),
+            ExportType.Posts => await mediator.Send(new ExportPostDataCommand(), ct),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
 
@@ -34,7 +30,7 @@ public class DataPortingController : ControllerBase
                 };
 
             case ExportFormat.SingleCSVFile:
-                Response.Headers.Add("Content-Disposition", $"attachment;filename={Path.GetFileName(exportResult.FilePath)}");
+                Response.Headers.Append("Content-Disposition", $"attachment;filename={Path.GetFileName(exportResult.FilePath)}");
                 return PhysicalFile(exportResult.FilePath!, exportResult.ContentType, Path.GetFileName(exportResult.FilePath));
 
             case ExportFormat.ZippedJsonFiles:

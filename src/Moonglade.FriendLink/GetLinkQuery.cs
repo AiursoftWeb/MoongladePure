@@ -7,15 +7,11 @@ namespace MoongladePure.FriendLink;
 
 public record GetLinkQuery(Guid Id) : IRequest<Link>;
 
-public class GetLinkQueryHandler : IRequestHandler<GetLinkQuery, Link>
+public class GetLinkQueryHandler(IRepository<FriendLinkEntity> repo) : IRequestHandler<GetLinkQuery, Link>
 {
-    private readonly IRepository<FriendLinkEntity> _repo;
-
-    public GetLinkQueryHandler(IRepository<FriendLinkEntity> repo) => _repo = repo;
-
     public Task<Link> Handle(GetLinkQuery request, CancellationToken ct)
     {
-        return _repo.FirstOrDefaultAsync(
+        return repo.FirstOrDefaultAsync(
              new FriendLinkSpec(request.Id), f => new Link
              {
                  Id = f.Id,

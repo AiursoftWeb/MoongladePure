@@ -9,20 +9,10 @@ namespace MoongladePure.Web.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class PostController : ControllerBase
+public class PostController(
+    IMediator mediator,
+    ILogger<PostController> logger) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    private readonly ILogger<PostController> _logger;
-
-    public PostController(
-        IMediator mediator,
-        ILogger<PostController> logger)
-    {
-        _mediator = mediator;
-        _logger = logger;
-    }
-
     [HttpPost("createoredit")]
     [TypeFilter(typeof(ClearBlogCache), Arguments = new object[]
     {
@@ -61,14 +51,14 @@ public class PostController : ControllerBase
             }
 
             var postEntity = model.PostId == Guid.Empty ?
-                await _mediator.Send(new CreatePostCommand(model)) :
-                await _mediator.Send(new UpdatePostCommand(model.PostId, model));
+                await mediator.Send(new CreatePostCommand(model)) :
+                await mediator.Send(new UpdatePostCommand(model.PostId, model));
 
             return Ok(new { PostId = postEntity.Id });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error Creating New Post");
+            logger.LogError(ex, "Error Creating New Post");
             return Conflict(ex.Message);
         }
     }
@@ -83,7 +73,7 @@ public class PostController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Restore([NotEmpty] Guid postId)
     {
-        await _mediator.Send(new RestorePostCommand(postId));
+        await mediator.Send(new RestorePostCommand(postId));
         return NoContent();
     }
 
@@ -97,7 +87,7 @@ public class PostController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete([NotEmpty] Guid postId)
     {
-        await _mediator.Send(new DeletePostCommand(postId, true));
+        await mediator.Send(new DeletePostCommand(postId, true));
         return NoContent();
     }
 
@@ -106,7 +96,7 @@ public class PostController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteFromRecycleBin([NotEmpty] Guid postId)
     {
-        await _mediator.Send(new DeletePostCommand(postId));
+        await mediator.Send(new DeletePostCommand(postId));
         return NoContent();
     }
 
@@ -115,7 +105,7 @@ public class PostController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> EmptyRecycleBin()
     {
-        await _mediator.Send(new PurgeRecycledCommand());
+        await mediator.Send(new PurgeRecycledCommand());
         return NoContent();
     }
 

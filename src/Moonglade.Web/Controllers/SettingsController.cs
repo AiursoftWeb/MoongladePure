@@ -7,25 +7,15 @@ namespace MoongladePure.Web.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class SettingsController : ControllerBase
+public class SettingsController(
+    IBlogConfig blogConfig,
+    ILogger<SettingsController> logger,
+    IMediator mediator)
+    : ControllerBase
 {
     #region Private Fields
 
-    private readonly IMediator _mediator;
-    private readonly IBlogConfig _blogConfig;
-    private readonly ILogger<SettingsController> _logger;
-
     #endregion
-
-    public SettingsController(
-        IBlogConfig blogConfig,
-        ILogger<SettingsController> logger,
-        IMediator mediator)
-    {
-        _blogConfig = blogConfig;
-        _logger = logger;
-        _mediator = mediator;
-    }
 
     [AllowAnonymous]
     [HttpGet("set-lang")]
@@ -45,7 +35,7 @@ public class SettingsController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Crashed when setting language for {Culture} with {ReturnUrl}", culture, returnUrl);
+            logger.LogError(e, "Crashed when setting language for {Culture} with {ReturnUrl}", culture, returnUrl);
 
             // We shall not respect the return URL now, because the returnUrl might be hacking.
             return LocalRedirect("~/");
@@ -57,11 +47,11 @@ public class SettingsController : ControllerBase
     [TypeFilter(typeof(ClearBlogCache), Arguments = new object[] { CacheDivision.General, "theme" })]
     public async Task<IActionResult> General(GeneralSettings model)
     {
-        model.AvatarUrl = _blogConfig.GeneralSettings.AvatarUrl;
+        model.AvatarUrl = blogConfig.GeneralSettings.AvatarUrl;
 
-        _blogConfig.GeneralSettings = model;
+        blogConfig.GeneralSettings = model;
 
-        await SaveConfigAsync(_blogConfig.GeneralSettings);
+        await SaveConfigAsync(blogConfig.GeneralSettings);
 
         AppDomain.CurrentDomain.SetData("CurrentThemeColor", null);
 
@@ -72,9 +62,9 @@ public class SettingsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Content(ContentSettings model)
     {
-        _blogConfig.ContentSettings = model;
+        blogConfig.ContentSettings = model;
 
-        await SaveConfigAsync(_blogConfig.ContentSettings);
+        await SaveConfigAsync(blogConfig.ContentSettings);
         return NoContent();
     }
 
@@ -82,9 +72,9 @@ public class SettingsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Subscription(FeedSettings model)
     {
-        _blogConfig.FeedSettings = model;
+        blogConfig.FeedSettings = model;
 
-        await SaveConfigAsync(_blogConfig.FeedSettings);
+        await SaveConfigAsync(blogConfig.FeedSettings);
         return NoContent();
     }
 
@@ -93,40 +83,40 @@ public class SettingsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Image(ImageSettings model, [FromServices] IBlogImageStorage imageStorage)
     {
-        _blogConfig.ImageSettings = model;
+        blogConfig.ImageSettings = model;
 
         if (model.EnableCDNRedirect)
         {
-            if (null != _blogConfig.GeneralSettings.AvatarUrl
-            && !_blogConfig.GeneralSettings.AvatarUrl.StartsWith(model.CDNEndpoint))
+            if (null != blogConfig.GeneralSettings.AvatarUrl
+            && !blogConfig.GeneralSettings.AvatarUrl.StartsWith(model.CDNEndpoint))
             {
                 try
                 {
-                    var avatarData = await _mediator.Send(new GetAssetQuery(AssetId.AvatarBase64));
+                    var avatarData = await mediator.Send(new GetAssetQuery(AssetId.AvatarBase64));
 
                     if (!string.IsNullOrWhiteSpace(avatarData))
                     {
                         var avatarBytes = Convert.FromBase64String(avatarData);
                         var fileName = $"avatar-{AssetId.AvatarBase64:N}.png";
                         fileName = await imageStorage.InsertAsync(fileName, avatarBytes);
-                        _blogConfig.GeneralSettings.AvatarUrl = _blogConfig.ImageSettings.CDNEndpoint.CombineUrl(fileName);
+                        blogConfig.GeneralSettings.AvatarUrl = blogConfig.ImageSettings.CDNEndpoint.CombineUrl(fileName);
 
-                        await SaveConfigAsync(_blogConfig.GeneralSettings);
+                        await SaveConfigAsync(blogConfig.GeneralSettings);
                     }
                 }
                 catch (FormatException e)
                 {
-                    _logger.LogError(e, $"Error {nameof(Image)}(), Invalid Base64 string");
+                    logger.LogError(e, $"Error {nameof(Image)}(), Invalid Base64 string");
                 }
             }
         }
         else
         {
-            _blogConfig.GeneralSettings.AvatarUrl = Url.Action("Avatar", "Assets");
-            await SaveConfigAsync(_blogConfig.GeneralSettings);
+            blogConfig.GeneralSettings.AvatarUrl = Url.Action("Avatar", "Assets");
+            await SaveConfigAsync(blogConfig.GeneralSettings);
         }
 
-        await SaveConfigAsync(_blogConfig.ImageSettings);
+        await SaveConfigAsync(blogConfig.ImageSettings);
 
         return NoContent();
     }
@@ -137,11 +127,11 @@ public class SettingsController : ControllerBase
     {
         model.MetaWeblogPasswordHash = !string.IsNullOrWhiteSpace(model.MetaWeblogPassword) ?
             Helper.HashPassword(model.MetaWeblogPassword) :
-            _blogConfig.AdvancedSettings.MetaWeblogPasswordHash;
+            blogConfig.AdvancedSettings.MetaWeblogPasswordHash;
 
-        _blogConfig.AdvancedSettings = model;
+        blogConfig.AdvancedSettings = model;
 
-        await SaveConfigAsync(_blogConfig.AdvancedSettings);
+        await SaveConfigAsync(blogConfig.AdvancedSettings);
         return NoContent();
     }
 
@@ -149,7 +139,7 @@ public class SettingsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public IActionResult Shutdown([FromServices] IHostApplicationLifetime applicationLifetime)
     {
-        _logger.LogWarning("Shutdown is requested by \'{IdentityName}\'", User.Identity?.Name);
+        logger.LogWarning("Shutdown is requested by \'{IdentityName}\'", User.Identity?.Name);
         applicationLifetime.StopApplication();
         return Accepted();
     }
@@ -159,7 +149,7 @@ public class SettingsController : ControllerBase
     public async Task<IActionResult> Reset([FromServices] BlogDbContext context,
         [FromServices] IHostApplicationLifetime applicationLifetime)
     {
-        _logger.LogWarning("System reset is requested by \'{IdentityName}\', IP: {ClientIp}", User.Identity?.Name, Helper.GetClientIP(HttpContext));
+        logger.LogWarning("System reset is requested by \'{IdentityName}\', IP: {ClientIp}", User.Identity?.Name, Helper.GetClientIP(HttpContext));
 
         await context.ClearAllDataAsync();
 
@@ -188,9 +178,9 @@ public class SettingsController : ControllerBase
             return BadRequest(ModelState.CombineErrorMessages());
         }
 
-        _blogConfig.CustomStyleSheetSettings = model;
+        blogConfig.CustomStyleSheetSettings = model;
 
-        await SaveConfigAsync(_blogConfig.CustomStyleSheetSettings);
+        await SaveConfigAsync(blogConfig.CustomStyleSheetSettings);
         return NoContent();
     }
 
@@ -208,7 +198,7 @@ public class SettingsController : ControllerBase
 
     private async Task SaveConfigAsync<T>(T blogSettings) where T : IBlogSettings
     {
-        var kvp = _blogConfig.UpdateAsync(blogSettings);
-        await _mediator.Send(new UpdateConfigurationCommand(kvp.Key, kvp.Value));
+        var kvp = blogConfig.UpdateAsync(blogSettings);
+        await mediator.Send(new UpdateConfigurationCommand(kvp.Key, kvp.Value));
     }
 }

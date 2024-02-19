@@ -7,22 +7,12 @@ namespace MoongladePure.Core.PostFeature;
 
 public record CreatePostCommand(PostEditModel Payload) : IRequest<PostEntity>;
 
-public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostEntity>
+public class CreatePostCommandHandler(
+    IRepository<PostEntity> postRepo,
+    ILogger<CreatePostCommandHandler> logger,
+    IRepository<TagEntity> tagRepo)
+    : IRequestHandler<CreatePostCommand, PostEntity>
 {
-    private readonly IRepository<PostEntity> _postRepo;
-    private readonly ILogger<CreatePostCommandHandler> _logger;
-    private readonly IRepository<TagEntity> _tagRepo;
-
-    public CreatePostCommandHandler(
-        IRepository<PostEntity> postRepo,
-        ILogger<CreatePostCommandHandler> logger,
-        IRepository<TagEntity> tagRepo)
-    {
-        _postRepo = postRepo;
-        _logger = logger;
-        _tagRepo = tagRepo;
-    }
-
     public async Task<PostEntity> Handle(CreatePostCommand request, CancellationToken ct)
     {
         var post = new PostEntity
@@ -55,11 +45,11 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostE
 
         // check if exist same slug under the same day
         var todayUtc = DateTime.UtcNow.Date;
-        if (await _postRepo.AnyAsync(new PostSpec(post.Slug, todayUtc), ct))
+        if (await postRepo.AnyAsync(new PostSpec(post.Slug, todayUtc), ct))
         {
             var uid = Guid.NewGuid();
             post.Slug += $"-{uid.ToString().ToLower()[..8]}";
-            _logger.LogInformation("Found conflict for post slug, generated new slug: {PostSlug}", post.Slug);
+            logger.LogInformation("Found conflict for post slug, generated new slug: {PostSlug}", post.Slug);
         }
 
         // compute hash
@@ -91,12 +81,12 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostE
             {
                 if (!Tag.ValidateName(item)) continue;
 
-                var tag = await _tagRepo.GetAsync(q => q.DisplayName == item) ?? await CreateTag(item);
+                var tag = await tagRepo.GetAsync(q => q.DisplayName == item) ?? await CreateTag(item);
                 post.Tags.Add(tag);
             }
         }
 
-        await _postRepo.AddAsync(post, ct);
+        await postRepo.AddAsync(post, ct);
 
         return post;
     }
@@ -109,7 +99,7 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostE
             NormalizedName = Tag.NormalizeName(item, Helper.TagNormalizationDictionary)
         };
 
-        var tag = await _tagRepo.AddAsync(newTag);
+        var tag = await tagRepo.AddAsync(newTag);
         return tag;
     }
 }

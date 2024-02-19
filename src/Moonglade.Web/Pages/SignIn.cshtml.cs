@@ -7,22 +7,12 @@ using System.Security.Claims;
 
 namespace MoongladePure.Web.Pages;
 
-public class SignInModel : PageModel
+public class SignInModel(
+    IMediator mediator,
+    ILogger<SignInModel> logger,
+    ISessionBasedCaptcha captcha)
+    : PageModel
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<SignInModel> _logger;
-    private readonly ISessionBasedCaptcha _captcha;
-
-    public SignInModel(
-        IMediator mediator,
-        ILogger<SignInModel> logger,
-        ISessionBasedCaptcha captcha)
-    {
-        _mediator = mediator;
-        _logger = logger;
-        _captcha = captcha;
-    }
-
     [BindProperty]
     [Required]
     [Display(Name = "Username")]
@@ -54,14 +44,14 @@ public class SignInModel : PageModel
     {
         try
         {
-            if (!_captcha.Validate(CaptchaCode, HttpContext.Session))
+            if (!captcha.Validate(CaptchaCode, HttpContext.Session))
             {
                 ModelState.AddModelError(nameof(CaptchaCode), "Wrong Captcha Code");
             }
 
             if (ModelState.IsValid)
             {
-                var uid = await _mediator.Send(new ValidateLoginCommand(Username, Password));
+                var uid = await mediator.Send(new ValidateLoginCommand(Username, Password));
                 if (uid != Guid.Empty)
                 {
                     var claims = new List<Claim>
@@ -74,10 +64,10 @@ public class SignInModel : PageModel
                     var p = new ClaimsPrincipal(ci);
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, p);
-                    await _mediator.Send(new LogSuccessLoginCommand(uid, Helper.GetClientIP(HttpContext)));
+                    await mediator.Send(new LogSuccessLoginCommand(uid, Helper.GetClientIP(HttpContext)));
 
 
-                    _logger.LogInformation("Authentication success for local account \"\"{Username}\"\"", Username);
+                    logger.LogInformation("Authentication success for local account \"\"{Username}\"\"", Username);
 
                     return RedirectToPage("/Admin/Post");
                 }
@@ -85,7 +75,7 @@ public class SignInModel : PageModel
                 return Page();
             }
 
-            _logger.LogWarning("Authentication failed for local account \"\"{Username}\"\"", Username);
+            logger.LogWarning("Authentication failed for local account \"\"{Username}\"\"", Username);
 
             Response.StatusCode = StatusCodes.Status400BadRequest;
             ModelState.AddModelError(string.Empty, "Bad Request.");
@@ -93,7 +83,7 @@ public class SignInModel : PageModel
         }
         catch (Exception e)
         {
-            _logger.LogWarning("Authentication failed for local account \"\"{Username}\"\"", Username);
+            logger.LogWarning("Authentication failed for local account \"\"{Username}\"\"", Username);
 
             ModelState.AddModelError(string.Empty, e.Message);
             return Page();

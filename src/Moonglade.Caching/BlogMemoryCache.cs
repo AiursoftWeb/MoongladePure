@@ -14,7 +14,7 @@ public enum CacheDivision
     RssCategory
 }
 
-public class BlogMemoryCache : IBlogCache
+public class BlogMemoryCache(IMemoryCache memoryCache) : IBlogCache
 {
     /* Create Key-Value mapping for cache divisions to workaround
      * https://github.com/aspnet/Caching/issues/422
@@ -25,22 +25,14 @@ public class BlogMemoryCache : IBlogCache
      * Post              | { "<guid>", "<guid>", "<guid"> ... }
      * General           | { "avatar", ... }
      */
-    public ConcurrentDictionary<string, IList<string>> CacheDivision { get; }
-
-    private readonly IMemoryCache _memoryCache;
-
-    public BlogMemoryCache(IMemoryCache memoryCache)
-    {
-        _memoryCache = memoryCache;
-        CacheDivision = new();
-    }
+    public ConcurrentDictionary<string, IList<string>> CacheDivision { get; } = new();
 
     public TItem GetOrCreate<TItem>(CacheDivision division, string key, Func<ICacheEntry, TItem> factory)
     {
         if (string.IsNullOrWhiteSpace(key)) return default;
 
         AddToDivision(division.ToString(), key);
-        return _memoryCache.GetOrCreate($"{division}-{key}", factory);
+        return memoryCache.GetOrCreate($"{division}-{key}", factory);
     }
 
     public Task<TItem> GetOrCreateAsync<TItem>(CacheDivision division, string key, Func<ICacheEntry, Task<TItem>> factory)
@@ -48,7 +40,7 @@ public class BlogMemoryCache : IBlogCache
         if (string.IsNullOrWhiteSpace(key)) return Task.FromResult(default(TItem));
 
         AddToDivision(division.ToString(), key);
-        return _memoryCache.GetOrCreateAsync($"{division}-{key}", factory);
+        return memoryCache.GetOrCreateAsync($"{division}-{key}", factory);
     }
 
     public void RemoveAllCache()
@@ -61,7 +53,7 @@ public class BlogMemoryCache : IBlogCache
 
         foreach (var key in keys)
         {
-            _memoryCache.Remove(key);
+            memoryCache.Remove(key);
         }
     }
 
@@ -74,7 +66,7 @@ public class BlogMemoryCache : IBlogCache
         {
             foreach (var key in cacheKeys)
             {
-                _memoryCache.Remove($"{division}-{key}");
+                memoryCache.Remove($"{division}-{key}");
             }
         }
     }
@@ -82,7 +74,7 @@ public class BlogMemoryCache : IBlogCache
     public void Remove(CacheDivision division, string key)
     {
         if ((string.IsNullOrWhiteSpace(key)) || !CacheDivision.ContainsKey(division.ToString())) return;
-        _memoryCache.Remove($"{division}-{key}");
+        memoryCache.Remove($"{division}-{key}");
     }
 
     private void AddToDivision(string divisionKey, string cacheKey)

@@ -1,5 +1,3 @@
 ﻿namespace MoongladePure.Web;
 
-public class SharedResource
-{
-}
+public class SharedResource;

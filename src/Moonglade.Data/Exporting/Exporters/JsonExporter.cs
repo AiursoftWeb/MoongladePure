@@ -5,15 +5,12 @@ using System.Text.Json;
 
 namespace MoongladePure.Data.Exporting.Exporters;
 
-public class JsonExporter<T> : IExporter<T> where T : class
+public class JsonExporter<T>(IRepository<T> repository) : IExporter<T>
+    where T : class
 {
-    private readonly IRepository<T> _repository;
-
-    public JsonExporter(IRepository<T> repository) => _repository = repository;
-
     public async Task<ExportResult> ExportData<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct)
     {
-        var data = await _repository.SelectAsync(selector, ct);
+        var data = await repository.SelectAsync(selector, ct);
         var json = JsonSerializer.Serialize(data, MoongladeJsonSerializerOptions.Default);
 
         return new()

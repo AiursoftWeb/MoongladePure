@@ -6,15 +6,11 @@ namespace MoongladePure.Menus;
 
 public record DeleteMenuCommand(Guid Id) : IRequest;
 
-public class DeleteMenuCommandHandler : IRequestHandler<DeleteMenuCommand>
+public class DeleteMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHandler<DeleteMenuCommand>
 {
-    private readonly IRepository<MenuEntity> _repo;
-
-    public DeleteMenuCommandHandler(IRepository<MenuEntity> repo) => _repo = repo;
-
     public async Task Handle(DeleteMenuCommand request, CancellationToken ct)
     {
-        var menu = await _repo.GetAsync(request.Id, ct);
-        if (menu != null) await _repo.DeleteAsync(request.Id, ct);
+        var menu = await repo.GetAsync(request.Id, ct);
+        if (menu != null) await repo.DeleteAsync(request.Id, ct);
     }
 }

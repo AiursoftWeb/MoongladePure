@@ -6,22 +6,14 @@ using MoongladePure.Data.MySql;
 
 namespace MoongladePure.Web.BackgroundJobs
 {
-    public class PostAiProcessingJob : IHostedService, IDisposable
+    public class PostAiProcessingJob(
+        ILogger<PostAiProcessingJob> logger,
+        IServiceScopeFactory scopeFactory,
+        IWebHostEnvironment env)
+        : IHostedService, IDisposable
     {
-        private readonly IWebHostEnvironment _env;
-        private readonly ILogger _logger;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger _logger = logger;
         private Timer _timer;
-
-        public PostAiProcessingJob(
-            ILogger<PostAiProcessingJob> logger,
-            IServiceScopeFactory scopeFactory,
-            IWebHostEnvironment env)
-        {
-            _logger = logger;
-            _scopeFactory = scopeFactory;
-            _env = env;
-        }
 
         public void Dispose()
         {
@@ -30,7 +22,7 @@ namespace MoongladePure.Web.BackgroundJobs
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_env.IsDevelopment() || !EntryExtends.IsProgramEntry())
+            if (env.IsDevelopment() || !EntryExtends.IsProgramEntry())
             {
                 _logger.LogInformation("Skip running in development environment");
                 return Task.CompletedTask;
@@ -53,7 +45,7 @@ namespace MoongladePure.Web.BackgroundJobs
             try
             {
                 _logger.LogInformation("Post AI Processing task started!");
-                using (var scope = _scopeFactory.CreateScope())
+                using (var scope = scopeFactory.CreateScope())
                 {
                     var services = scope.ServiceProvider;
                     var openAi = services.GetRequiredService<OpenAiService>();

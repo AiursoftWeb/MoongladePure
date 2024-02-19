@@ -24,27 +24,27 @@ public class ImageSettings : IBlogSettings, IValidatableObject
     [Required]
     [Display(Name = "A")]
     [Range(0, 255)]
-    public int WatermarkColorA { get; set; }
+    public int WatermarkColorA { get; set; } = 128;
 
     [Required]
     [Display(Name = "R")]
     [Range(0, 255)]
-    public int WatermarkColorR { get; set; }
+    public int WatermarkColorR { get; set; } = 128;
 
     [Required]
     [Display(Name = "G")]
     [Range(0, 255)]
-    public int WatermarkColorG { get; set; }
+    public int WatermarkColorG { get; set; } = 128;
 
     [Required]
     [Display(Name = "B")]
     [Range(0, 255)]
-    public int WatermarkColorB { get; set; }
+    public int WatermarkColorB { get; set; } = 128;
 
     [Required]
     [Display(Name = "Watermark skip pixel threshold")]
     [Range(0, int.MaxValue)]
-    public int WatermarkSkipPixel { get; set; }
+    public int WatermarkSkipPixel { get; set; } = 40000;
 
     [Display(Name = "Fit image to device pixel ratio")]
     public bool FitImageToDevicePixelRatio { get; set; }
@@ -56,16 +56,6 @@ public class ImageSettings : IBlogSettings, IValidatableObject
     [MaxLength(128)]
     [Display(Name = "CDN endpoint")]
     public string CDNEndpoint { get; set; }
-
-    public ImageSettings()
-    {
-        WatermarkColorA = 128;
-        WatermarkColorR = 128;
-        WatermarkColorG = 128;
-        WatermarkColorB = 128;
-
-        WatermarkSkipPixel = 40000;
-    }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

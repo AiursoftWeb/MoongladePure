@@ -7,25 +7,15 @@ namespace MoongladePure.Comments;
 
 public record ReplyCommentCommand(Guid CommentId, string ReplyContent) : IRequest<CommentReply>;
 
-public class ReplyCommentCommandHandler : IRequestHandler<ReplyCommentCommand, CommentReply>
+public class ReplyCommentCommandHandler(
+    IRepository<PostEntity> postRepo,
+    IRepository<CommentEntity> commentRepo,
+    IRepository<CommentReplyEntity> commentReplyRepo)
+    : IRequestHandler<ReplyCommentCommand, CommentReply>
 {
-    private readonly IRepository<PostEntity> _postRepo;
-    private readonly IRepository<CommentEntity> _commentRepo;
-    private readonly IRepository<CommentReplyEntity> _commentReplyRepo;
-
-    public ReplyCommentCommandHandler(
-        IRepository<PostEntity> postRepo, 
-        IRepository<CommentEntity> commentRepo,
-        IRepository<CommentReplyEntity> commentReplyRepo)
-    {
-        _postRepo = postRepo;
-        _commentRepo = commentRepo;
-        _commentReplyRepo = commentReplyRepo;
-    }
-
     public async Task<CommentReply> Handle(ReplyCommentCommand request, CancellationToken ct)
     {
-        var cmt = await _commentRepo.GetAsync(request.CommentId, ct);
+        var cmt = await commentRepo.GetAsync(request.CommentId, ct);
         if (cmt is null) throw new InvalidOperationException($"Comment {request.CommentId} is not found.");
 
         var id = Guid.NewGuid();
@@ -37,9 +27,9 @@ public class ReplyCommentCommandHandler : IRequestHandler<ReplyCommentCommand, C
             CommentId = request.CommentId
         };
 
-        await _commentReplyRepo.AddAsync(model, ct);
+        await commentReplyRepo.AddAsync(model, ct);
 
-        cmt.Post = await _postRepo.GetAsync(cmt.PostId, ct);
+        cmt.Post = await postRepo.GetAsync(cmt.PostId, ct);
         var reply = new CommentReply
         {
             CommentContent = cmt.CommentContent,

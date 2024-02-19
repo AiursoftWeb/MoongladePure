@@ -8,30 +8,21 @@ namespace MoongladePure.Web.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class PageController : Controller
+public class PageController(
+    IBlogCache cache,
+    IMediator mediator) : Controller
 {
-    private readonly IBlogCache _cache;
-    private readonly IMediator _mediator;
-
-    public PageController(
-        IBlogCache cache,
-        IMediator mediator)
-    {
-        _cache = cache;
-        _mediator = mediator;
-    }
-
     [HttpPost]
     [TypeFilter(typeof(ClearBlogCache), Arguments = new object[] { BlogCacheType.SiteMap })]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public Task<IActionResult> Create(EditPageRequest model) =>
-        CreateOrEdit(model, async request => await _mediator.Send(new CreatePageCommand(request)));
+        CreateOrEdit(model, async request => await mediator.Send(new CreatePageCommand(request)));
 
     [HttpPut("{id:guid}")]
     [TypeFilter(typeof(ClearBlogCache), Arguments = new object[] { BlogCacheType.SiteMap })]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public Task<IActionResult> Edit([NotEmpty] Guid id, EditPageRequest model) =>
-        CreateOrEdit(model, async request => await _mediator.Send(new UpdatePageCommand(id, request)));
+        CreateOrEdit(model, async request => await mediator.Send(new UpdatePageCommand(id, request)));
 
     private async Task<IActionResult> CreateOrEdit(EditPageRequest model, Func<EditPageRequest, Task<Guid>> pageServiceAction)
     {
@@ -50,7 +41,7 @@ public class PageController : Controller
 
         var uid = await pageServiceAction(model);
 
-        _cache.Remove(CacheDivision.Page, model.Slug.ToLower());
+        cache.Remove(CacheDivision.Page, model.Slug.ToLower());
         return Ok(new { PageId = uid });
     }
 
@@ -58,12 +49,12 @@ public class PageController : Controller
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Delete))]
     public async Task<IActionResult> Delete([NotEmpty] Guid id)
     {
-        var page = await _mediator.Send(new GetPageByIdQuery(id));
+        var page = await mediator.Send(new GetPageByIdQuery(id));
         if (page == null) return NotFound();
 
-        await _mediator.Send(new DeletePageCommand(id));
+        await mediator.Send(new DeletePageCommand(id));
 
-        _cache.Remove(CacheDivision.Page, page.Slug);
+        cache.Remove(CacheDivision.Page, page.Slug);
         return NoContent();
     }
 }

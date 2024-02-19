@@ -7,18 +7,14 @@ namespace MoongladePure.Web.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class MenuController : ControllerBase
+public class MenuController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public MenuController(IMediator mediator) => _mediator = mediator;
-
     [HttpPost]
     [TypeFilter(typeof(ClearBlogCache), Arguments = new object[] { CacheDivision.General, "menu" })]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Create(EditMenuRequest request)
     {
-        var response = await _mediator.Send(new CreateMenuCommand(request));
+        var response = await mediator.Send(new CreateMenuCommand(request));
         return Ok(response);
     }
 
@@ -27,7 +23,7 @@ public class MenuController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Delete([NotEmpty] Guid id)
     {
-        await _mediator.Send(new DeleteMenuCommand(id));
+        await mediator.Send(new DeleteMenuCommand(id));
         return NoContent();
     }
 
@@ -36,7 +32,7 @@ public class MenuController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Edit([NotEmpty] Guid id)
     {
-        var menu = await _mediator.Send(new GetMenuQuery(id));
+        var menu = await mediator.Send(new GetMenuQuery(id));
         if (null == menu) return NotFound();
 
         var model = new EditMenuRequest
@@ -64,7 +60,7 @@ public class MenuController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Edit(EditMenuRequest request)
     {
-        await _mediator.Send(new UpdateMenuCommand(request));
+        await mediator.Send(new UpdateMenuCommand(request));
         return NoContent();
     }
 }

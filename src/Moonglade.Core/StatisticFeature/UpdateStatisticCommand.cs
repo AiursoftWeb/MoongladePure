@@ -2,15 +2,12 @@
 
 public record UpdateStatisticCommand(Guid PostId, bool IsLike) : IRequest;
 
-public class UpdateStatisticCommandHandler : IRequestHandler<UpdateStatisticCommand>
+public class UpdateStatisticCommandHandler(IRepository<PostExtensionEntity> repo)
+    : IRequestHandler<UpdateStatisticCommand>
 {
-    private readonly IRepository<PostExtensionEntity> _repo;
-
-    public UpdateStatisticCommandHandler(IRepository<PostExtensionEntity> repo) => _repo = repo;
-
     public async Task Handle(UpdateStatisticCommand request, CancellationToken ct)
     {
-        var pp = await _repo.GetAsync(request.PostId, ct);
+        var pp = await repo.GetAsync(request.PostId, ct);
         if (pp is null) return;
 
         if (request.IsLike)
@@ -24,6 +21,6 @@ public class UpdateStatisticCommandHandler : IRequestHandler<UpdateStatisticComm
             pp.Hits += 1;
         }
 
-        await _repo.UpdateAsync(pp, ct);
+        await repo.UpdateAsync(pp, ct);
     }
 }

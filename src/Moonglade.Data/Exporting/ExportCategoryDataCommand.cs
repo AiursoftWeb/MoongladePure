@@ -7,14 +7,12 @@ namespace MoongladePure.Data.Exporting;
 
 public record ExportCategoryDataCommand : IRequest<ExportResult>;
 
-public class ExportCategoryDataCommandHandler : IRequestHandler<ExportCategoryDataCommand, ExportResult>
+public class ExportCategoryDataCommandHandler(IRepository<CategoryEntity> repo)
+    : IRequestHandler<ExportCategoryDataCommand, ExportResult>
 {
-    private readonly IRepository<CategoryEntity> _repo;
-    public ExportCategoryDataCommandHandler(IRepository<CategoryEntity> repo) => _repo = repo;
-
     public Task<ExportResult> Handle(ExportCategoryDataCommand request, CancellationToken ct)
     {
-        var catExp = new CSVExporter<CategoryEntity>(_repo, "moonglade-categories", ExportManager.DataDir);
+        var catExp = new CSVExporter<CategoryEntity>(repo, "moonglade-categories", ExportManager.DataDir);
         return catExp.ExportData(p => new
         {
             p.Id,

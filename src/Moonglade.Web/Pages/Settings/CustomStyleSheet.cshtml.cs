@@ -2,13 +2,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MoongladePure.Web.Pages.Settings;
 
-public class CustomStyleSheetModel : PageModel
+public class CustomStyleSheetModel(IBlogConfig blogConfig) : PageModel
 {
-    private readonly IBlogConfig _blogConfig;
-
     public CustomStyleSheetSettings ViewModel { get; set; }
 
-    public CustomStyleSheetModel(IBlogConfig blogConfig) => _blogConfig = blogConfig;
-
-    public void OnGet() => ViewModel = _blogConfig.CustomStyleSheetSettings;
+    public void OnGet() => ViewModel = blogConfig.CustomStyleSheetSettings;
 }

@@ -3,18 +3,10 @@ using MoongladePure.Menus;
 
 namespace MoongladePure.Web.Pages.Admin;
 
-public class MenuModel : PageModel
+public class MenuModel(IMediator mediator) : PageModel
 {
-    private readonly IMediator _mediator;
-
     [BindProperty]
-    public IReadOnlyList<Menu> MenuItems { get; set; }
+    public IReadOnlyList<Menu> MenuItems { get; set; } = new List<Menu>();
 
-    public MenuModel(IMediator mediator)
-    {
-        _mediator = mediator;
-        MenuItems = new List<Menu>();
-    }
-
-    public async Task OnGet() => MenuItems = await _mediator.Send(new GetAllMenusQuery());
+    public async Task OnGet() => MenuItems = await mediator.Send(new GetAllMenusQuery());
 }

@@ -2,11 +2,8 @@
 
 public record CreatePageCommand(EditPageRequest Payload) : IRequest<Guid>;
 
-public class CreatePageCommandHandler : IRequestHandler<CreatePageCommand, Guid>
+public class CreatePageCommandHandler(IRepository<PageEntity> repo) : IRequestHandler<CreatePageCommand, Guid>
 {
-    private readonly IRepository<PageEntity> _repo;
-    public CreatePageCommandHandler(IRepository<PageEntity> repo) => _repo = repo;
-
     public async Task<Guid> Handle(CreatePageCommand request, CancellationToken ct)
     {
         var uid = Guid.NewGuid();
@@ -23,7 +20,7 @@ public class CreatePageCommandHandler : IRequestHandler<CreatePageCommand, Guid>
             IsPublished = request.Payload.IsPublished
         };
 
-        await _repo.AddAsync(page, ct);
+        await repo.AddAsync(page, ct);
 
         return uid;
     }

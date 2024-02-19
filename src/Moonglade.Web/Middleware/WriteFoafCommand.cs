@@ -4,20 +4,14 @@ using System.Xml;
 
 namespace MoongladePure.Web.Middleware;
 
-public class WriteFoafCommand : IRequest<string>
+public class WriteFoafCommand(FoafDoc doc, string currentRequestUrl, IReadOnlyList<Link> links)
+    : IRequest<string>
 {
-    public WriteFoafCommand(FoafDoc doc, string currentRequestUrl, IReadOnlyList<Link> links)
-    {
-        Doc = doc;
-        CurrentRequestUrl = currentRequestUrl;
-        Links = links;
-    }
+    public FoafDoc Doc { get; set; } = doc;
 
-    public FoafDoc Doc { get; set; }
+    public string CurrentRequestUrl { get; set; } = currentRequestUrl;
 
-    public string CurrentRequestUrl { get; set; }
-
-    public IReadOnlyList<Link> Links { get; set; }
+    public IReadOnlyList<Link> Links { get; set; } = links;
 
     public static string ContentType => "application/rdf+xml";
 }

@@ -4,30 +4,23 @@ using MoongladePure.Core.PostFeature;
 
 namespace MoongladePure.Web.Pages.Admin;
 
-public class EditPostModel : PageModel
+public class EditPostModel(IMediator mediator) : PageModel
 {
-    private readonly IMediator _mediator;
-
-    public PostEditModel ViewModel { get; set; }
-    public List<CategoryCheckBox> CategoryList { get; set; }
-
-    public EditPostModel(IMediator mediator)
+    public PostEditModel ViewModel { get; set; } = new()
     {
-        _mediator = mediator;
-        ViewModel = new()
-        {
-            IsPublished = false,
-            Featured = false,
-            EnableComment = true,
-            FeedIncluded = true
-        };
-    }
+        IsPublished = false,
+        Featured = false,
+        EnableComment = true,
+        FeedIncluded = true
+    };
+
+    public List<CategoryCheckBox> CategoryList { get; set; }
 
     public async Task<IActionResult> OnGetAsync(Guid? id)
     {
         if (id is null)
         {
-            var cats1 = await _mediator.Send(new GetCategoriesQuery());
+            var cats1 = await mediator.Send(new GetCategoriesQuery());
             if (cats1.Count > 0)
             {
                 var cbCatList = cats1.Select(p =>
@@ -44,7 +37,7 @@ public class EditPostModel : PageModel
             return Page();
         }
 
-        var post = await _mediator.Send(new GetPostByIdQuery(id.Value));
+        var post = await mediator.Send(new GetPostByIdQuery(id.Value));
         if (null == post) return NotFound();
 
         ViewModel = new()
@@ -76,7 +69,7 @@ public class EditPostModel : PageModel
         tagStr = tagStr.TrimEnd(',');
         ViewModel.Tags = tagStr;
 
-        var cats2 = await _mediator.Send(new GetCategoriesQuery());
+        var cats2 = await mediator.Send(new GetCategoriesQuery());
         if (cats2.Count > 0)
         {
             var cbCatList = cats2.Select(p =>

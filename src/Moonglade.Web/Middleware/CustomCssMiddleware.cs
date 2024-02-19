@@ -2,13 +2,9 @@
 
 namespace MoongladePure.Web.Middleware;
 
-public class CustomCssMiddleware
+public class CustomCssMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
     public static CustomCssMiddlewareOptions Options { get; set; } = new();
-
-    public CustomCssMiddleware(RequestDelegate next) => _next = next;
 
     public async Task Invoke(HttpContext context, IBlogConfig blogConfig)
     {
@@ -40,7 +36,7 @@ public class CustomCssMiddleware
         }
         else
         {
-            await _next(context);
+            await next(context);
         }
     }
 }
@@ -56,12 +52,6 @@ public static partial class ApplicationBuilderExtensions
 
 public class CustomCssMiddlewareOptions
 {
-    public int MaxContentLength { get; set; }
-    public PathString RequestPath { get; set; }
-
-    public CustomCssMiddlewareOptions()
-    {
-        MaxContentLength = 65536;
-        RequestPath = "/custom.css";
-    }
+    public int MaxContentLength { get; set; } = 65536;
+    public PathString RequestPath { get; set; } = "/custom.css";
 }

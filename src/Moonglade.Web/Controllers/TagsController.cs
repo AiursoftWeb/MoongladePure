@@ -7,17 +7,13 @@ namespace MoongladePure.Web.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class TagsController : ControllerBase
+public class TagsController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public TagsController(IMediator mediator) => _mediator = mediator;
-
     [HttpGet("names")]
     [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Names()
     {
-        var tagNames = await _mediator.Send(new GetTagNamesQuery());
+        var tagNames = await mediator.Send(new GetTagNamesQuery());
         return Ok(tagNames);
     }
 
@@ -30,7 +26,7 @@ public class TagsController : ControllerBase
         if (string.IsNullOrWhiteSpace(name)) return BadRequest();
         if (!Tag.ValidateName(name)) return Conflict();
 
-        await _mediator.Send(new CreateTagCommand(name.Trim()));
+        await mediator.Send(new CreateTagCommand(name.Trim()));
         return Ok();
     }
 
@@ -39,7 +35,7 @@ public class TagsController : ControllerBase
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))]
     public async Task<IActionResult> Update([Range(1, int.MaxValue)] int id, [Required][FromBody] string name)
     {
-        var oc = await _mediator.Send(new UpdateTagCommand(id, name));
+        var oc = await mediator.Send(new UpdateTagCommand(id, name));
         if (oc == OperationCode.ObjectNotFound) return NotFound();
 
         return NoContent();
@@ -50,7 +46,7 @@ public class TagsController : ControllerBase
     [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Delete))]
     public async Task<IActionResult> Delete([Range(0, int.MaxValue)] int id)
     {
-        var oc = await _mediator.Send(new DeleteTagCommand(id));
+        var oc = await mediator.Send(new DeleteTagCommand(id));
         if (oc == OperationCode.ObjectNotFound) return NotFound();
 
         return NoContent();

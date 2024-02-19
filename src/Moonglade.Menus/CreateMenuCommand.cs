@@ -6,12 +6,8 @@ namespace MoongladePure.Menus;
 
 public record CreateMenuCommand(EditMenuRequest Payload) : IRequest<Guid>;
 
-public class CreateMenuCommandHandler : IRequestHandler<CreateMenuCommand, Guid>
+public class CreateMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHandler<CreateMenuCommand, Guid>
 {
-    private readonly IRepository<MenuEntity> _repo;
-
-    public CreateMenuCommandHandler(IRepository<MenuEntity> repo) => _repo = repo;
-
     public async Task<Guid> Handle(CreateMenuCommand request, CancellationToken ct)
     {
         var uid = Guid.NewGuid();
@@ -39,7 +35,7 @@ public class CreateMenuCommandHandler : IRequestHandler<CreateMenuCommand, Guid>
             menu.SubMenus = sms.ToList();
         }
 
-        await _repo.AddAsync(menu, ct);
+        await repo.AddAsync(menu, ct);
         return uid;
     }
 }

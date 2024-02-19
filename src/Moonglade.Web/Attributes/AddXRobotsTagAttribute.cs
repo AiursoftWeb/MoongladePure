@@ -2,17 +2,13 @@
 
 namespace MoongladePure.Web.Attributes;
 
-public class AddXRobotsTagAttribute : ResultFilterAttribute
+public class AddXRobotsTagAttribute(string content) : ResultFilterAttribute
 {
-    private readonly string _content;
-
-    public AddXRobotsTagAttribute(string content) => _content = content;
-
     public override void OnResultExecuting(ResultExecutingContext context)
     {
         if (!context.HttpContext.Response.Headers.ContainsKey("X-Robots-Tag"))
         {
-            context.HttpContext.Response.Headers.Add("X-Robots-Tag", _content);
+            context.HttpContext.Response.Headers.Append("X-Robots-Tag", content);
         }
 
         base.OnResultExecuting(context);

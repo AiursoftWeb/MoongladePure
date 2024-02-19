@@ -2,11 +2,8 @@
 
 public record DeletePageCommand(Guid Id) : IRequest;
 
-public class DeletePageCommandHandler : IRequestHandler<DeletePageCommand>
+public class DeletePageCommandHandler(IRepository<PageEntity> repo) : IRequestHandler<DeletePageCommand>
 {
-    private readonly IRepository<PageEntity> _repo;
-    public DeletePageCommandHandler(IRepository<PageEntity> repo) => _repo = repo;
-
     public async Task Handle(DeletePageCommand request, CancellationToken ct) =>
-        await _repo.DeleteAsync(request.Id, ct);
+        await repo.DeleteAsync(request.Id, ct);
 }
