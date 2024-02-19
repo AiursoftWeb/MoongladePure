@@ -14,7 +14,7 @@ RUN npm install --prefix "${CSPROJ_PATH}wwwroot"
 
 # ============================
 # Prepare Building Environment
-FROM hub.aiursoft.cn/mcr.microsoft.com/dotnet/sdk:7.0 as build-env
+FROM hub.aiursoft.cn/mcr.microsoft.com/dotnet/sdk:8.0 as build-env
 ARG CSPROJ_PATH
 ARG PROJ_NAME
 WORKDIR /src
@@ -26,7 +26,7 @@ RUN cp -r ${CSPROJ_PATH}/wwwroot/* /app/wwwroot
 
 # ============================
 # Prepare Runtime Environment
-FROM hub.aiursoft.cn/mcr.microsoft.com/dotnet/aspnet:7.0
+FROM hub.aiursoft.cn/mcr.microsoft.com/dotnet/aspnet:8.0
 ARG PROJ_NAME
 WORKDIR /app
 COPY --from=build-env /app .
