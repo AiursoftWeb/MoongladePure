@@ -1,0 +1,70 @@
+
+@font-face {
+    font-display: block;
+    font-family: bootstrap-icons;
+    src: url(/lib/bootstrap-icons/font/fonts/bootstrap-icons.woff2?8d200481aa7f02a2d63a331fc782cfaf)
+        format("woff2"),
+      url(/lib/bootstrap-icons/font/fonts/bootstrap-icons.woff?8d200481aa7f02a2d63a331fc782cfaf)
+        format("woff");
+  }
+  .fa::before,
+  [class*=" fa-"]::before,
+  [class^="fa-"]::before {
+    display: inline-block;
+    font-family: bootstrap-icons !important;
+    font-style: normal;
+    font-weight: 400 !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    vertical-align: -0.125em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .fa-list-ul::before {
+    content: "\f478";
+  }
+  
+  .fa-bold::before {
+    content: "\f5F0";
+  }
+  
+  .fa-italic::before {
+    content: "\f5F4";
+  }
+  .fa-header::before {
+    content: "\f5F1";
+  }
+  
+  .fa-quote-left::before {
+    content: "\f6B0";
+  }
+  
+  .fa-list-ol::before {
+    content: "\f475";
+  }
+  
+  .fa-link::before {
+    content: "\f471";
+  }
+  
+  .fa-picture-o::before {
+    content: "\f42A";
+  }
+  
+  .fa-eye::before {
+    content: "\f341";
+  }
+  
+  .fa-columns::before {
+    content: "\f2CE";
+  }
+  
+  .fa-arrows-alt::before {
+    content: "\f14D";
+  }
+  
+  .fa-question-circle::before {
+    content: "\f505";
+  }
+  
