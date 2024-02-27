@@ -36,23 +36,14 @@ public class ListPostSegmentQueryHandler(IRepository<PostEntity> repo)
 
         Expression<Func<PostEntity, bool>> countExp = p => null == request.Keyword || p.Title.Contains(request.Keyword);
 
-        switch (request.PostStatus)
+        countExp = request.PostStatus switch
         {
-            case PostStatus.Draft:
-                countExp.AndAlso(p => !p.IsPublished && !p.IsDeleted);
-                break;
-            case PostStatus.Published:
-                countExp.AndAlso(p => p.IsPublished && !p.IsDeleted);
-                break;
-            case PostStatus.Deleted:
-                countExp.AndAlso(p => p.IsDeleted);
-                break;
-            case PostStatus.Default:
-                countExp.AndAlso(p => true);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(request.PostStatus), request.PostStatus, null);
-        }
+            PostStatus.Draft => countExp.AndAlso(p => !p.IsPublished && !p.IsDeleted),
+            PostStatus.Published => countExp.AndAlso(p => p.IsPublished && !p.IsDeleted),
+            PostStatus.Deleted => countExp.AndAlso(p => p.IsDeleted),
+            PostStatus.Default => countExp.AndAlso(p => true),
+            _ => throw new ArgumentOutOfRangeException(nameof(request.PostStatus), request.PostStatus, null),
+        };
 
         var totalRows = await repo.CountAsync(countExp, ct);
         return (posts, totalRows);
