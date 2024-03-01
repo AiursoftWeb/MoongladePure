@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@yaireo/tagify": "^4.21.1",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3"
   }
