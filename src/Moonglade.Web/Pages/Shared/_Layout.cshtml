@@ -188,13 +188,13 @@
     <partial name="_Toast" />
 
     <script src="~/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
-    <script src="~/lib/jquery-utc-time/time.js" asp-append-version="true"></script>
     <script type="module" src="~/js/app/base.js" asp-append-version="true"></script>
     <script src="~/js/app/httpService.js" asp-append-version="true"></script>
-    <script>
-        new UtcTime({
-        });
+    <script type="module">
+        import UtcTime from '/node_modules/@@aiursoft/utctime.js/dist/esm/utctime.js'
+        new UtcTime({})
     </script>
+
 
     @if (BlogConfig.GeneralSettings.AutoDarkLightTheme && (ViewBag.DisableLightSwitch == null || !ViewBag.DisableLightSwitch))
     {
