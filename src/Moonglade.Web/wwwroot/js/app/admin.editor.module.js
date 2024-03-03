@@ -151,7 +151,8 @@ export function loadMdEditor(textareaSelector) {
         simplemde = new SimpleMDE({
             element: $(textareaSelector)[0],
             spellChecker: false,
-            status: false
+            status: false,
+            autoDownloadFontAwesome: false
         });
 
         inlineAttachment.editors.codemirror4.attach(simplemde.codemirror, {
