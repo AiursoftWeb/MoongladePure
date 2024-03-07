@@ -17,6 +17,9 @@ export function useDarkMode() {
     $('.post-content img.img-thumbnail').addClass('bg-dark border-secondary');
     $('.post-content table.table').addClass('table-dark');
 
+    $('.post-publish-info').removeClass('text-muted');
+    $('.post-publish-info').addClass('text-light');
+
     $('.comment-form-containter .form-control, aside .form-control').addClass('bg-transparent');
     $('aside .btn-light').removeClass('btn-light').addClass('btn-dark');
     $('#aside-tags .btn-accent').removeClass('btn-accent').addClass('btn-dark');
@@ -43,6 +46,9 @@ export function useLightMode() {
 
     $('.post-content img.img-thumbnail').removeClass('bg-dark border-secondary');
     $('.post-content table.table').removeClass('table-dark');
+
+    $('.post-publish-info').addClass('text-muted');
+    $('.post-publish-info').removeClass('text-light');
 
     $('.comment-form-containter .form-control, aside .form-control').removeClass('bg-transparent');
     $('aside .btn-light').removeClass('btn-dark').addClass('btn-light');
