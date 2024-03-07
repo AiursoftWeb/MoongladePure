@@ -192,7 +192,15 @@
     <script src="~/js/app/httpService.js" asp-append-version="true"></script>
     <script type="module">
         import UtcTime from '/node_modules/@@aiursoft/utctime.js/dist/esm/utctime.js'
-        new UtcTime({})
+        new UtcTime({
+          onSet: function (element, date) {
+            new bootstrap.Tooltip(element, {
+                trigger: 'hover',
+                placement: 'top',
+                title: date.toLocaleString()
+            });
+          }
+        })
     </script>
 
 

@@ -137,7 +137,15 @@
     <script src="~/js/3rd/jquery.are-you-sure.min.js"></script>
     <script type="module">
         import UtcTime from '/node_modules/@@aiursoft/utctime.js/dist/esm/utctime.js'
-        new UtcTime({})
+        new UtcTime({
+          onSet: function (element, date) {
+            new bootstrap.Tooltip(element, {
+                trigger: 'hover',
+                placement: 'top',
+                title: date.toLocaleString()
+            });
+          }
+        })
     </script>
     @await RenderSectionAsync("scripts", false)
 </body>
