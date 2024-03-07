@@ -73,7 +73,11 @@ namespace MoongladePure.Web
             });
 
             services.AddHealthChecks();
-            services.AddSingleton<IHostedService, PostAiProcessingJob>();
+            var runBackgroundJobs = configuration.GetSection("BackgroundJobs:Enable").Get<bool>();
+            if (runBackgroundJobs)
+            {
+                services.AddSingleton<IHostedService, PostAiProcessingJob>();
+            }
             services.AddHttpClient();
             services.AddScoped<OpenAiService>();
             services
