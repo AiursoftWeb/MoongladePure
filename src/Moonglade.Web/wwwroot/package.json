@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aiursoft/utctime.js": "^1.0.0",
+    "@aiursoft/utctime.js": "^1.0.4",
     "@yaireo/tagify": "^4.21.1",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
