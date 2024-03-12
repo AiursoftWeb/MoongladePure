@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Edi.WordFilter" Version="2.3.0" />
-    <PackageReference Include="Edi.Captcha" Version="3.21.1" />
+    <PackageReference Include="Edi.Captcha" Version="3.21.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Moonglade.Configuration\MoongladePure.Configuration.csproj" />
