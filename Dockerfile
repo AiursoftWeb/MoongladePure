@@ -32,6 +32,7 @@ WORKDIR /app
 COPY --from=build-env /app .
 COPY --from=build-env /src/assets/OpenSans-Regular.ttf /usr/share/fonts/OpenSans-Regular.ttf
 
+RUN apt update; DEBIAN_FRONTEND=noninteractive apt install -y wget
 RUN sed -i 's/DataSource=app.db/DataSource=\/data\/app.db/g' appsettings.json
 RUN sed -i 's/\/tmp\/data/\/data/g' appsettings.json
 RUN mkdir -p /data
