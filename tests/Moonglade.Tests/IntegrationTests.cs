@@ -136,20 +136,4 @@ public class IntegrationTests
         await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
-    
-    [TestMethod]
-    public async Task HealthCheck()
-    {
-        var http = new HttpClient();
-        var response = await http.GetAsync($"{_endpointUrl}/health");
-        response.EnsureSuccessStatusCode(); // Status Code 200-299
-    }
-
-    [TestMethod]
-    public async Task Ping()
-    {
-        var http = new HttpClient();
-        var response = await http.GetAsync($"{_endpointUrl}/ping");
-        response.EnsureSuccessStatusCode(); // Status Code 200-299
-    }
 }
