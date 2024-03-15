@@ -25,7 +25,7 @@ public class IntegrationTests
     [TestInitialize]
     public async Task CreateServer()
     {
-        _server = App<Startup>(args: Array.Empty<string>(), port: _port);
+        _server = await AppAsync<Startup>(args: Array.Empty<string>(), port: _port);
         await _server.UpdateDbAsync<MySqlBlogDbContext>(UpdateMode.RecreateThenUse);
         await _server.SeedAsync();
         await _server.StartAsync();

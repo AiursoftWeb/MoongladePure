@@ -9,7 +9,7 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        var app = App<Startup>(args);
+        var app = await AppAsync<Startup>(args);
         await app.UpdateDbAsync<MySqlBlogDbContext>(UpdateMode.CreateThenUse);
         await app.SeedAsync();
         await app.RunAsync();

@@ -72,7 +72,6 @@ namespace MoongladePure.Web
                 options.AppendTrailingSlash = false;
             });
 
-            services.AddHealthChecks();
             var runBackgroundJobs = configuration.GetSection("BackgroundJobs:Enable").Get<bool>();
             if (runBackgroundJobs)
             {
@@ -106,7 +105,6 @@ namespace MoongladePure.Web
         public void Configure(WebApplication app)
         {
             app.UseForwardedHeaders();
-            app.MapHealthChecks("/health");
 
             app.UseCustomCss(options => options.MaxContentLength = 10240);
             app.UseManifest(options => options.ThemeColor = "#333333");
@@ -152,24 +150,6 @@ namespace MoongladePure.Web
             app.UseIpRateLimiting();
             app.UseRouting();
             app.UseAuthentication().UseAuthorization();
-
-            app.MapHealthChecks("/ping", new()
-            {
-                ResponseWriter = (context, _) =>
-                {
-                    var obj = new
-                    {
-                        Helper.AppVersion,
-                        DotNetVersion = Environment.Version.ToString(),
-                        EnvironmentTags = Helper.GetEnvironmentTags(),
-                        GeoMatch = context.Request.Headers["geo-match"],
-                        RequestIpAddress = context.Connection.RemoteIpAddress?.ToString()
-                    };
-
-                    return context.Response.WriteAsJsonAsync(obj);
-                }
-            });
-
             app.MapControllers();
             app.MapRazorPages();
         }
