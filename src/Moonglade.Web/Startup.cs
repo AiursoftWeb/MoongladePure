@@ -6,19 +6,24 @@ using System.Text.Json.Serialization;
 using SixLabors.Fonts;
 using System.Globalization;
 using Aiursoft.CSTools.Tools;
+using Aiursoft.DbTools.Switchable;
 using Aiursoft.WebTools.Abstractions.Models;
 using AspNetCoreRateLimit;
 using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Core.AiFeature;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Data.MySql.Infrastructure;
 using MoongladePure.Web.BackgroundJobs;
 
 namespace MoongladePure.Web
 {
     public class Startup : IWebStartup
     {
-        private static readonly List<CultureInfo> Cultures = new[] { "en-US", "zh-CN" }.Select(p => new CultureInfo(p)).ToList();
+        private static readonly List<CultureInfo> Cultures =
+            new[] { "en-US", "zh-CN" }.Select(p => new CultureInfo(p)).ToList();
 
-        public void ConfigureServices(IConfiguration configuration, IWebHostEnvironment environment, IServiceCollection services)
+        public void ConfigureServices(IConfiguration configuration, IWebHostEnvironment environment,
+            IServiceCollection services)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -29,13 +34,15 @@ namespace MoongladePure.Web
             AppDomain.CurrentDomain.Load("MoongladePure.Configuration");
             AppDomain.CurrentDomain.Load("MoongladePure.Data");
 
-            services.AddMediatR(mediatRServiceConfiguration => mediatRServiceConfiguration.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+            services.AddMediatR(mediatRServiceConfiguration =>
+                mediatRServiceConfiguration.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
-            services.Configure<ForwardedHeadersOptions>(options => options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
+            services.Configure<ForwardedHeadersOptions>(options =>
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
 
             services.AddOptions()
-                    .AddHttpContextAccessor()
-                    .AddRateLimit(configuration.GetSection("IpRateLimiting"));
+                .AddHttpContextAccessor()
+                .AddRateLimit(configuration.GetSection("IpRateLimiting"));
 
             services.AddSession(options =>
             {
@@ -45,38 +52,40 @@ namespace MoongladePure.Web
 
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddControllers()
-                    .AddApplicationPart(typeof(Startup).Assembly)
-                    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
-                    .ConfigureApiBehaviorOptions(ConfigureApiBehavior.BlogApiBehavior);
+                .AddApplicationPart(typeof(Startup).Assembly)
+                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+                .ConfigureApiBehaviorOptions(ConfigureApiBehavior.BlogApiBehavior);
             services.AddRazorPages()
-                    .AddDataAnnotationsLocalization(options => options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResource)))
-                    .AddRazorPagesOptions(options =>
-                    {
-                        options.Conventions.AddPageRoute("/Admin/Post", "admin");
-                        options.Conventions.AuthorizeFolder("/Admin");
-                        options.Conventions.AuthorizeFolder("/Settings");
-                    });
+                .AddDataAnnotationsLocalization(options =>
+                    options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResource)))
+                .AddRazorPagesOptions(options =>
+                {
+                    options.Conventions.AddPageRoute("/Admin/Post", "admin");
+                    options.Conventions.AuthorizeFolder("/Admin");
+                    options.Conventions.AuthorizeFolder("/Settings");
+                });
 
             // Fix Chinese character being encoded in HTML output
             services.AddSingleton(Encoder.MoongladeHtmlEncoder);
             services
-            .Configure<RequestLocalizationOptions>(options =>
-            {
-                options.DefaultRequestCulture = new("en-US");
-                options.SupportedCultures = Cultures;
-                options.SupportedUICultures = Cultures;
-            }).Configure<RouteOptions>(options =>
-            {
-                options.LowercaseUrls = true;
-                options.LowercaseQueryStrings = true;
-                options.AppendTrailingSlash = false;
-            });
+                .Configure<RequestLocalizationOptions>(options =>
+                {
+                    options.DefaultRequestCulture = new("en-US");
+                    options.SupportedCultures = Cultures;
+                    options.SupportedUICultures = Cultures;
+                }).Configure<RouteOptions>(options =>
+                {
+                    options.LowercaseUrls = true;
+                    options.LowercaseQueryStrings = true;
+                    options.AppendTrailingSlash = false;
+                });
 
             var runBackgroundJobs = configuration.GetSection("BackgroundJobs:Enable").Get<bool>();
             if (runBackgroundJobs)
             {
                 services.AddSingleton<IHostedService, PostAiProcessingJob>();
             }
+
             services.AddHttpClient();
             services.AddScoped<OpenAiService>();
             services
@@ -86,20 +95,18 @@ namespace MoongladePure.Web
                 .AddBlogConfig(configuration)
                 .AddBlogAuthenticaton(configuration)
                 .AddComments(configuration)
-                .AddImageStorage(configuration.GetSection("Storage"), isTest: environment.IsDevelopment() || EntryExtends.IsInUnitTests())
+                .AddImageStorage(configuration.GetSection("Storage"),
+                    isTest: environment.IsDevelopment() || EntryExtends.IsInUnitTests())
                 .Configure<List<ManifestIcon>>(configuration.GetSection("ManifestIcons"));
 
-            // "ConnectionStrings": {
-            //     "AllowCache": "True",
-            //     "DbType": "Sqlite",
-            //     "DefaultConnection": "Server=localhost;Port=3306;Database=MoongladePure;uid=moongladepure;Password=YOUR_STRONG_PASSWORD;"
-            // },
-            var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                                   ?? throw new InvalidOperationException(
+                                       "Connection string 'DefaultConnection' not found.");
             var dbType = configuration.GetSection("ConnectionStrings:DbType").Get<DbType>();
             var allowCache = configuration.GetSection("ConnectionStrings:AllowCache").Get<bool>();
             Console.WriteLine($"DbType: {dbType}, AllowCache: {allowCache}");
-            services.AddDatabase(connectionString, dbType: dbType, allowCache: allowCache);
-
+            services.AddScoped(typeof(IRepository<>), typeof(MySqlDbContextRepository<>));
+            services.AddDatabase<MySqlBlogDbContext>(connectionString, dbType, allowCache);
         }
 
         public void Configure(WebApplication app)
