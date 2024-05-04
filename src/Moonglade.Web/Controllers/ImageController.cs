@@ -33,9 +33,9 @@ public class ImageController(
         }
 
         // Fallback method for legacy "/image/..." references (e.g. from third party websites)
-        if (blogConfig.ImageSettings.EnableCDNRedirect)
+        if (blogConfig.ImageSettings.EnableCdnRedirect)
         {
-            var imageUrl = blogConfig.ImageSettings.CDNEndpoint.CombineUrl(filename);
+            var imageUrl = blogConfig.ImageSettings.CdnEndpoint.CombineUrl(filename);
             return Redirect(imageUrl);
         }
 

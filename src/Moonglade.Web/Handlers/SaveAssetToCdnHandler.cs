@@ -10,7 +10,7 @@ public class SaveAssetToCdnHandler(IBlogImageStorage imageStorage, IBlogConfig b
 
         if (assetId != AssetId.AvatarBase64) return;
 
-        if (blogConfig.ImageSettings.EnableCDNRedirect)
+        if (blogConfig.ImageSettings.EnableCdnRedirect)
         {
             var fileName = $"avatar-{AssetId.AvatarBase64.ToString("N")[..6]}.png";
             await imageStorage.DeleteAsync(fileName);
@@ -18,7 +18,7 @@ public class SaveAssetToCdnHandler(IBlogImageStorage imageStorage, IBlogConfig b
 
             var random = new Random();
             blogConfig.GeneralSettings.AvatarUrl =
-                blogConfig.ImageSettings.CDNEndpoint.CombineUrl(fileName) + $"?{random.Next(100, 999)}";   //refresh local cache
+                blogConfig.ImageSettings.CdnEndpoint.CombineUrl(fileName) + $"?{random.Next(100, 999)}";   //refresh local cache
 
             var kvp = blogConfig.UpdateAsync(blogConfig.GeneralSettings);
             await mediator.Send(new UpdateConfigurationCommand(kvp.Key, kvp.Value), ct);

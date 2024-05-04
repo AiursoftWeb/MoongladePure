@@ -85,10 +85,10 @@ public class SettingsController(
     {
         blogConfig.ImageSettings = model;
 
-        if (model.EnableCDNRedirect)
+        if (model.EnableCdnRedirect)
         {
             if (null != blogConfig.GeneralSettings.AvatarUrl
-            && !blogConfig.GeneralSettings.AvatarUrl.StartsWith(model.CDNEndpoint))
+            && !blogConfig.GeneralSettings.AvatarUrl.StartsWith(model.CdnEndpoint))
             {
                 try
                 {
@@ -99,7 +99,7 @@ public class SettingsController(
                         var avatarBytes = Convert.FromBase64String(avatarData);
                         var fileName = $"avatar-{AssetId.AvatarBase64:N}.png";
                         fileName = await imageStorage.InsertAsync(fileName, avatarBytes);
-                        blogConfig.GeneralSettings.AvatarUrl = blogConfig.ImageSettings.CDNEndpoint.CombineUrl(fileName);
+                        blogConfig.GeneralSettings.AvatarUrl = blogConfig.ImageSettings.CdnEndpoint.CombineUrl(fileName);
 
                         await SaveConfigAsync(blogConfig.GeneralSettings);
                     }

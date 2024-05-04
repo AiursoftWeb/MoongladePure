@@ -1,8 +1,8 @@
 ﻿@model string
 
 @{
-    var content = BlogConfig.ImageSettings.EnableCDNRedirect ?
-        Model.ReplaceCDNEndpointToImgTags(BlogConfig.ImageSettings.CDNEndpoint) :
+    var content = BlogConfig.ImageSettings.EnableCdnRedirect ?
+        Model.ReplaceCdnEndpointToImgTags(BlogConfig.ImageSettings.CdnEndpoint) :
         Model;
 }
 
