@@ -11,6 +11,6 @@ public class MetaDescriptionTagHelper : TagHelper
     {
         output.TagName = "meta";
         output.Attributes.SetAttribute("name", "description");
-        output.Attributes.SetAttribute("content", Description.Trim());
+        output.Attributes.SetAttribute("content", Description?.Trim() ?? string.Empty);
     }
 }
