@@ -43,12 +43,12 @@
                             <i class="bi-globe settings-entry-icon"></i>
                         </div>
                         <div class="col">
-                            <label asp-for="ViewModel.EnableCDNRedirect" class="form-check-label"></label>
+                            <label asp-for="ViewModel.EnableCdnRedirect" class="form-check-label"></label>
                         </div>
                         <div class="col-md-5 text-end">
                             <div class="form-check form-switch">
-                                <input type="hidden" name="EnableCDNRedirect" value="false">
-                                <input type="checkbox" name="EnableCDNRedirect" value="true" class="form-check-input" @(Model.ViewModel.EnableCDNRedirect ? "checked" : null)>
+                                <input type="hidden" name="EnableCdnRedirect" value="false">
+                                <input type="checkbox" name="EnableCdnRedirect" value="true" class="form-check-input" @(Model.ViewModel.EnableCdnRedirect ? "checked" : null)>
                             </div>
                         </div>
                     </div>
@@ -58,11 +58,11 @@
                             <i class="bi-link settings-entry-icon"></i>
                         </div>
                         <div class="col">
-                            <label asp-for="ViewModel.CDNEndpoint"></label>
+                            <label asp-for="ViewModel.CdnEndpoint"></label>
                             <div class="form-text">@SharedLocalizer["e.g. https://blog.cdn.com/your-images"]</div>
                         </div>
                         <div class="col-md-5">
-                            <input asp-for="ViewModel.CDNEndpoint" class="form-control" />
+                            <input asp-for="ViewModel.CdnEndpoint" class="form-control" />
                         </div>
                     </div>
                 </div>

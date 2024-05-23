@@ -6,7 +6,7 @@ namespace MoongladePure.Utils;
 
 public static class ContentProcessor
 {
-    public static string ReplaceCDNEndpointToImgTags(this string rawHtmlContent, string endpoint)
+    public static string ReplaceCdnEndpointToImgTags(this string rawHtmlContent, string endpoint)
     {
         if (string.IsNullOrWhiteSpace(rawHtmlContent)) return rawHtmlContent;
 
