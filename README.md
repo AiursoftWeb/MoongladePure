@@ -13,7 +13,7 @@ MoongladePure can be deployed completely on-premises without coupling to any par
 
 MoongladePure uses MySQL as database and file system as data store. It's extremely easy to try and deploy!
 
-![demo](./assets/demo.png)
+![demo](./screenshot.png)
 
 Default user name is `admin` and default password is `admin123`.
 
