@@ -21,16 +21,16 @@ WORKDIR /src
 COPY --from=npm-env /src .
 
 # Build
-RUN dotnet publish ${CSPROJ_PATH}${PROJ_NAME}.csproj  --configuration ReleASe --no-self-contained --runtime linux-x64 --output /app
+RUN dotnet publish ${CSPROJ_PATH}${PROJ_NAME}.csproj  --configuration Release --no-self-contained --runtime linux-x64 --output /app
 RUN cp -r ${CSPROJ_PATH}/wwwroot/* /app/wwwroot
 
 # ============================
 # Prepare Runtime Environment
-FROM hub.aiursoft.cn/mcr.microsoft.com/dotnet/ASpnet:8.0
+FROM hub.aiursoft.cn/mcr.microsoft.com/dotnet/aspnet:8.0
 ARG PROJ_NAME
 WORKDIR /app
 COPY --from=build-env /app .
-COPY --from=build-env /src/ASsets/OpenSans-Regular.ttf /usr/share/fonts/OpenSans-Regular.ttf
+COPY --from=build-env /src/assets/OpenSans-Regular.ttf /usr/share/fonts/OpenSans-Regular.ttf
 
 # Install wget and curl
 RUN apt update; DEBIAN_FRONTEND=noninteractive apt install -y wget curl
@@ -48,7 +48,7 @@ ENV VOL_SETTINGS=/data/appsettings.json
 ENV DLL_NAME=${PROJ_NAME}.dll
 
 #ENTRYPOINT dotnet $DLL_NAME --urls http://*:5000
-ENTRYPOINT ["/bin/bASh", "-c", "\
+ENTRYPOINT ["/bin/bash", "-c", "\
     if [ ! -f \"$VOL_SETTINGS\" ]; then \
         cp $SRC_SETTINGS $VOL_SETTINGS; \
     fi && \
