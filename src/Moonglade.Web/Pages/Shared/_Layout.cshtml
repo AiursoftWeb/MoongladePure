@@ -1,4 +1,7 @@
-﻿@using MoongladePure.Utils
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using MoongladePure.Utils
+@using MoongladePure.Web.TagHelpers
 @{
     if (string.IsNullOrEmpty(BlogConfig.GeneralSettings.AvatarUrl))
     {
@@ -6,7 +9,7 @@
     }
 }
 <!DOCTYPE html>
-<html>
+<html lang="@CultureInfo.CurrentCulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
