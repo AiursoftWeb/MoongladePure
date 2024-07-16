@@ -11,6 +11,13 @@ public class MetaDescriptionTagHelper : TagHelper
     {
         output.TagName = "meta";
         output.Attributes.SetAttribute("name", "description");
-        output.Attributes.SetAttribute("content", Description?.Trim() ?? string.Empty);
+        if (Description.Length > 200)
+        {
+            output.Attributes.SetAttribute("content", Description.Substring(0, 200).Trim());
+        }
+        else
+        {
+            output.Attributes.SetAttribute("content", Description?.Trim() ?? string.Empty);
+        }
     }
 }
