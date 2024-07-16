@@ -522,21 +522,4 @@ public static class Helper
         { "#", "sharp" },
         { " ", "-" }
     };
-
-    public static object GetCanonicalUrl(HttpContext context)
-    {
-        if (context is null)
-        {
-            throw new ArgumentNullException(nameof(context), "HttpContext must not be null!");
-        }
-
-        var url = $"{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}";
-
-        if (context.Request.QueryString.HasValue)
-        {
-            url += context.Request.QueryString;
-        }
-
-        return url;
-    }
 }
