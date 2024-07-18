@@ -1,4 +1,4 @@
-﻿@page "/category/{routeName:regex(^(?!-)([a-zA-Z0-9-]){{1,64}}$)}"
+﻿@page "/category/{routeName}"
 @model MoongladePure.Web.Pages.CategoryListModel
 @{
     ViewBag.TitlePrefix = Model.Cat.DisplayName;
