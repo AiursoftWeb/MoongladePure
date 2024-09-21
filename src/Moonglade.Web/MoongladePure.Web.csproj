@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Version>8.0.43</Version>
+    <Version>8.0.44</Version>
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>MoongladePure.Web</AssemblyName>
     <RootNamespace>MoongladePure.Web</RootNamespace>
@@ -44,10 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
-    <PackageReference Include="Edi.ImageWatermark" Version="2.12.0" />
+    <PackageReference Include="Edi.ImageWatermark" Version="2.14.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
-    <PackageReference Include="X.PagedList.Mvc.Core" Version="10.0.3" />
-    <PackageReference Include="Aiursoft.WebTools" Version="8.0.22" />
+    <PackageReference Include="X.Web.PagedList" Version="10.2.1" />
+    <PackageReference Include="Aiursoft.WebTools" Version="8.0.23" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Moonglade.Auth\MoongladePure.Auth.csproj" />
