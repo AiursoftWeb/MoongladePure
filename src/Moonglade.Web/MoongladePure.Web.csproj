@@ -1,23 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Version>8.0.44</Version>
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>MoongladePure.Web</AssemblyName>
     <RootNamespace>MoongladePure.Web</RootNamespace>
     <IsTestProject>false</IsTestProject>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IsPackable>true</IsPackable>
+    <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Company>Aiursoft</Company>
-    <Product>MoongladePure</Product>
-    <Description>Nuget package of 'Web' provided by MoongladePure</Description>
-    <PackageId>MoongladePure.Web</PackageId>
-    <PackageTags>nuget package dotnet csproj dependencies</PackageTags>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <PackageProjectUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</PackageProjectUrl>
-    <RepositoryUrl>https://gitlab.aiursoft.cn/Aiursoft/MoongladePure</RepositoryUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <Using Include="System.Text" />
@@ -37,17 +26,17 @@
     <Using Include="MoongladePure.Utils" />
     <Using Include="MoongladePure.Data" />
     <Using Include="MoongladePure.ImageStorage" />
-    <None Include="../../README.md" Pack="true" PackagePath="." />
   </ItemGroup>
   <ItemGroup>
     <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
-    <PackageReference Include="Edi.ImageWatermark" Version="2.14.0" />
+    <PackageReference Include="Edi.ImageWatermark" Version="2.15.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
-    <PackageReference Include="X.Web.PagedList" Version="10.2.1" />
-    <PackageReference Include="Aiursoft.WebTools" Version="8.0.23" />
+    <PackageReference Include="X.PagedList.EF" Version="10.5.7" />
+    <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.7" />
+    <PackageReference Include="Aiursoft.WebTools" Version="8.0.27" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Moonglade.Auth\MoongladePure.Auth.csproj" />
