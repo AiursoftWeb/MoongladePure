@@ -10,7 +10,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="8.0.25" />
+    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="8.0.26" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Moonglade.Data\MoongladePure.Data.csproj" />
