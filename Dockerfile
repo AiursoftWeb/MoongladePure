@@ -14,7 +14,7 @@ RUN npm install --prefix "${CSPROJ_PATH}wwwroot" --loglevel verbose
 
 # ============================
 # Prepare Building Environment
-FROM hub.aiursoft.cn/mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
+FROM hub.aiursoft.cn/aiursoft/internalimages/dotnet AS build-env
 ARG CSPROJ_PATH
 ARG PROJ_NAME
 WORKDIR /src
@@ -31,9 +31,6 @@ ARG PROJ_NAME
 WORKDIR /app
 COPY --from=build-env /app .
 COPY --from=build-env /src/assets/OpenSans-Regular.ttf /usr/share/fonts/OpenSans-Regular.ttf
-
-# Install wget and curl
-RUN apt update; DEBIAN_FRONTEND=noninteractive apt install -y wget curl
 
 # Edit appsettings.json
 RUN sed -i 's/DataSource=app.db/DataSource=\/data\/app.db/g' appsettings.json
