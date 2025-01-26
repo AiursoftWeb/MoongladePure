@@ -1,25 +1,25 @@
 ﻿export let simplemde = null;
 
-function slugify(text) {
-    var isValidTitle = /^[A-Za-z][A-Za-z0-9 \(\)#,\.\?]*$/.test(text);
-    if (isValidTitle) {
-        return text
-            .toLowerCase()
-            .replace('(', '')
-            .replace(')', '')
-            .replace('#', '')
-            .replace(',', '')
-            .replace('.', '')
-            .replace('?', '')
-            .replace(/[^\w ]+/g, '')
-            .replace(/ +/g, '-');
-    }
-    return '';
-}
-
 export function initEvents() {
     $('#ViewModel_Title').change(function () {
-        document.querySelector('#ViewModel_Slug').value = slugify($(this).val());
+        const newTitle = $(this).val();
+        var isValidTitle = /^[A-Za-z][A-Za-z0-9 \(\)#,\.\?]*$/.test(newTitle);
+
+        let newSlug = document.querySelector('#ViewModel_Slug').value;
+        if (isValidTitle) {
+            newSlug = newTitle
+                .toLowerCase()
+                .replace('(', '')
+                .replace(')', '')
+                .replace('#', '')
+                .replace(',', '')
+                .replace('.', '')
+                .replace('?', '')
+                .replace(/[^\w ]+/g, '')
+                .replace(/ +/g, '-');
+        }
+
+        document.querySelector('#ViewModel_Slug').value = newSlug;
     });
 
     $('#btn-preview').click(function (e) {
@@ -193,8 +193,8 @@ export function keepAlive() {
                 credentials: 'include',
                 body: JSON.stringify({ nonce: num })
             }).then(async (response) => {
-            console.info('live');
-        });
+                console.info('live');
+            });
     }
     function abortTimer() {
         clearInterval(tid);
