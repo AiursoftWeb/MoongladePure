@@ -13,6 +13,7 @@ namespace MoongladePure.Web.BackgroundJobs
         : IHostedService, IDisposable
     {
         private readonly ILogger _logger = logger;
+        private const int LengthAiCanProcess = 28000;
         private Timer _timer;
 
         public void Dispose()
@@ -68,12 +69,12 @@ namespace MoongladePure.Web.BackgroundJobs
                         logger.LogInformation("Processing AI for post with slug: {PostSlug}...",
                             trackedPost.Slug);
                         
-                        if (!trackedPost.ContentAbstract.EndsWith("--GPT 4"))
+                        if (!trackedPost.ContentAbstract.EndsWith("--DeepSeek R1 32B"))
                         {
                             try
                             {
-                                var content = trackedPost.PostContent.Length > 6000
-                                    ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - 6000, 6000)
+                                var content = trackedPost.PostContent.Length > LengthAiCanProcess
+                                    ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - LengthAiCanProcess, LengthAiCanProcess)
                                     : trackedPost.PostContent;
 
                                 var abstractForPost =
@@ -84,7 +85,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     abstractForPost = abstractForPost[..1000] + "...";
                                 }
                                 
-                                trackedPost.ContentAbstract = abstractForPost + "--GPT 4";
+                                trackedPost.ContentAbstract = abstractForPost + "--DeepSeek R1 32B";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
@@ -99,21 +100,21 @@ namespace MoongladePure.Web.BackgroundJobs
                             }
                         }
 
-                        // Get all GPT comments.
-                        var chatGptComments = await context.Comment
+                        // Get all AI comments.
+                        var aiComments = await context.Comment
                             .Where(c => c.PostId == postId)
                             .Where(c => c.IPAddress == "127.0.0.1")
-                            .Where(c => c.Username == "GPT-4")
+                            .Where(c => c.Username == "--DeepSeek R1 32B")
                             .ToListAsync();
 
                         // Skip valid posts.
                         // ReSharper disable once InvertIf
-                        if (!chatGptComments.Any())
+                        if (!aiComments.Any())
                         {
                             try
                             {
-                                var content = trackedPost.PostContent.Length > 6000
-                                    ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - 6000, 6000)
+                                var content = trackedPost.PostContent.Length > LengthAiCanProcess
+                                    ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - LengthAiCanProcess, LengthAiCanProcess)
                                     : trackedPost.PostContent;
 
                                 var newComment = await openAi.GenerateComment($"# {trackedPost.Title}" + "\r\n" + content);
@@ -122,11 +123,11 @@ namespace MoongladePure.Web.BackgroundJobs
                                     Id = Guid.NewGuid(),
                                     PostId = postId,
                                     IPAddress = "127.0.0.1",
-                                    Email = "chatgpt@domain.com",
+                                    Email = "service@deepseek.com",
                                     IsApproved = true,
                                     CommentContent = newComment,
                                     CreateTimeUtc = DateTime.UtcNow,
-                                    Username = "GPT-4"
+                                    Username = "--DeepSeek R1 32B"
                                 });
                                 await context.SaveChangesAsync();
                             }

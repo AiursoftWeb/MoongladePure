@@ -7,10 +7,11 @@ using SixLabors.Fonts;
 using System.Globalization;
 using Aiursoft.CSTools.Tools;
 using Aiursoft.DbTools.Switchable;
+using Aiursoft.GptClient;
 using Aiursoft.WebTools.Abstractions.Models;
 using AspNetCoreRateLimit;
-using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Core.AiFeature;
+using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Data.Infrastructure;
 using MoongladePure.Data.MySql.Infrastructure;
 using MoongladePure.Web.BackgroundJobs;
@@ -88,6 +89,7 @@ namespace MoongladePure.Web
 
             services.AddHttpClient();
             services.AddScoped<OpenAiService>();
+            services.AddGptClient();
             services
                 .AddSyndication()
                 .AddBlogCache()
