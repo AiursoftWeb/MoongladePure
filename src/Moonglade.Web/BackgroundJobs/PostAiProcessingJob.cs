@@ -69,7 +69,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         logger.LogInformation("Processing AI for post with slug: {PostSlug}...",
                             trackedPost.Slug);
                         
-                        if (!trackedPost.ContentAbstract.EndsWith("--DeepSeek R1"))
+                        if (!trackedPost.ContentAbstract.EndsWith("--DeepSeek"))
                         {
                             try
                             {
@@ -85,7 +85,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     abstractForPost = abstractForPost[..1000] + "...";
                                 }
                                 
-                                trackedPost.ContentAbstract = abstractForPost + "--DeepSeek R1";
+                                trackedPost.ContentAbstract = abstractForPost + "--DeepSeek";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
