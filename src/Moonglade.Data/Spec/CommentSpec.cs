@@ -16,7 +16,7 @@ public sealed class CommentSpec : BaseSpecification<CommentEntity>
         ApplyPaging(startRow, pageSize);
     }
 
-    public CommentSpec(Guid[] ids) : base(c => ids.Contains(c.Id))
+    public CommentSpec(Guid[] ids) : base(c => EF.Constant(ids).Contains(c.Id))
     {
 
     }
