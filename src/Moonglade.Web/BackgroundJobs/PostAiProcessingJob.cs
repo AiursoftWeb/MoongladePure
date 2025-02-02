@@ -100,12 +100,21 @@ namespace MoongladePure.Web.BackgroundJobs
                                 await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
                             }
                         }
+                        
+                        // Delete all obsolete comments. (Username contains "R1")
+                        var obsoleteComments = await context.Comment
+                            .Where(c => c.PostId == postId)
+                            .Where(c => c.IPAddress == "127.0.0.1")
+                            .Where(c => c.Username.Contains("R1"))
+                            .ToListAsync();
+                        context.Comment.RemoveRange(obsoleteComments);
+                        await context.SaveChangesAsync();
 
                         // Get all AI comments.
                         var aiComments = await context.Comment
                             .Where(c => c.PostId == postId)
                             .Where(c => c.IPAddress == "127.0.0.1")
-                            .Where(c => c.Username == "DeepSeek R1")
+                            .Where(c => c.Username == "DeepSeek")
                             .ToListAsync();
 
                         // Skip valid posts.
@@ -128,7 +137,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     IsApproved = true,
                                     CommentContent = newComment,
                                     CreateTimeUtc = DateTime.UtcNow,
-                                    Username = "DeepSeek R1"
+                                    Username = "DeepSeek"
                                 });
                                 await context.SaveChangesAsync();
                             }
