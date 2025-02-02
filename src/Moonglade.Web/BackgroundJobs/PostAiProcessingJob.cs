@@ -104,7 +104,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         var aiComments = await context.Comment
                             .Where(c => c.PostId == postId)
                             .Where(c => c.IPAddress == "127.0.0.1")
-                            .Where(c => c.Username == "--DeepSeek R1 32B")
+                            .Where(c => c.Username == "DeepSeek R1 32B")
                             .ToListAsync();
 
                         // Skip valid posts.
@@ -127,7 +127,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     IsApproved = true,
                                     CommentContent = newComment,
                                     CreateTimeUtc = DateTime.UtcNow,
-                                    Username = "--DeepSeek R1 32B"
+                                    Username = "DeepSeek R1 32B"
                                 });
                                 await context.SaveChangesAsync();
                             }
