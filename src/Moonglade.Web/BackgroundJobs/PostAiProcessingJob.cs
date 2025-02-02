@@ -69,7 +69,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         logger.LogInformation("Processing AI for post with slug: {PostSlug}...",
                             trackedPost.Slug);
                         
-                        if (!trackedPost.ContentAbstract.EndsWith("--DeepSeek R1 32B"))
+                        if (!trackedPost.ContentAbstract.EndsWith("--DeepSeek R1"))
                         {
                             try
                             {
@@ -85,7 +85,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     abstractForPost = abstractForPost[..1000] + "...";
                                 }
                                 
-                                trackedPost.ContentAbstract = abstractForPost + "--DeepSeek R1 32B";
+                                trackedPost.ContentAbstract = abstractForPost + "--DeepSeek R1";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
@@ -104,7 +104,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         var aiComments = await context.Comment
                             .Where(c => c.PostId == postId)
                             .Where(c => c.IPAddress == "127.0.0.1")
-                            .Where(c => c.Username == "DeepSeek R1 32B")
+                            .Where(c => c.Username == "DeepSeek R1")
                             .ToListAsync();
 
                         // Skip valid posts.
@@ -127,7 +127,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     IsApproved = true,
                                     CommentContent = newComment,
                                     CreateTimeUtc = DateTime.UtcNow,
-                                    Username = "DeepSeek R1 32B"
+                                    Username = "DeepSeek R1"
                                 });
                                 await context.SaveChangesAsync();
                             }
