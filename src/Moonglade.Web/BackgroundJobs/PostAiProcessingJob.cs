@@ -95,8 +95,9 @@ namespace MoongladePure.Web.BackgroundJobs
                             }
                             finally
                             {
-                                // Sleep to avoid too many requests.
-                                await Task.Delay(TimeSpan.FromMinutes(15));
+                                // Sleep to avoid too many requests. Random 0-15 minutes.
+                                var minutesToSleep = new Random().Next(0, 15);
+                                await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
                             }
                         }
 
@@ -138,7 +139,8 @@ namespace MoongladePure.Web.BackgroundJobs
                             finally
                             {
                                 // Sleep to avoid too many requests.
-                                await Task.Delay(TimeSpan.FromMinutes(30));
+                                var minutesToSleep = new Random().Next(0, 15);
+                                await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
                             }
                         }
                     }
