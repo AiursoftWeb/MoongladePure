@@ -101,12 +101,16 @@ namespace MoongladePure.Web.BackgroundJobs
                             }
                         }
                         
-                        // Delete all obsolete comments. (Username contains "R1")
-                        var obsoleteComments = await context.Comment
+                        // Delete all obsolete comments. (If multiple comments has the same username, only keep the latest one.)
+                        var allComments = await context.Comment
                             .Where(c => c.PostId == postId)
                             .Where(c => c.IPAddress == "127.0.0.1")
-                            .Where(c => c.Username.Contains("R1"))
                             .ToListAsync();
+                        var obsoleteComments = allComments
+                            .GroupBy(c => c.Username)
+                            .Where(g => g.Count() > 1)
+                            .SelectMany(g => g.OrderByDescending(c => c.CreateTimeUtc).Skip(1))
+                            .ToList();
                         context.Comment.RemoveRange(obsoleteComments);
                         await context.SaveChangesAsync();
 
