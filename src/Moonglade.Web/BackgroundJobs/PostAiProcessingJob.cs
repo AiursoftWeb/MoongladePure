@@ -226,7 +226,12 @@ namespace MoongladePure.Web.BackgroundJobs
                                     PostId = postId,
                                     TagId = tag.Id
                                 });
+                                await context.SaveChangesAsync();
                             }
+                            
+                            var minutesToSleep = new Random().Next(0, 15);
+                            logger.LogInformation("Sleeping for {Minutes} minutes...", minutesToSleep);
+                            await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
                         }
                     }
                 }
