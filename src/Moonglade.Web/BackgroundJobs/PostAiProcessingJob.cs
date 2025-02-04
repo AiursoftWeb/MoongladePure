@@ -173,10 +173,10 @@ namespace MoongladePure.Web.BackgroundJobs
                             }
                         }
                         
-                        var tagsCount = await context.PostTag
+                        var existingTagsCount = await context.PostTag
                             .Where(pt => pt.PostId == postId)
                             .CountAsync();
-                        if (tagsCount < 6)
+                        if (existingTagsCount < 6)
                         {
                             logger.LogInformation("Generating OpenAi tags for post with slug: {PostSlug}...",
                                 trackedPost.Slug);
@@ -186,7 +186,9 @@ namespace MoongladePure.Web.BackgroundJobs
                                 .ToListAsync();
                             
                             var newTags = await openAi.GenerateTags(trackedPost.PostContent);
-                            foreach (var newTag in newTags.Select(t => t.Replace('-', ' ')))
+                            foreach (var newTag in newTags
+                                         .Select(t => t.Replace('-', ' '))
+                                         .Take(6 - existingTagsCount))
                             {
                                 logger.LogInformation("Generated OpenAi tag for post with slug: {PostSlug}. New tag: '{Tag}'",
                                     trackedPost.Slug, newTag.SafeSubstring(100));
