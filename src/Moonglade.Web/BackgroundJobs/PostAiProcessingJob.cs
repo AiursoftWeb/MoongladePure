@@ -186,11 +186,14 @@ namespace MoongladePure.Web.BackgroundJobs
                                 .ToListAsync();
                             
                             var newTags = await openAi.GenerateTags(trackedPost.PostContent);
-                            foreach (var newTag in newTags)
+                            foreach (var newTag in newTags.Select(t => t.Replace('-', ' ')))
                             {
-                                logger.LogInformation("Generated OpenAi tag for post with slug: {PostSlug}. New tag: {Tag}",
+                                logger.LogInformation("Generated OpenAi tag for post with slug: {PostSlug}. New tag: '{Tag}'",
                                     trackedPost.Slug, newTag.SafeSubstring(100));
-                                if (existingTags.Any(t => t.DisplayName == newTag || t.NormalizedName == Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary)))
+                                if (existingTags.Any(t => 
+                                        string.Equals(t.DisplayName, newTag, StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(t.NormalizedName, Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary), StringComparison.OrdinalIgnoreCase)
+                                    ))
                                 {
                                     // Not a new tag. Ignore.
                                     logger.LogInformation("Tag already exists. Skipping...");
@@ -204,7 +207,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     .FirstOrDefaultAsync(t => t.NormalizedName == newTagNormalized);
                                 if (tag == null)
                                 {
-                                    logger.LogInformation("Creating new tag: {Tag}", newTag);
+                                    logger.LogInformation("Creating new tag: '{Tag}' in db...", newTag);
                                     tag = new TagEntity
                                     {
                                         DisplayName = newTag,
