@@ -15,7 +15,7 @@ MoongladePure uses MySQL as database and file system as data store. It's extreme
 
 ![demo](./screenshot.png)
 
-Default user name is `admin` and default password is `admin123`.
+Default username is `admin` and default password is `admin123`.
 
 ## Try
 
