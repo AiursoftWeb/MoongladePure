@@ -186,9 +186,9 @@ namespace MoongladePure.Web.BackgroundJobs
                                 .ToListAsync();
                             
                             var newTags = await openAi.GenerateTags(trackedPost.PostContent);
+                            var newTagsToAdd = new List<string>();
                             foreach (var newTag in newTags
-                                         .Select(t => t.Replace('-', ' '))
-                                         .Take(6 - existingTagsCount))
+                                         .Select(t => t.Replace('-', ' ')))
                             {
                                 logger.LogInformation("Generated OpenAi tag for post with slug: {PostSlug}. New tag: '{Tag}'",
                                     trackedPost.Slug, newTag.SafeSubstring(100));
@@ -202,6 +202,11 @@ namespace MoongladePure.Web.BackgroundJobs
                                     continue;
                                 }
                                 
+                                newTagsToAdd.Add(newTag);
+                            }
+
+                            foreach (var newTag in newTagsToAdd.Take(6 - existingTagsCount))
+                            {
                                 var newTagNormalized = Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary);
 
                                 // Create new tag if not exists.
