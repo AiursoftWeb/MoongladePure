@@ -28,7 +28,7 @@ public class OpenAiService(
         "我刚刚写完了一篇博客，但是我需要为这篇博客写六个 Tag。Tag 是一种关键词，用来描述这篇博客的主题。Tag 需要简洁明了，能够准确描述这篇博客的主题。Tag 之间用逗号分隔。优秀的 Tag 可以方便搜索引擎更好的索引这篇博客，也可以让读者更好的了解这篇博客的主题。我想让你来帮我完成这六个 Tag。Tag 的数量应当为六个，不要多也不要少。Tag 的长度应当非常精简，不要超过 20 个字符。你的 Tag 需要使用英文。原本的博客文章如下：";
 
     private const string WorkTagsPrompt =
-        "好了，根据上面的文章，现在开始你的 Tag 工作吧！别忘了，Tag 的数量应当为六个，不要多也不要少。Tag 的长度应当非常精简，不要超过 20 个字符。你的 Tag 需要使用英文。注意，你输出的 Tags 必须按照如下格式：<tag1>Some tag</tag1>, <tag2>Another Tag</tag2>, <tag3>Another Tag</tag3>, <tag4>Another Tag</tag4>, <tag5>Another Tag</tag5>, <tag6>Last Tag</tag6>";
+        "好了，根据上面的文章，现在开始你的 Tag 工作吧！别忘了，Tag 的数量应当为六个，不要多也不要少。Tag 的长度应当非常精简，不要超过 20 个字符。你的 Tag 需要使用英文。Tag要尊重商标的正确大小写。例如 'RISC-V'，'.NET'。注意，你输出的 Tags 必须按照如下格式：<tag1>Some tag</tag1>, <tag2>Another Tag</tag2>, <tag3>Another Tag</tag3>, <tag4>Another Tag</tag4>, <tag5>Another Tag</tag5>, <tag6>Last Tag</tag6>";
     
     public async Task<string> GenerateComment(string content)
     {
