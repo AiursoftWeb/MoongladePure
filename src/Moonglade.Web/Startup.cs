@@ -5,6 +5,7 @@ using MoongladePure.Syndication;
 using System.Text.Json.Serialization;
 using SixLabors.Fonts;
 using System.Globalization;
+using Aiursoft.Canon;
 using Aiursoft.CSTools.Tools;
 using Aiursoft.DbTools.Switchable;
 using Aiursoft.GptClient;
@@ -88,6 +89,7 @@ namespace MoongladePure.Web
             }
 
             services.AddHttpClient();
+            services.AddTaskCanon();
             services.AddScoped<OpenAiService>();
             services.AddGptClient();
             services

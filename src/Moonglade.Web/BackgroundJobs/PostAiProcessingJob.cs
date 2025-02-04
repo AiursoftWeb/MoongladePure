@@ -1,6 +1,7 @@
 using Aiursoft.CSTools.Tools;
 using Microsoft.EntityFrameworkCore;
 using MoongladePure.Core.AiFeature;
+using MoongladePure.Core.TagFeature;
 using MoongladePure.Data.Entities;
 using MoongladePure.Data.MySql;
 
@@ -100,19 +101,21 @@ namespace MoongladePure.Web.BackgroundJobs
                                 await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
                             }
                         }
-                        
+
                         // Delete all obsolete comments. (If multiple comments has the same username, only keep the latest one.)
-                        var allComments = await context.Comment
-                            .Where(c => c.PostId == postId)
-                            .Where(c => c.IPAddress == "127.0.0.1")
-                            .ToListAsync();
-                        var obsoleteComments = allComments
-                            .GroupBy(c => c.Username)
-                            .Where(g => g.Count() > 1)
-                            .SelectMany(g => g.OrderByDescending(c => c.CreateTimeUtc).Skip(1))
-                            .ToList();
-                        context.Comment.RemoveRange(obsoleteComments);
-                        await context.SaveChangesAsync();
+                        {
+                            var allComments = await context.Comment
+                                .Where(c => c.PostId == postId)
+                                .Where(c => c.IPAddress == "127.0.0.1")
+                                .ToListAsync();
+                            var obsoleteComments = allComments
+                                .GroupBy(c => c.Username)
+                                .Where(g => g.Count() > 1)
+                                .SelectMany(g => g.OrderByDescending(c => c.CreateTimeUtc).Skip(1))
+                                .ToList();
+                            context.Comment.RemoveRange(obsoleteComments);
+                            await context.SaveChangesAsync();
+                        }
 
                         // Get all AI comments.
                         var aiComments = await context.Comment
@@ -154,6 +157,50 @@ namespace MoongladePure.Web.BackgroundJobs
                                 // Sleep to avoid too many requests.
                                 var minutesToSleep = new Random().Next(0, 15);
                                 await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
+                            }
+                        }
+                        
+                        var tagsCount = await context.PostTag
+                            .Where(pt => pt.PostId == postId)
+                            .CountAsync();
+                        if (tagsCount < 6)
+                        {
+                            var existingTags = await context.PostTag
+                                .Where(pt => pt.PostId == postId)
+                                .Select(pt => pt.Tag)
+                                .ToListAsync();
+                            
+                            var newTags = await openAi.GenerateTags(trackedPost.PostContent);
+                            foreach (var newTag in newTags)
+                            {
+                                if (existingTags.Any(t => t.DisplayName == newTag || t.NormalizedName == Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary)))
+                                {
+                                    // Not a new tag. Ignore.
+                                    continue;
+                                }
+                                
+                                var newTagNormalized = Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary);
+
+                                // Create new tag if not exists.
+                                var tag = await context.Tag
+                                    .FirstOrDefaultAsync(t => t.NormalizedName == newTagNormalized);
+                                if (tag == null)
+                                {
+                                    tag = new TagEntity
+                                    {
+                                        DisplayName = newTag,
+                                        NormalizedName = newTagNormalized
+                                    };
+                                    await context.Tag.AddAsync(tag);
+                                    await context.SaveChangesAsync();
+                                }
+                                
+                                // Add the relation.
+                                await context.PostTag.AddAsync(new PostTagEntity
+                                {
+                                    PostId = postId,
+                                    TagId = tag.Id
+                                });
                             }
                         }
                     }
