@@ -74,6 +74,8 @@ namespace MoongladePure.Web.BackgroundJobs
                         {
                             try
                             {
+                                logger.LogInformation("Generating OpenAi abstract for post with slug: {PostSlug}...",
+                                    trackedPost.Slug);
                                 var content = trackedPost.PostContent.Length > LengthAiCanProcess
                                     ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - LengthAiCanProcess, LengthAiCanProcess)
                                     : trackedPost.PostContent;
@@ -86,6 +88,8 @@ namespace MoongladePure.Web.BackgroundJobs
                                     abstractForPost = abstractForPost[..1000] + "...";
                                 }
                                 
+                                logger.LogInformation("Generated OpenAi abstract for post with slug: {PostSlug}. New abstract: {Abstract}",
+                                    trackedPost.Slug, abstractForPost.SafeSubstring(100));
                                 trackedPost.ContentAbstract = abstractForPost + "--DeepSeek";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
@@ -98,6 +102,7 @@ namespace MoongladePure.Web.BackgroundJobs
                             {
                                 // Sleep to avoid too many requests. Random 0-15 minutes.
                                 var minutesToSleep = new Random().Next(0, 15);
+                                logger.LogInformation("Sleeping for {Minutes} minutes...", minutesToSleep);
                                 await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
                             }
                         }
@@ -113,6 +118,10 @@ namespace MoongladePure.Web.BackgroundJobs
                                 .Where(g => g.Count() > 1)
                                 .SelectMany(g => g.OrderByDescending(c => c.CreateTimeUtc).Skip(1))
                                 .ToList();
+                            if (obsoleteComments.Any())
+                            {
+                                logger.LogInformation("Deleting obsolete comments for post with slug: {PostSlug}...", trackedPost.Slug);
+                            }
                             context.Comment.RemoveRange(obsoleteComments);
                             await context.SaveChangesAsync();
                         }
@@ -130,11 +139,15 @@ namespace MoongladePure.Web.BackgroundJobs
                         {
                             try
                             {
+                                logger.LogInformation("Generating OpenAi comment for post with slug: {PostSlug}...",
+                                    trackedPost.Slug);
                                 var content = trackedPost.PostContent.Length > LengthAiCanProcess
                                     ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - LengthAiCanProcess, LengthAiCanProcess)
                                     : trackedPost.PostContent;
 
                                 var newComment = await openAi.GenerateComment($"# {trackedPost.Title}" + "\r\n" + content);
+                                logger.LogInformation("Generated OpenAi comment for post with slug: {PostSlug}. New comment: {Comment}",
+                                    trackedPost.Slug, newComment.SafeSubstring(100));
                                 await context.Comment.AddAsync(new CommentEntity
                                 {
                                     Id = Guid.NewGuid(),
@@ -165,6 +178,8 @@ namespace MoongladePure.Web.BackgroundJobs
                             .CountAsync();
                         if (tagsCount < 6)
                         {
+                            logger.LogInformation("Generating OpenAi tags for post with slug: {PostSlug}...",
+                                trackedPost.Slug);
                             var existingTags = await context.PostTag
                                 .Where(pt => pt.PostId == postId)
                                 .Select(pt => pt.Tag)
@@ -173,9 +188,12 @@ namespace MoongladePure.Web.BackgroundJobs
                             var newTags = await openAi.GenerateTags(trackedPost.PostContent);
                             foreach (var newTag in newTags)
                             {
+                                logger.LogInformation("Generated OpenAi tag for post with slug: {PostSlug}. New tag: {Tag}",
+                                    trackedPost.Slug, newTag.SafeSubstring(100));
                                 if (existingTags.Any(t => t.DisplayName == newTag || t.NormalizedName == Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary)))
                                 {
                                     // Not a new tag. Ignore.
+                                    logger.LogInformation("Tag already exists. Skipping...");
                                     continue;
                                 }
                                 
@@ -186,6 +204,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     .FirstOrDefaultAsync(t => t.NormalizedName == newTagNormalized);
                                 if (tag == null)
                                 {
+                                    logger.LogInformation("Creating new tag: {Tag}", newTag);
                                     tag = new TagEntity
                                     {
                                         DisplayName = newTag,
@@ -196,6 +215,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 }
                                 
                                 // Add the relation.
+                                logger.LogInformation("Adding tag to post...");
                                 await context.PostTag.AddAsync(new PostTagEntity
                                 {
                                     PostId = postId,
