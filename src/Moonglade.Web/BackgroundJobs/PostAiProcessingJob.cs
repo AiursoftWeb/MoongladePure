@@ -225,7 +225,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 }
                                 
                                 // Add the relation.
-                                logger.LogInformation("Adding tag to post...");
+                                logger.LogInformation("Adding tag {Tag} to post {PostSlug}...", newTag, trackedPost.Slug);
                                 await context.PostTag.AddAsync(new PostTagEntity
                                 {
                                     PostId = postId,
