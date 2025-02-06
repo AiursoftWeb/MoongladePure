@@ -5,7 +5,7 @@
 [![Test Coverage](https://gitlab.aiursoft.cn/aiursoft/moongladepure/badges/master/coverage.svg)](https://gitlab.aiursoft.cn/aiursoft/moongladepure/-/pipelines)
 [![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.cn/aiursoft/MoongladePure.svg)](https://gitlab.aiursoft.cn/aiursoft/MoongladePure/-/commits/master?ref_type=heads)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fanduin.aiursoft.cn%2F)](https://anduin.aiursoft.cn)
-[![Docker](https://img.shields.io/badge/docker-latest-blue?logo=docker)](https://hub.aiursoft.cn/#!/taglist/aiursoft/moongladepure)
+[![Docker](https://img.shields.io/docker/pulls/aiursoft/moongladepure.svg)](https://hub.docker.com/r/aiursoft/moongladepure)
 
 MoongladePure, regain control over your data.
 
@@ -60,7 +60,7 @@ First, install Docker [here](https://docs.docker.com/get-docker/).
 Then run the following commands in a Linux shell:
 
 ```bash
-image=hub.aiursoft.cn/aiursoft/moongladepure
+image=aiursoft/moongladepure
 appName=moongladepure
 sudo docker pull $image
 sudo docker run -d --name $appName --restart unless-stopped -p 5000:5000 -v /var/www/$appName:/data $image
@@ -72,7 +72,7 @@ The docker image has the following context:
 
 | Properties  | Value                                  |
 |-------------|----------------------------------------|
-| Image       | hub.aiursoft.cn/aiursoft/moongladepure |
+| Image       | aiursoft/moongladepure |
 | Ports       | 5000                                   |
 | Binary path | /app                                   |
 | Data path   | /data                                  |
