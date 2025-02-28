@@ -43,6 +43,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9E479481
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Tests", "tests\Moonglade.Tests\MoongladePure.Tests.csproj", "{F7FBB89C-6AF3-4DEC-9F8F-DE7785FA5077}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoongladePure.Data.Sqlite", "src\Moonglade.Data.Sqlite\MoongladePure.Data.Sqlite.csproj", "{245EFF1D-3C5C-4477-A498-E3C5FF7EEFFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoongladePure.Data.InMemory", "src\Moonglade.Data.InMemory\MoongladePure.Data.InMemory.csproj", "{A2D884BC-B381-4F66-AE1A-5626ABD52203}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +113,14 @@ Global
 		{F7FBB89C-6AF3-4DEC-9F8F-DE7785FA5077}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7FBB89C-6AF3-4DEC-9F8F-DE7785FA5077}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7FBB89C-6AF3-4DEC-9F8F-DE7785FA5077}.Release|Any CPU.Build.0 = Release|Any CPU
+		{245EFF1D-3C5C-4477-A498-E3C5FF7EEFFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{245EFF1D-3C5C-4477-A498-E3C5FF7EEFFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{245EFF1D-3C5C-4477-A498-E3C5FF7EEFFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{245EFF1D-3C5C-4477-A498-E3C5FF7EEFFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2D884BC-B381-4F66-AE1A-5626ABD52203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2D884BC-B381-4F66-AE1A-5626ABD52203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2D884BC-B381-4F66-AE1A-5626ABD52203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2D884BC-B381-4F66-AE1A-5626ABD52203}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +141,8 @@ Global
 		{59770DF9-9CC5-4912-8677-5E99DA9C96CA} = {97439361-03B4-46C9-BC06-49F76BA57879}
 		{0267C513-2DB9-4697-A6FA-39BB83E1CA9B} = {41072B8B-1052-4CC6-930F-83A5F8EA7482}
 		{F7FBB89C-6AF3-4DEC-9F8F-DE7785FA5077} = {9E479481-2D56-4C75-8825-E05DAFA1300A}
+		{245EFF1D-3C5C-4477-A498-E3C5FF7EEFFB} = {41072B8B-1052-4CC6-930F-83A5F8EA7482}
+		{A2D884BC-B381-4F66-AE1A-5626ABD52203} = {41072B8B-1052-4CC6-930F-83A5F8EA7482}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EBD14882-9899-4C4B-B9BC-22C0B93BD559}

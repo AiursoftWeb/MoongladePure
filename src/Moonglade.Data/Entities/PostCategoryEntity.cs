@@ -2,6 +2,7 @@
 
 public class PostCategoryEntity
 {
+    public Guid Id { get; set; }
     public Guid PostId { get; set; }
     public Guid CategoryId { get; set; }
 

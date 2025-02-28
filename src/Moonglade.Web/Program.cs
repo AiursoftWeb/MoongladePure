@@ -10,7 +10,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var app = await AppAsync<Startup>(args);
-        await app.UpdateDbAsync<MySqlBlogDbContext>(UpdateMode.CreateThenUse);
+        await app.UpdateDbAsync<BlogDbContext>();
         await app.SeedAsync();
         await app.RunAsync();
     }
@@ -25,7 +25,7 @@ public static class ProgramExtends
         var env = services.GetRequiredService<IWebHostEnvironment>();
         var logger = services.GetRequiredService<ILogger<Startup>>();
         var mediator = services.GetRequiredService<IMediator>();
-        var context = services.GetRequiredService<MySqlBlogDbContext>();
+        var context = services.GetRequiredService<BlogDbContext>();
         var bc = services.GetRequiredService<IBlogConfig>();
 
         var isNew = !await context.BlogConfiguration.AnyAsync();

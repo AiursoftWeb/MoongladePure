@@ -31,18 +31,25 @@
     <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="9.0.12" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Edi.ImageWatermark" Version="2.18.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="X.PagedList.EF" Version="10.5.7" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.7" />
     <PackageReference Include="Aiursoft.WebTools" Version="9.0.2" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+      </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Moonglade.Auth\MoongladePure.Auth.csproj" />
     <ProjectReference Include="..\Moonglade.Comments\MoongladePure.Comments.csproj" />
     <ProjectReference Include="..\Moonglade.Core\MoongladePure.Core.csproj" />
+    <ProjectReference Include="..\Moonglade.Data.InMemory\MoongladePure.Data.InMemory.csproj" />
     <ProjectReference Include="..\Moonglade.Data.MySql\MoongladePure.Data.MySql.csproj" />
+    <ProjectReference Include="..\Moonglade.Data.Sqlite\MoongladePure.Data.Sqlite.csproj" />
     <ProjectReference Include="..\Moonglade.FriendLink\MoongladePure.FriendLink.csproj" />
     <ProjectReference Include="..\Moonglade.ImageStorage\MoongladePure.ImageStorage.csproj" />
     <ProjectReference Include="..\Moonglade.Menus\MoongladePure.Menus.csproj" />

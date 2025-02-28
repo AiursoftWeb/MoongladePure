@@ -2,6 +2,7 @@
 
 public class PostTagEntity
 {
+    public Guid Id { get; set; }
     public Guid PostId { get; set; }
     public int TagId { get; set; }
 

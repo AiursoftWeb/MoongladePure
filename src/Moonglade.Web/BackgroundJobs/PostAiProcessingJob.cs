@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Core.TagFeature;
 using MoongladePure.Data.Entities;
-using MoongladePure.Data.MySql;
 
 namespace MoongladePure.Web.BackgroundJobs
 {
@@ -52,7 +51,7 @@ namespace MoongladePure.Web.BackgroundJobs
                     var services = scope.ServiceProvider;
                     var openAi = services.GetRequiredService<OpenAiService>();
                     var logger = services.GetRequiredService<ILogger<Startup>>();
-                    var context = services.GetRequiredService<MySqlBlogDbContext>();
+                    var context = services.GetRequiredService<BlogDbContext>();
                     var posts = await context.Post
                         .AsNoTracking()
                         .Where(p => p.IsPublished)
@@ -65,11 +64,11 @@ namespace MoongladePure.Web.BackgroundJobs
                         // Fetch again. Because this job may run in a long time.
                         var trackedPost = await context.Post.FindAsync(postId) ??
                                           throw new InvalidOperationException("Failed to locate post with ID: " + postId);
-                        
+
                         // Log.
                         logger.LogInformation("Processing AI for post with slug: {PostSlug}...",
                             trackedPost.Slug);
-                        
+
                         if (!trackedPost.ContentAbstract.EndsWith("--DeepSeek"))
                         {
                             try
@@ -87,7 +86,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 {
                                     abstractForPost = abstractForPost[..1000] + "...";
                                 }
-                                
+
                                 logger.LogInformation("Generated OpenAi abstract for post with slug: {PostSlug}. New abstract: {Abstract}",
                                     trackedPost.Slug, abstractForPost.SafeSubstring(100));
                                 trackedPost.ContentAbstract = abstractForPost + "--DeepSeek";
@@ -172,7 +171,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
                             }
                         }
-                        
+
                         var existingTagsCount = await context.PostTag
                             .Where(pt => pt.PostId == postId)
                             .CountAsync();
@@ -184,7 +183,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 .Where(pt => pt.PostId == postId)
                                 .Select(pt => pt.Tag)
                                 .ToListAsync();
-                            
+
                             var newTags = await openAi.GenerateTags(trackedPost.PostContent);
                             var newTagsToAdd = new List<string>();
                             foreach (var newTag in newTags
@@ -192,7 +191,7 @@ namespace MoongladePure.Web.BackgroundJobs
                             {
                                 logger.LogInformation("Generated OpenAi tag for post with slug: {PostSlug}. New tag: '{Tag}'",
                                     trackedPost.Slug, newTag.SafeSubstring(100));
-                                if (existingTags.Any(t => 
+                                if (existingTags.Any(t =>
                                         string.Equals(t.DisplayName, newTag, StringComparison.OrdinalIgnoreCase) ||
                                         string.Equals(t.NormalizedName, Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary), StringComparison.OrdinalIgnoreCase)
                                     ))
@@ -201,7 +200,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     logger.LogInformation("Tag already exists. Skipping...");
                                     continue;
                                 }
-                                
+
                                 newTagsToAdd.Add(newTag);
                             }
 
@@ -223,7 +222,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                     await context.Tag.AddAsync(tag);
                                     await context.SaveChangesAsync();
                                 }
-                                
+
                                 // Add the relation.
                                 logger.LogInformation("Adding tag {Tag} to post {PostSlug}...", newTag, trackedPost.Slug);
                                 await context.PostTag.AddAsync(new PostTagEntity
@@ -233,7 +232,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 });
                                 await context.SaveChangesAsync();
                             }
-                            
+
                             var minutesToSleep = new Random().Next(0, 15);
                             logger.LogInformation("Sleeping for {Minutes} minutes...", minutesToSleep);
                             await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));

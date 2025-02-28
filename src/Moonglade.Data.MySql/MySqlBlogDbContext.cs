@@ -1,33 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MoongladePure.Data.MySql.Configurations;
+﻿using Aiursoft.DbTools;
+using Aiursoft.DbTools.MySql;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MoongladePure.Data.MySql;
 
+public class MySqlContext(DbContextOptions<MySqlContext> options) : BlogDbContext(options);
 
-public class MySqlBlogDbContext : BlogDbContext
+public class MySqlSupportedDb(bool allowCache, bool splitQuery) : SupportedDatabaseType<BlogDbContext>
 {
-    public MySqlBlogDbContext()
+    public override string DbType => "MySql";
+
+    public override IServiceCollection RegisterFunction(IServiceCollection services, string connectionString)
     {
+        return services.AddAiurMySqlWithCache<MySqlContext>(
+            connectionString,
+            splitQuery: splitQuery,
+            allowCache: allowCache);
     }
 
-    public MySqlBlogDbContext(DbContextOptions options)
-        : base(options)
+    public override BlogDbContext ContextResolver(IServiceProvider serviceProvider)
     {
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfiguration(new CommentConfiguration());
-        modelBuilder.ApplyConfiguration(new CommentReplyConfiguration());
-        modelBuilder.ApplyConfiguration(new PostConfiguration());
-        modelBuilder.ApplyConfiguration(new PostCategoryConfiguration());
-        modelBuilder.ApplyConfiguration(new PostExtensionConfiguration());
-        modelBuilder.ApplyConfiguration(new LocalAccountConfiguration());
-        modelBuilder.ApplyConfiguration(new BlogThemeConfiguration());
-        modelBuilder.ApplyConfiguration(new BlogAssetConfiguration());
-        modelBuilder.ApplyConfiguration(new BlogConfigurationConfiguration());
-        modelBuilder.ApplyConfiguration(new PageConfiguration());
-
-        base.OnModelCreating(modelBuilder);
+        return serviceProvider.GetRequiredService<MySqlContext>();
     }
 }

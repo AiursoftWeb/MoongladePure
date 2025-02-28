@@ -7,14 +7,16 @@ using SixLabors.Fonts;
 using System.Globalization;
 using Aiursoft.Canon;
 using Aiursoft.CSTools.Tools;
+using Aiursoft.DbTools;
 using Aiursoft.DbTools.Switchable;
 using Aiursoft.GptClient;
 using Aiursoft.WebTools.Abstractions.Models;
 using AspNetCoreRateLimit;
 using MoongladePure.Core.AiFeature;
-using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Data.Infrastructure;
-using MoongladePure.Data.MySql.Infrastructure;
+using MoongladePure.Data.InMemory;
+using MoongladePure.Data.Sqlite;
+using Encoder = MoongladePure.Web.Configuration.Encoder;
 using MoongladePure.Web.BackgroundJobs;
 
 namespace MoongladePure.Web
@@ -103,14 +105,17 @@ namespace MoongladePure.Web
                     isTest: environment.IsDevelopment() || EntryExtends.IsInUnitTests())
                 .Configure<List<ManifestIcon>>(configuration.GetSection("ManifestIcons"));
 
-            var connectionString = configuration.GetConnectionString("DefaultConnection")
-                                   ?? throw new InvalidOperationException(
-                                       "Connection string 'DefaultConnection' not found.");
-            var dbType = configuration.GetSection("ConnectionStrings:DbType").Get<DbType>();
-            var allowCache = configuration.GetSection("ConnectionStrings:AllowCache").Get<bool>();
-            Console.WriteLine($"DbType: {dbType}, AllowCache: {allowCache}");
-            services.AddScoped(typeof(IRepository<>), typeof(MySqlDbContextRepository<>));
-            services.AddDatabase<MySqlBlogDbContext>(connectionString, dbType, allowCache);
+            var (connectionString, dbType, allowCache) = configuration.GetDbSettings();
+            services.AddSwitchableRelationalDatabase(
+                dbType: EntryExtends.IsInUnitTests() ? "InMemory" : dbType,
+                connectionString: connectionString,
+                supportedDbs: new List<SupportedDatabaseType<BlogDbContext>>
+                {
+                    new MySqlSupportedDb(allowCache: allowCache, splitQuery: false),
+                    new SqliteSupportedDb(allowCache: allowCache, splitQuery: true),
+                    new InMemorySupportedDb()
+                });
+            services.AddScoped(typeof(IRepository<>), typeof(BlogDbContextRepository<>));
         }
 
         public void Configure(WebApplication app)

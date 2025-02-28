@@ -1,10 +1,10 @@
 ﻿using Aiursoft.DbTools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoongladePure.Web;
-using MoongladePure.Data.MySql;
 using static Aiursoft.WebTools.Extends;
 using AngleSharp.Html.Dom;
 using Microsoft.Extensions.Hosting;
+using MoongladePure.Data;
 
 namespace MoongladePure.Tests;
 
@@ -26,7 +26,7 @@ public class IntegrationTests
     public async Task CreateServer()
     {
         _server = await AppAsync<Startup>(args: Array.Empty<string>(), port: _port);
-        await _server.UpdateDbAsync<MySqlBlogDbContext>(UpdateMode.RecreateThenUse);
+        await _server.UpdateDbAsync<BlogDbContext>();
         await _server.SeedAsync();
         await _server.StartAsync();
         _http = new HttpClient();
@@ -104,7 +104,7 @@ public class IntegrationTests
         await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
-    
+
     [TestMethod]
     public async Task GetFoaF()
     {
@@ -112,7 +112,7 @@ public class IntegrationTests
         await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
-    
+
     [TestMethod]
     public async Task GetOpenSearch()
     {
@@ -120,7 +120,7 @@ public class IntegrationTests
         await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
-    
+
     [TestMethod]
     public async Task GetSitemap()
     {
@@ -128,7 +128,7 @@ public class IntegrationTests
         await response.Content.ReadAsStringAsync();
         response.EnsureSuccessStatusCode(); // Status Code 200-299
     }
-    
+
     [TestMethod]
     public async Task GetManifest()
     {

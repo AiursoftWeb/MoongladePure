@@ -2,10 +2,10 @@
 
 namespace MoongladePure.Data.Infrastructure;
 
-public abstract class DbContextRepository<T>(DbContext ctx) : IRepository<T>
+public abstract class DbContextRepository<T>(BlogDbContext ctx) : IRepository<T>
     where T : class
 {
-    protected readonly DbContext DbContext = ctx;
+    protected readonly BlogDbContext DbContext = ctx;
 
     public Task Clear(CancellationToken ct = default)
     {
@@ -45,7 +45,7 @@ public abstract class DbContextRepository<T>(DbContext ctx) : IRepository<T>
         if (entity is not null) await DeleteAsync(entity, ct);
     }
 
-    public Task<int> CountAsync(Expression<Func<T, bool>> condition, CancellationToken ct = default) => 
+    public Task<int> CountAsync(Expression<Func<T, bool>> condition, CancellationToken ct = default) =>
         DbContext.Set<T>().CountAsync(condition, ct);
 
     public Task<int> CountAsync(ISpecification<T> spec = null, CancellationToken ct = default) =>

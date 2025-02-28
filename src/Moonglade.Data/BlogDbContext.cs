@@ -1,60 +1,32 @@
-﻿using MoongladePure.Data.Entities;
+﻿using Aiursoft.DbTools;
+using MoongladePure.Data.Entities;
 
 namespace MoongladePure.Data;
 
-public class BlogDbContext : DbContext
+public abstract class BlogDbContext(DbContextOptions options) : DbContext(options), ICanMigrate
 {
-    public BlogDbContext()
-    {
-    }
+    public DbSet<CategoryEntity> Category => Set<CategoryEntity>();
+    public DbSet<CommentEntity> Comment => Set<CommentEntity>();
+    public DbSet<CommentReplyEntity> CommentReply => Set<CommentReplyEntity>();
+    public DbSet<PostEntity> Post => Set<PostEntity>();
+    public DbSet<PostCategoryEntity> PostCategory => Set<PostCategoryEntity>();
+    public DbSet<PostExtensionEntity> PostExtension => Set<PostExtensionEntity>();
+    public DbSet<PostTagEntity> PostTag => Set<PostTagEntity>();
+    public DbSet<TagEntity> Tag => Set<TagEntity>();
+    public DbSet<FriendLinkEntity> FriendLink => Set<FriendLinkEntity>();
+    public DbSet<PageEntity> CustomPage => Set<PageEntity>();
+    public DbSet<MenuEntity> Menu => Set<MenuEntity>();
+    public DbSet<SubMenuEntity> SubMenu => Set<SubMenuEntity>();
+    public DbSet<LocalAccountEntity> LocalAccount => Set<LocalAccountEntity>();
+    public DbSet<BlogThemeEntity> BlogTheme => Set<BlogThemeEntity>();
+    public DbSet<BlogAssetEntity> BlogAsset => Set<BlogAssetEntity>();
+    public DbSet<BlogConfigurationEntity> BlogConfiguration => Set<BlogConfigurationEntity>();
 
-    public BlogDbContext(DbContextOptions options)
-        : base(options)
-    {
-    }
+    public virtual  Task MigrateAsync(CancellationToken cancellationToken) =>
+        Database.MigrateAsync(cancellationToken);
 
-    public virtual DbSet<CategoryEntity> Category { get; set; }
-    public virtual DbSet<CommentEntity> Comment { get; set; }
-    public virtual DbSet<CommentReplyEntity> CommentReply { get; set; }
-    public virtual DbSet<PostEntity> Post { get; set; }
-    public virtual DbSet<PostCategoryEntity> PostCategory { get; set; }
-    public virtual DbSet<PostExtensionEntity> PostExtension { get; set; }
-    public virtual DbSet<PostTagEntity> PostTag { get; set; }
-    public virtual DbSet<TagEntity> Tag { get; set; }
-    public virtual DbSet<FriendLinkEntity> FriendLink { get; set; }
-    public virtual DbSet<PageEntity> CustomPage { get; set; }
-    public virtual DbSet<MenuEntity> Menu { get; set; }
-    
-    public virtual DbSet<SubMenuEntity> SubMenu { get; set; }
-    public virtual DbSet<LocalAccountEntity> LocalAccount { get; set; }
-    public virtual DbSet<BlogThemeEntity> BlogTheme { get; set; }
-    public virtual DbSet<BlogAssetEntity> BlogAsset { get; set; }
-    public virtual DbSet<BlogConfigurationEntity> BlogConfiguration { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        // base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-        modelBuilder.ApplyConfiguration(new TagConfiguration());
-        modelBuilder.ApplyConfiguration(new FriendLinkConfiguration());
-        modelBuilder.ApplyConfiguration(new MenuConfiguration());
-        modelBuilder.ApplyConfiguration(new SubMenuConfiguration());
-        modelBuilder.ApplyConfiguration(new BlogConfigurationConfiguration());
-
-        modelBuilder
-            .Entity<PostEntity>()
-            .HasMany(p => p.Tags)
-            .WithMany(p => p.Posts)
-            .UsingEntity<PostTagEntity>(
-                j => j
-                    .HasOne(pt => pt.Tag)
-                    .WithMany()
-                    .HasForeignKey(pt => pt.TagId),
-                j => j
-                    .HasOne(pt => pt.Post)
-                    .WithMany()
-                    .HasForeignKey(pt => pt.PostId));
-    }
+    public virtual  Task<bool> CanConnectAsync() =>
+        Database.CanConnectAsync();
 }
 
 public static class BlogDbContextExtension
