@@ -27,6 +27,33 @@ public abstract class BlogDbContext(DbContextOptions options) : DbContext(option
 
     public virtual  Task<bool> CanConnectAsync() =>
         Database.CanConnectAsync();
+
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new TagConfiguration());
+        modelBuilder.ApplyConfiguration(new FriendLinkConfiguration());
+        modelBuilder.ApplyConfiguration(new MenuConfiguration());
+        modelBuilder.ApplyConfiguration(new SubMenuConfiguration());
+        modelBuilder.ApplyConfiguration(new BlogConfigurationConfiguration());
+
+        modelBuilder
+            .Entity<PostEntity>()
+            .HasMany(p => p.Tags)
+            .WithMany(p => p.Posts)
+            .UsingEntity<PostTagEntity>(
+                j => j
+                    .HasOne(pt => pt.Tag)
+                    .WithMany()
+                    .HasForeignKey(pt => pt.TagId),
+                j => j
+                    .HasOne(pt => pt.Post)
+                    .WithMany()
+                    .HasForeignKey(pt => pt.PostId));
+    }
+
 }
 
 public static class BlogDbContextExtension
