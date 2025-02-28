@@ -1,4 +1,5 @@
 namespace MoongladePure.Data.Entities;
+// ReSharper disable EntityFramework.ModelValidation.UnlimitedStringLength
 
 public class PageEntity
 {

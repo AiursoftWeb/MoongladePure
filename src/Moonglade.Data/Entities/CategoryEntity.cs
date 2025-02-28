@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+// ReSharper disable EntityFramework.ModelValidation.UnlimitedStringLength
 
 namespace MoongladePure.Data.Entities;
 

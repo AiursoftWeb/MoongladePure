@@ -1,6 +1,5 @@
 ﻿using Aiursoft.DbTools;
 using Microsoft.EntityFrameworkCore;
-using MoongladePure.Data.MySql;
 using static Aiursoft.WebTools.Extends;
 
 namespace MoongladePure.Web;
