@@ -1,7 +1,4 @@
-﻿using Aiursoft.DbTools;
-using Aiursoft.DbTools.MySql;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
 using MoongladePure.Data.MySql.Configurations;
 
 namespace MoongladePure.Data.MySql;
@@ -23,22 +20,9 @@ public class MySqlContext(DbContextOptions<MySqlContext> options) : BlogDbContex
 
         base.OnModelCreating(modelBuilder);
     }
-}
 
-public class MySqlSupportedDb(bool allowCache, bool splitQuery) : SupportedDatabaseType<BlogDbContext>
-{
-    public override string DbType => "MySql";
-
-    public override IServiceCollection RegisterFunction(IServiceCollection services, string connectionString)
+    public override Task MigrateAsync(CancellationToken cancellationToken)
     {
-        return services.AddAiurMySqlWithCache<MySqlContext>(
-            connectionString,
-            splitQuery: splitQuery,
-            allowCache: allowCache);
-    }
-
-    public override BlogDbContext ContextResolver(IServiceProvider serviceProvider)
-    {
-        return serviceProvider.GetRequiredService<MySqlContext>();
+        return Database.EnsureCreatedAsync(cancellationToken);
     }
 }
