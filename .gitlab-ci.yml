@@ -23,14 +23,14 @@ restore:
 
 build:
   stage: build
-  needs:
+  needs: 
     - restore
   script:
     - dotnet build -maxcpucount:1 --no-self-contained
 
 lint:
   stage: lint
-  needs:
+  needs: 
     - build
   script:
     # 3 times retry because sometimes the first time will fail
@@ -49,7 +49,7 @@ lint:
 
 test:
   stage: test
-  needs:
+  needs: 
     - build
   coverage: '/TOTAL_COVERAGE=(\d+.\d+)/'
   script:
@@ -73,7 +73,7 @@ test:
 
 pack:
   stage: publish
-  needs:
+  needs: 
     - lint
     - test
   script:
@@ -118,7 +118,7 @@ deploy_public_nuget:
 deploy_docker_registry:
   stage: deploy
   environment: production
-  needs:
+  needs: 
     - lint
     - test
   script:
@@ -134,7 +134,7 @@ deploy_docker_registry:
 deploy_docker_hub:
   stage: deploy
   environment: production
-  needs:
+  needs: 
     - deploy_docker_registry
   script:
     - if [ "$CI_PROJECT_NAMESPACE" = "anduin" ]; then NAMESPACE="anduin2019"; else NAMESPACE="$CI_PROJECT_NAMESPACE"; fi
