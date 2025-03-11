@@ -72,7 +72,7 @@ The docker image has the following context:
 
 | Properties  | Value                                  |
 |-------------|----------------------------------------|
-| Image       | aiursoft/moongladepure |
+| Image       | aiursoft/moongladepure                 |
 | Ports       | 5000                                   |
 | Binary path | /app                                   |
 | Data path   | /data                                  |
