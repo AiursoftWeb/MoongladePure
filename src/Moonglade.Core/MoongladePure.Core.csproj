@@ -19,7 +19,7 @@
   <ItemGroup>
     <PackageReference Include="Aiursoft.Canon" Version="9.0.2" />
     <PackageReference Include="Aiursoft.GptClient" Version="9.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.3" />
     <ProjectReference Include="..\Moonglade.Caching\MoongladePure.Caching.csproj" />
     <ProjectReference Include="..\Moonglade.Configuration\MoongladePure.Configuration.csproj" />
   </ItemGroup>
