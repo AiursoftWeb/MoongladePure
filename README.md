@@ -7,13 +7,9 @@
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fanduin.aiursoft.cn%2F)](https://anduin.aiursoft.cn)
 [![Docker](https://img.shields.io/docker/pulls/aiursoft/moongladepure.svg)](https://hub.docker.com/r/aiursoft/moongladepure)
 
-MoongladePure, regain control over your data.
+MoongladePure is an open source blog system.
 
-MoongladePure can be deployed completely on-premises without coupling to any particular cloud. 100% local!
-
-MoongladePure uses MySQL as database and file system as data store. It's extremely easy to try and deploy!
-
-![demo](./screenshot.png)
+![overview](./screenshot.png)
 
 Default username is `admin` and default password is `admin123`.
 
