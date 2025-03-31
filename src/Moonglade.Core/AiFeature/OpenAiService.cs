@@ -11,8 +11,6 @@ public class OpenAiService(
     ChatClient chatClient,
     IConfiguration configuration)
 {
-    private readonly GptModel _model = Enum.Parse<GptModel>(configuration["OpenAI:Model"]!);
-
     private const string Prompt =
         "你是一个文章读者。下面有一篇博客，你需要阅读这篇博客，对其中的内容进行评论。你的评论尽可能要客观详实，精准的归纳博客的内容，找出其中的优点和核心理念，对核心理念进行鼓励或反对。你需要对博客最大的闪光点进行赞赏，也可以找到可以改进的地方：指出逻辑错误或事实错误（如果有），请详尽的说明是哪些地方有错误。详细的描述这篇文章的改进空间。你的回复会直接发送给博客的作者，因此请尽可能鼓励和肯定作者的写作，并帮助扩展文章的延申内容。你的评论需要和下面博文的语言相同，例如：如果博文是中文，使用中文评论。如果博文是英文，则使用英文进行评论。不要评论政治敏感内容。下面是你要评论的文章内容，不要重复输出文章内容，只根据文章内容写出一篇恰当的博客回复和作者讨论。（无需问候和署名，不要使用标题）原文如下：";
 
@@ -29,7 +27,7 @@ public class OpenAiService(
 
     private const string WorkTagsPrompt =
         "好了，根据上面的文章，现在开始你的 Tag 工作吧！别忘了，Tag 的数量应当为六个，不要多也不要少。Tag 的长度应当非常精简，不要超过 20 个字符。你的 Tag 需要使用英文。Tag要尊重商标的正确大小写。例如 'RISC-V'，'.NET'，'Docker Hub'。注意，你输出的 Tags 必须按照如下格式：<tag1>Some tag</tag1>, <tag2>Another Tag</tag2>, <tag3>Another Tag</tag3>, <tag4>Another Tag</tag4>, <tag5>Another Tag</tag5>, <tag6>Last Tag</tag6>";
-    
+
     public async Task<string> GenerateComment(string content)
     {
         var response = await Ask(
@@ -62,7 +60,11 @@ public class OpenAiService(
 
     private Task<CompletionData> Ask(params string[] content)
     {
-        return chatClient.AskString(_model, content);
+        return chatClient.AskString(
+            modelType: configuration["OpenAI:Model"]!,
+            completionApiUrl: configuration["OpenAI:CompletionApiUrl"]!,
+            token: configuration["OpenAI:Token"]!,
+            content: content);
     }
 
     public Task<string[]> GenerateTags(string trackedPostPostContent)
@@ -81,12 +83,12 @@ public class OpenAiService(
 
                      {WorkTagsPrompt}
                      """);
-                
+
                 var answer = response.GetAnswerPart();
-                
+
                 var regex = new Regex(@"<tag\d+>(.*?)</tag\d+>", RegexOptions.IgnoreCase);
                 var matches = regex.Matches(answer);
-            
+
                 if (matches.Count < 6)
                 {
                     throw new InvalidOperationException("Unable to find 6 tags in the response.");
@@ -99,7 +101,7 @@ public class OpenAiService(
                 }
 
                 return tags;
-                
+
             });
     }
 }

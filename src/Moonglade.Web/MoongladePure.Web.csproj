@@ -37,7 +37,7 @@
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="X.PagedList.EF" Version="10.5.7" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.7" />
-    <PackageReference Include="Aiursoft.WebTools" Version="9.0.2" />
+    <PackageReference Include="Aiursoft.WebTools" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
