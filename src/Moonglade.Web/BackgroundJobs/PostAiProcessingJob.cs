@@ -50,7 +50,7 @@ namespace MoongladePure.Web.BackgroundJobs
                 {
                     var services = scope.ServiceProvider;
                     var openAi = services.GetRequiredService<OpenAiService>();
-                    var logger = services.GetRequiredService<ILogger<Startup>>();
+                    var logger = services.GetRequiredService<ILogger<PostAiProcessingJob>>();
                     var context = services.GetRequiredService<BlogDbContext>();
                     var posts = await context.Post
                         .AsNoTracking()
