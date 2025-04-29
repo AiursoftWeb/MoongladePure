@@ -11,6 +11,6 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="NUglify" Version="1.21.15" />
-    <PackageReference Include="Markdig" Version="0.41.0" />
+    <PackageReference Include="Markdig" Version="0.41.1" />
   </ItemGroup>
 </Project>
