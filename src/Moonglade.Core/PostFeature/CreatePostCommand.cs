@@ -73,7 +73,7 @@ public class CreatePostCommandHandler(
         // add tags
         var tags = string.IsNullOrWhiteSpace(request.Payload.Tags) ?
             Array.Empty<string>() :
-            request.Payload.Tags.Split(',').ToArray();
+            request.Payload.Tags.Split(',');
 
         if (tags is { Length: > 0 })
         {
