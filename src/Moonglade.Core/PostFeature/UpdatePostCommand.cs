@@ -59,8 +59,8 @@ public class UpdatePostCommandHandler(
 
         // 1. Add new tags to tag lib
         var tags = string.IsNullOrWhiteSpace(postEditModel.Tags) ?
-            Array.Empty<string>() :
-            postEditModel.Tags.Split(',').ToArray();
+            [] :
+            postEditModel.Tags.Split(',');
 
         foreach (var item in tags)
         {

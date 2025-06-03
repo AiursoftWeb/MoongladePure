@@ -69,7 +69,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         logger.LogInformation("Processing AI for post with slug: {PostSlug}...",
                             trackedPost.Slug);
 
-                        if (!trackedPost.ContentAbstract.EndsWith("--DeepSeek"))
+                        if (!trackedPost.ContentAbstract.EndsWith("--Qwen3"))
                         {
                             try
                             {
@@ -89,7 +89,7 @@ namespace MoongladePure.Web.BackgroundJobs
 
                                 logger.LogInformation("Generated OpenAi abstract for post with slug: {PostSlug}. New abstract: {Abstract}",
                                     trackedPost.Slug, abstractForPost.SafeSubstring(100));
-                                trackedPost.ContentAbstract = abstractForPost + "--DeepSeek";
+                                trackedPost.ContentAbstract = abstractForPost + "--Qwen3";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
@@ -129,7 +129,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         var aiComments = await context.Comment
                             .Where(c => c.PostId == postId)
                             .Where(c => c.IPAddress == "127.0.0.1")
-                            .Where(c => c.Username == "DeepSeek")
+                            .Where(c => c.Username == "Qwen3")
                             .ToListAsync();
 
                         // Skip valid posts.
@@ -152,11 +152,11 @@ namespace MoongladePure.Web.BackgroundJobs
                                     Id = Guid.NewGuid(),
                                     PostId = postId,
                                     IPAddress = "127.0.0.1",
-                                    Email = "service@deepseek.com",
+                                    Email = "qwen3@alibaba.com",
                                     IsApproved = true,
                                     CommentContent = newComment,
                                     CreateTimeUtc = DateTime.UtcNow,
-                                    Username = "DeepSeek"
+                                    Username = "Qwen3"
                                 });
                                 await context.SaveChangesAsync();
                             }
