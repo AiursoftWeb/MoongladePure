@@ -40,32 +40,43 @@
                 <div class="card shadow">
                     <div class="card-body">
                         <h5 class="card-title text-center mb-4">@SharedLocalizer["Sign In"]</h5>
-
-                        <form method="post">
-                            <div asp-validation-summary="All" class="text-danger"></div>
-                            <div class="form-floating mb-3">
-                                <input asp-for="Username" class="form-control" placeholder="@Html.DisplayNameFor(m => m.Username)" required minlength="2" maxlength="32" />
-                                <label asp-for="Username"></label>
+                        @if (Model.AuthProvider == "OIDC")
+                        {
+                            <div class="text-center">
+                                <h2>正在跳转到登录页面...</h2>
+                                <p>您将被重定向到组织的统一身份认证页面进行登录。</p>
+                                @* OnGet 方法会自动处理重定向，这里只显示提示信息 *@
                             </div>
-                            <div class="form-floating mb-3">
-                                <input asp-for="Password" class="form-control" required pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@@#$^&*]{8,}$" placeholder="@Html.DisplayNameFor(m => m.Password)" minlength="8" maxlength="32" />
-                                <label asp-for="Password"></label>
-                            </div>
-
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <input asp-for="CaptchaCode"
-                                           minlength="4"
-                                           maxlength="4"
-                                           placeholder="Captcha Code"
-                                           autocomplete="off"
-                                           class="form-control" required />
-                                    <img id="img-captcha" onclick="getNewCaptcha()" src="~/captcha-image" data-bs-toggle="tooltip" data-placement="top" title="@SharedLocalizer["Can't read? Click to change another image."]" />
+                        }
+                        else
+                        {
+                            @* 保留现有的本地登录表单HTML *@
+                            <form method="post">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Username" class="form-control" placeholder="@Html.DisplayNameFor(m => m.Username)" required minlength="2" maxlength="32" />
+                                    <label asp-for="Username"></label>
                                 </div>
-                            </div>
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Password" class="form-control" required pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@@#$^&*]{8,}$" placeholder="@Html.DisplayNameFor(m => m.Password)" minlength="8" maxlength="32" />
+                                    <label asp-for="Password"></label>
+                                </div>
 
-                            <input type="submit" value="@SharedLocalizer["Sign In"]" class="btn w-100 btn-accent" />
-                        </form>
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <input asp-for="CaptchaCode"
+                                               minlength="4"
+                                               maxlength="4"
+                                               placeholder="Captcha Code"
+                                               autocomplete="off"
+                                               class="form-control" required />
+                                        <img id="img-captcha" onclick="getNewCaptcha()" src="~/captcha-image" data-bs-toggle="tooltip" data-placement="top" title="@SharedLocalizer["Can't read? Click to change another image."]" />
+                                    </div>
+                                </div>
+
+                                <input type="submit" value="@SharedLocalizer["Sign In with local account"]" class="btn w-100 btn-accent" />
+                            </form>
+                        }
                     </div>
                 </div>
                 <p class="text-muted mt-4 small text-center">

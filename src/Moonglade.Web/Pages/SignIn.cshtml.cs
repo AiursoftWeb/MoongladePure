@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace MoongladePure.Web.Pages;
 
 public class SignInModel(
+    IConfiguration configuration,
     IMediator mediator,
     ILogger<SignInModel> logger,
     ISessionBasedCaptcha captcha)
@@ -33,8 +35,20 @@ public class SignInModel(
     [StringLength(4)]
     public string CaptchaCode { get; set; }
 
+    public string AuthProvider { get; private set; }
+
     public async Task<IActionResult> OnGetAsync()
     {
+        AuthProvider = configuration.GetValue<string>("AppSettings:AuthProvider");
+        if (AuthProvider == "OIDC")
+        {
+            // 如果是OIDC模式且用户未登录，直接发起挑战
+            return new ChallengeResult(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties
+            {
+                RedirectUri = Url.Page("/Admin/Index")
+            });
+        }
+
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
         return Page();
@@ -42,6 +56,13 @@ public class SignInModel(
 
     public async Task<IActionResult> OnPostAsync()
     {
+        AuthProvider = configuration.GetValue<string>("AppSettings:AuthProvider");
+        if (AuthProvider == "OIDC")
+        {
+            // OIDC模式下不应该能POST到这里
+            return Forbid();
+        }
+
         try
         {
             if (!captcha.Validate(CaptchaCode, HttpContext.Session))
