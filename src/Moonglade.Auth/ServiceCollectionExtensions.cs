@@ -54,10 +54,15 @@ public static class ServiceCollectionExtensions
                         OnTokenValidated = async context =>
                         {
                             var mediator = context.HttpContext.RequestServices.GetRequiredService<IMediator>();
-                            var claims = context.Principal!.Claims.ToList();
+                            Console.WriteLine("OnTokenValidated. Got claims:");
+                            foreach (var c in context.Principal!.Claims)
+                            {
+                                Console.WriteLine($"  {c.Type} => {c.Value}");
+                            }
 
                             // 从OIDC的claims中提取关键信息
-                            var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+                            var name = context.Principal!.FindFirst(JwtRegisteredClaimNames.Name)?.Value
+                                       ?? context.Principal!.FindFirst("name")?.Value;
 
                             if (string.IsNullOrEmpty(name))
                             {
