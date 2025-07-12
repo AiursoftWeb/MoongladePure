@@ -47,7 +47,6 @@ public static class ServiceCollectionExtensions
                     options.SaveTokens = true;
                     options.GetClaimsFromUserInfoEndpoint = true;
 
-                    options.MapInboundClaims = false;
                     options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
                     options.TokenValidationParameters.RoleClaimType = "groups";
                     options.Events = new OpenIdConnectEvents
