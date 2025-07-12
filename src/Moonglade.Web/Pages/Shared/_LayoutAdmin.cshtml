@@ -1,4 +1,5 @@
-﻿@{
+﻿@inject IConfiguration Configuration
+@{
     var currentPage = ViewContext.RouteData.Values["Page"]?.ToString();
 
     if (string.IsNullOrEmpty(BlogConfig.GeneralSettings.AvatarUrl))
@@ -117,11 +118,18 @@
                         <i class="bi-link-45deg admin-nav-icon"></i>
                         @SharedLocalizer["Friend Links"]
                     </a>
-                    <a asp-page="/Admin/LocalAccount"
-                       class="list-group-item list-group-item-action @(currentPage is "/Admin/LocalAccount" ? "active" : null)">
+                    @{
+                        // Only show accounts tab for local auth. For OIDC auth, hide it.
+                        var authProvider = Configuration.GetValue<string>("AppSettings:AuthProvider");
+                    }
+                    @if (authProvider == "Local")
+                    {
+                        <a asp-page="/Admin/LocalAccount"
+                           class="list-group-item list-group-item-action @(currentPage is "/Admin/LocalAccount" ? "active" : null)">
                             <i class="bi-people admin-nav-icon"></i>
                             @SharedLocalizer["Accounts"]
-                    </a>
+                        </a>
+                    }
                 </div>
             </section>
         </aside>
