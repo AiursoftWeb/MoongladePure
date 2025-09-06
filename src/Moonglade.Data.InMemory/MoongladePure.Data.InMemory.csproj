@@ -13,6 +13,6 @@
     <ProjectReference Include="..\Moonglade.Data\MoongladePure.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.InMemory" Version="9.0.17" />
+    <PackageReference Include="Aiursoft.DbTools.InMemory" Version="9.0.18" />
   </ItemGroup>
 </Project>
