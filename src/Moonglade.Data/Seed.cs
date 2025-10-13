@@ -207,7 +207,7 @@ public class Seed
             {
                 Id = Guid.NewGuid(),
                 Title = "Anduin.Xue",
-                LinkUrl = "https://anduin.aiursoft.cn"
+                LinkUrl = "https://anduin.aiursoft.com"
             }
         };
     }
