@@ -1,10 +1,11 @@
 ﻿using Aiursoft.DbTools;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoongladePure.Web;
 using static Aiursoft.WebTools.Extends;
 using AngleSharp.Html.Dom;
 using Microsoft.Extensions.Hosting;
 using MoongladePure.Data;
+
+[assembly:DoNotParallelize]
 
 namespace MoongladePure.Tests;
 
