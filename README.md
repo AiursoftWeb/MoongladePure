@@ -4,7 +4,7 @@
 [![Pipeline stat](https://gitlab.aiursoft.com/aiursoft/moongladepure/badges/master/pipeline.svg)](https://gitlab.aiursoft.com/aiursoft/moongladepure/-/pipelines)
 [![Test Coverage](https://gitlab.aiursoft.com/aiursoft/moongladepure/badges/master/coverage.svg)](https://gitlab.aiursoft.com/aiursoft/moongladepure/-/pipelines)
 [![ManHours](https://manhours.aiursoft.com/r/gitlab.aiursoft.com/aiursoft/MoongladePure.svg)](https://gitlab.aiursoft.com/aiursoft/MoongladePure/-/commits/master?ref_type=heads)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fanduin.aiursoft.cn%2F)](https://anduin.aiursoft.cn)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fanduin.aiursoft.com%2F)](https://anduin.aiursoft.com)
 [![Docker](https://img.shields.io/docker/pulls/aiursoft/moongladepure.svg)](https://hub.docker.com/r/aiursoft/moongladepure)
 
 MoongladePure is an open source blog system.
@@ -15,7 +15,7 @@ Default username is `admin` and default password is `admin123`.
 
 ## Try
 
-Try a running MoongladePure [here](https://anduin.aiursoft.cn).
+Try a running MoongladePure [here](https://anduin.aiursoft.com).
 
 ## Run in Ubuntu
 
