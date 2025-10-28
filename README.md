@@ -3,7 +3,7 @@
 [![GPL licensed](https://img.shields.io/badge/license-GPL-blue.svg)](https://gitlab.aiursoft.com/aiursoft/moongladepure/-/blob/master/LICENSE)
 [![Pipeline stat](https://gitlab.aiursoft.com/aiursoft/moongladepure/badges/master/pipeline.svg)](https://gitlab.aiursoft.com/aiursoft/moongladepure/-/pipelines)
 [![Test Coverage](https://gitlab.aiursoft.com/aiursoft/moongladepure/badges/master/coverage.svg)](https://gitlab.aiursoft.com/aiursoft/moongladepure/-/pipelines)
-[![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.com/aiursoft/MoongladePure.svg)](https://gitlab.aiursoft.com/aiursoft/MoongladePure/-/commits/master?ref_type=heads)
+[![ManHours](https://manhours.aiursoft.com/r/gitlab.aiursoft.com/aiursoft/MoongladePure.svg)](https://gitlab.aiursoft.com/aiursoft/MoongladePure/-/commits/master?ref_type=heads)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fanduin.aiursoft.cn%2F)](https://anduin.aiursoft.cn)
 [![Docker](https://img.shields.io/docker/pulls/aiursoft/moongladepure.svg)](https://hub.docker.com/r/aiursoft/moongladepure)
 
