@@ -60,17 +60,32 @@ public class SyndicationDataSource : ISyndicationDataSource
         }
 
         var postSpec = new PostSpec(catId, top);
-        var list = await _postRepo.SelectAsync(postSpec, p => p.PubDateUtc != null ? new FeedEntry
+        var posts = await _postRepo.SelectAsync(postSpec, p => new
         {
-            Id = p.Id.ToString(),
-            Title = p.Title,
-            PubDateUtc = p.PubDateUtc.Value,
+            p.Id,
+            p.Title,
+            p.PubDateUtc,
+            p.Slug,
             Description = _blogConfig.FeedSettings.UseFullContent ? p.PostContent : p.ContentAbstract,
-            Link = $"{_baseUrl}/post/{p.PubDateUtc.Value.Year}/{p.PubDateUtc.Value.Month}/{p.PubDateUtc.Value.Day}/{p.Slug}",
-            Author = _blogConfig.GeneralSettings.OwnerName,
-            AuthorEmail = _blogConfig.GeneralSettings.OwnerEmail,
             Categories = p.PostCategory.Select(pc => pc.Category.DisplayName).ToArray()
-        } : null);
+        });
+
+        // Work around for MySQL issue.
+        var list = posts.Select(p =>
+        {
+            if (p.PubDateUtc is null) return null;
+            return new FeedEntry
+            {
+                Id = p.Id.ToString(),
+                Title = p.Title,
+                PubDateUtc = p.PubDateUtc.Value,
+                Description = p.Description,
+                Link = $"{_baseUrl}/post/{p.PubDateUtc.Value.Year}/{p.PubDateUtc.Value.Month}/{p.PubDateUtc.Value.Day}/{p.Slug}",
+                Author = _blogConfig.GeneralSettings.OwnerName,
+                AuthorEmail = _blogConfig.GeneralSettings.OwnerEmail,
+                Categories = p.Categories
+            };
+        }).Where(p => p is not null).ToList();
 
         // Workaround EF limitation
         // Man, this is super ugly
