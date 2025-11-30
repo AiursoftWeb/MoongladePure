@@ -31,13 +31,13 @@
     <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="10.0.1" />
+    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="10.0.2" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Edi.ImageWatermark" Version="2.22.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="X.PagedList.EF" Version="10.5.9" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.9" />
-    <PackageReference Include="Aiursoft.WebTools" Version="10.0.1" />
+    <PackageReference Include="Aiursoft.WebTools" Version="10.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
