@@ -4,6 +4,7 @@ using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptClient.Services;
 using Microsoft.Extensions.Configuration;
 
+using MoongladePure.Core.Utils;
 namespace MoongladePure.Core.AiFeature;
 
 public class OpenAiService(
@@ -68,7 +69,7 @@ public class OpenAiService(
             cancellationToken: token);
     }
 
-    public Task<string[]> GenerateTags(string trackedPostPostContent, CancellationToken token = default)
+    public Task<string[]> GenerateTags(string trackedPostRawContent, CancellationToken token = default)
     {
         return retryEngine.RunWithRetry(
             attempts: 8,
@@ -79,7 +80,7 @@ public class OpenAiService(
                      {TagsPrompt}
 
                      =====================
-                     {trackedPostPostContent}
+                     {trackedPostRawContent}
                      =====================
 
                      {WorkTagsPrompt}
@@ -103,5 +104,55 @@ public class OpenAiService(
 
                 return tags;
             });
+    }
+
+    private const string LanguagePrompt =
+        "我需要你帮我探测一篇博客的语言。你需要阅读文章的内容，然后判断这篇文章使用的是什么语言。例如：中文、English、Français。请只输出语言的 BCP 47 语言代码（例如 zh-CN, en-US, fr-FR），不要输出其他内容。如果无法识别，请输出 'und'。文章内容如下：";
+
+    private const string WorkLanguagePrompt =
+        "好了，根据上面的文章，现在开始你的语言探测工作吧！请只输出语言的 BCP 47 语言代码（例如 zh-CN, en-US, fr-FR），不要输出其他内容。如果无法识别，请输出 'und'。";
+
+    public async Task<string> DetectLanguage(string content, CancellationToken token = default)
+    {
+        var response = await Ask(
+            $"""
+             {LanguagePrompt}
+
+             =====================
+             {content}
+             =====================
+
+             {WorkLanguagePrompt}
+             """, token);
+        return response.GetAnswerPart().Trim();
+    }
+
+    private const string TranslationPrompt =
+        "我需要你帮我翻译一篇博客。你需要阅读文章的内容，然后将这篇文章翻译成目标语言。翻译时请保持文章的原意，同时使得翻译后的文章通顺、自然、符合目标语言的表达习惯。不要翻译代码块中的内容。不要输出任何解释性的文字，只输出翻译后的文章内容。文章内容如下：";
+
+    private const string WorkTranslationPrompt =
+        "好了，根据上面的文章，现在开始你的翻译工作吧！请将文章翻译为：{0}。只输出翻译后的文章内容，不要输出其他内容。";
+
+    public async Task<string> Translate(string content, string targetLanguage, CancellationToken token = default)
+    {
+        var chunks = TextChunker.GetChunks(content, 1000);
+        var sb = new StringBuilder();
+
+        foreach (var chunk in chunks)
+        {
+            var response = await Ask(
+                $"""
+                 {TranslationPrompt}
+
+                 =====================
+                 {chunk}
+                 =====================
+
+                 {string.Format(WorkTranslationPrompt, targetLanguage)}
+                 """, token);
+            sb.AppendLine(response.GetAnswerPart().Trim());
+        }
+
+        return sb.ToString().Trim();
     }
 }

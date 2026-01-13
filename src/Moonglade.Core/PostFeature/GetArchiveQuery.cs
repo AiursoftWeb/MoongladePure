@@ -1,5 +1,4 @@
 ﻿using MoongladePure.Data.Spec;
-using System.Linq.Expressions;
 
 namespace MoongladePure.Core.PostFeature;
 
@@ -9,9 +8,6 @@ public record GetArchiveQuery : IRequest<IReadOnlyList<Archive>>;
 public class GetArchiveQueryHandler(IRepository<PostEntity> repo)
     : IRequestHandler<GetArchiveQuery, IReadOnlyList<Archive>>
 {
-    private readonly Expression<Func<IGrouping<(int Year, int Month), PostEntity>, Archive>> _archiveSelector =
-        p => new(p.Key.Year, p.Key.Month, p.Count());
-
     public async Task<IReadOnlyList<Archive>> Handle(GetArchiveQuery request, CancellationToken ct)
     {
         if (!await repo.AnyAsync(p => p.IsPublished && !p.IsDeleted, ct))
@@ -20,9 +16,16 @@ public class GetArchiveQueryHandler(IRepository<PostEntity> repo)
         }
 
         var spec = new PostSpec(PostStatus.Published);
-        var list = await repo.SelectAsync(
-            post => new(post.PubDateUtc.Value.Year, post.PubDateUtc.Value.Month),
-            _archiveSelector, spec);
+        var dates = await repo.SelectAsync(spec, p => p.PubDateUtc);
+
+        var list = dates
+            .Where(d => d.HasValue)
+            .Select(d => d.Value)
+            .GroupBy(d => new { d.Year, d.Month })
+            .Select(g => new Archive(g.Key.Year, g.Key.Month, g.Count()))
+            .OrderByDescending(a => a.Year)
+            .ThenByDescending(a => a.Month)
+            .ToList();
 
         return list;
     }

@@ -41,7 +41,7 @@ public class SearchPostQueryHandler(IRepository<PostEntity> repo)
                     p.Title.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                     p.Tags.Any(tag => tag.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
                     p.ContentAbstract.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                    p.PostContent.Contains(term, StringComparison.OrdinalIgnoreCase)
+                    p.RawContent.Contains(term, StringComparison.OrdinalIgnoreCase)
                 // EF.Functions.Like(p.Title, $"%{term}%") ||
                 // EF.Functions.Like(p.PostContent, $"%{term}%") ||
                 // EF.Functions.Like(p.ContentAbstract, $"%{term}%") ||
@@ -77,10 +77,10 @@ public class SearchPostQueryHandler(IRepository<PostEntity> repo)
                     !string.IsNullOrEmpty(p.ContentAbstract) &&
                     p.ContentAbstract.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
 
-                // Compute score for PostContent.
+                // Compute score for RawContent.
                 int contentMatches = terms.Count(term =>
-                    !string.IsNullOrEmpty(p.PostContent) &&
-                    p.PostContent.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
+                    !string.IsNullOrEmpty(p.RawContent) &&
+                    p.RawContent.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0);
 
                 // Calculate total score with respective weights.
                 int totalScore = (titleMatches * titleWeight)

@@ -18,7 +18,7 @@ public class ExportPostDataCommandHandler(IRepository<PostEntity> repo)
             p.Title,
             p.Slug,
             p.ContentAbstract,
-            p.PostContent,
+            p.RawContent,
             p.CreateTimeUtc,
             p.CommentEnabled,
             p.PostExtension.Hits,

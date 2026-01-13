@@ -30,7 +30,7 @@ public class Seed
                 Title = "Welcome to MoongladePure",
                 Slug = "welcome-to-moonglade-pure",
                 Author = "admin",
-                PostContent = content,
+                RawContent = content,
                 CommentEnabled = true,
                 CreateTimeUtc = DateTime.UtcNow,
                 ContentAbstract = content,

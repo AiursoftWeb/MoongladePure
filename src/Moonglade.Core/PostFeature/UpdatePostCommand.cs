@@ -24,7 +24,7 @@ public class UpdatePostCommandHandler(
         }
 
         post.CommentEnabled = postEditModel.EnableComment;
-        post.PostContent = postEditModel.EditorContent;
+        post.RawContent = postEditModel.EditorContent;
 
         if (postEditModel.IsPublished && !post.IsPublished)
         {
