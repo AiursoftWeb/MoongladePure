@@ -41,6 +41,7 @@ public class LangDetectJob(
 
     private async void DoWork(object state)
     {
+        var localizeJobStartTime =  DateTime.UtcNow;
         try
         {
             logger.LogInformation("LangDetectJob started!");
@@ -49,21 +50,27 @@ public class LangDetectJob(
             var context = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
 
             // 1. Detect language for posts with missing or invalid language code
-            var postsToProcessForLang = await context.Post
-                .Where(p =>
-                    string.IsNullOrEmpty(p.ContentLanguageCode) ||
-                    p.ContentLanguageCode.Length != 5)
+            // 1. Detect language for posts with missing or invalid language code
+            // WE MUST Fetch all posts' language codes to correct them.
+            // Because Regex is not supported in LINQ, we fetch all IDs and LanguageCodes, check them in memory,
+            // and then pick the ones that need processing.
+            var allPostLanguages = await context.Post
+                .Select(p => new { p.Id, p.ContentLanguageCode, p.Title, p.PubDateUtc })
                 .OrderByDescending(p => p.PubDateUtc)
-                .Take(20)
+                .ToListAsync();
+
+            var invalidPostIds = allPostLanguages
+                .Where(p => string.IsNullOrEmpty(p.ContentLanguageCode) || !Regex.IsMatch(p.ContentLanguageCode, LanguageRegexPattern))
+                .Select(p => p.Id)
+                .Take(5)
+                .ToList();
+
+            var postsToProcessForLang = await context.Post
+                .Where(p => invalidPostIds.Contains(p.Id))
                 .ToListAsync();
 
             foreach (var post in postsToProcessForLang)
             {
-                if (!string.IsNullOrEmpty(post.ContentLanguageCode) && Regex.IsMatch(post.ContentLanguageCode, LanguageRegexPattern))
-                {
-                    continue;
-                }
-
                 logger.LogInformation($"Processing post language for: {post.Title}");
                 try
                 {
@@ -101,7 +108,11 @@ public class LangDetectJob(
 
             // 2. Localize posts (Translate)
             var postsToLocalize = await context.Post
-                .Where(p => p.LocalizeJobRunAt == null || (p.LastModifiedUtc != null && p.LocalizeJobRunAt < p.LastModifiedUtc))
+                .Where(p =>
+                    p.LocalizeJobRunAt == null ||
+                    (string.IsNullOrWhiteSpace(p.LocalizedChineseContent)) ||
+                    (string.IsNullOrWhiteSpace(p.LocalizedEnglishContent)) ||
+                    (p.LastModifiedUtc != null && p.LocalizeJobRunAt < p.LastModifiedUtc))
                 .OrderByDescending(p => p.PubDateUtc)
                 .Take(5)
                 .ToListAsync();
@@ -133,7 +144,7 @@ public class LangDetectJob(
                         post.LocalizedChineseContent = await openAi.Translate(post.RawContent, "Chinese");
                     }
 
-                    post.LocalizeJobRunAt = DateTime.UtcNow;
+                    post.LocalizeJobRunAt = localizeJobStartTime;
                     context.Update(post);
                     await context.SaveChangesAsync();
                     logger.LogInformation($"Localized post '{post.Title}'.");
