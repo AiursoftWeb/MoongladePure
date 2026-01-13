@@ -15,6 +15,7 @@ public class PostEntity
     public string ContentAbstract { get; set; }
     public string ContentLanguageCode { get; set; }
     public bool IsFeedIncluded { get; set; }
+    public DateTime? LocalizeJobRunAt { get; set; }
     public DateTime? PubDateUtc { get; set; }
     public DateTime? LastModifiedUtc { get; set; }
     public bool IsPublished { get; set; }

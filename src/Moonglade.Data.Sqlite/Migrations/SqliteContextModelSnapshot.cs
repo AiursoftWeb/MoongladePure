@@ -332,6 +332,9 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<DateTime?>("LastModifiedUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("LocalizeJobRunAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("LocalizedChineseContent")
                         .HasColumnType("TEXT");
 

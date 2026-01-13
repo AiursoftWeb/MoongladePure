@@ -67,9 +67,8 @@ public class LangDetectJob(
         var openAi = scope.ServiceProvider.GetRequiredService<OpenAiService>();
         var context = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
 
-        // We look for posts that have no language code, or the language code is not in the format of "xx-XX" (length 5).
-        // This avoids processing "fr-FR" or "de-DE" repeatedly, while correctly picking up "English" or "en" or empty ones.
-        var postsToProcess = await context.Post
+        // 1. Detect language for posts with missing or invalid language code
+        var postsToProcessForLang = await context.Post
             .Where(p => 
                 string.IsNullOrEmpty(p.ContentLanguageCode) || 
                 p.ContentLanguageCode.Length != 5)
@@ -77,26 +76,15 @@ public class LangDetectJob(
             .Take(5)
             .ToListAsync(stoppingToken);
 
-        foreach (var post in postsToProcess)
+        foreach (var post in postsToProcessForLang)
         {
-            if (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-
+            if (stoppingToken.IsCancellationRequested) break;
             logger.LogInformation($"Processing post language for: {post.Title}");
             try
             {
-                // Must have RawContent to detect language
-                if (string.IsNullOrWhiteSpace(post.RawContent))
-                {
-                    continue;
-                }
+                if (string.IsNullOrWhiteSpace(post.RawContent)) continue;
 
                 var language = await openAi.DetectLanguage(post.RawContent, stoppingToken);
-
-                // Sanitize language code if needed, but OpenAI usually returns BCP 47
-                // simple validation
                 if (!string.IsNullOrWhiteSpace(language) && language.Length <= 8)
                 {
                     post.ContentLanguageCode = language;
@@ -112,6 +100,51 @@ public class LangDetectJob(
             catch (Exception e)
             {
                 logger.LogError(e, $"Failed to detect language for post: {post.Title}");
+            }
+        }
+
+        // 2. Localize posts (Translate)
+        // We look for posts that have a valid language code (en-US or zh-CN) AND
+        // (LocalizeJobRunAt is null OR LocalizeJobRunAt < LastModifiedUtc)
+        // This ensures we only process posts that haven't been localized or have been modified since last localization.
+        var postsToLocalize = await context.Post
+            .Where(p => p.ContentLanguageCode == "zh-CN" || p.ContentLanguageCode == "en-US")
+            .Where(p => p.LocalizeJobRunAt == null || (p.LastModifiedUtc != null && p.LocalizeJobRunAt < p.LastModifiedUtc))
+            .OrderByDescending(p => p.PubDateUtc)
+            .Take(5)
+            .ToListAsync(stoppingToken);
+
+        foreach (var post in postsToLocalize)
+        {
+            if (stoppingToken.IsCancellationRequested) break;
+            logger.LogInformation($"Localizing post: {post.Title} ({post.ContentLanguageCode})");
+            try
+            {
+                if (string.IsNullOrWhiteSpace(post.RawContent)) continue;
+
+                if (post.ContentLanguageCode == "zh-CN")
+                {
+                    post.LocalizedChineseContent = post.RawContent;
+                    // Translate to English
+                    var translated = await openAi.Translate(post.RawContent, "English", stoppingToken);
+                    post.LocalizedEnglishContent = translated;
+                }
+                else if (post.ContentLanguageCode == "en-US")
+                {
+                    post.LocalizedEnglishContent = post.RawContent;
+                    // Translate to Chinese
+                    var translated = await openAi.Translate(post.RawContent, "Chinese", stoppingToken);
+                    post.LocalizedChineseContent = translated;
+                }
+
+                post.LocalizeJobRunAt = DateTime.UtcNow;
+                context.Update(post);
+                await context.SaveChangesAsync(stoppingToken);
+                logger.LogInformation($"Localized post '{post.Title}'.");
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, $"Failed to localize post: {post.Title}");
             }
         }
     }

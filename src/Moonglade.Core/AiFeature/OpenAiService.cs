@@ -125,4 +125,25 @@ public class OpenAiService(
              """, token);
         return response.GetAnswerPart().Trim();
     }
+
+    private const string TranslationPrompt =
+        "我需要你帮我翻译一篇博客。你需要阅读文章的内容，然后将这篇文章翻译成目标语言。翻译时请保持文章的原意，同时使得翻译后的文章通顺、自然、符合目标语言的表达习惯。不要翻译代码块中的内容。不要输出任何解释性的文字，只输出翻译后的文章内容。文章内容如下：";
+
+    private const string WorkTranslationPrompt =
+        "好了，根据上面的文章，现在开始你的翻译工作吧！请将文章翻译为：{0}。只输出翻译后的文章内容，不要输出其他内容。";
+
+    public async Task<string> Translate(string content, string targetLanguage, CancellationToken token = default)
+    {
+        var response = await Ask(
+            $"""
+             {TranslationPrompt}
+
+             =====================
+             {content}
+             =====================
+
+             {string.Format(WorkTranslationPrompt, targetLanguage)}
+             """, token);
+        return response.GetAnswerPart().Trim();
+    }
 }
