@@ -22,6 +22,8 @@ public class Post
     public string OriginLink { get; set; }
     public string HeroImageUrl { get; set; }
     public string InlineCss { get; set; }
+    public string LocalizedChineseContent { get; set; }
+    public string LocalizedEnglishContent { get; set; }
     public Tag[] Tags { get; set; }
     public Category[] Categories { get; set; }
     public DateTime? PubDateUtc { get; set; }
@@ -47,6 +49,8 @@ public class Post
         HeroImageUrl = p.HeroImageUrl,
         InlineCss = p.InlineCss,
         ContentLanguageCode = p.ContentLanguageCode,
+        LocalizedChineseContent = p.LocalizedChineseContent,
+        LocalizedEnglishContent = p.LocalizedEnglishContent,
         Tags = p.Tags.Select(pt => new Tag
         {
             Id = pt.Id,
