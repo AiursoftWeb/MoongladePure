@@ -1,7 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoongladePure.Core.Utils;
-using System.Linq;
-
 namespace MoongladePure.Tests
 {
     [TestClass]
@@ -32,11 +30,14 @@ namespace MoongladePure.Tests
             // So chunk 1 should be p1\np2\np3 -> 903 chars (or 902 if trimmed at end)
             // Chunk 2 should be p4 -> 300 chars.
 
-            Assert.AreEqual(2, chunks.Count);
+            // Chunk 1: p1 + p2 + p3 = 900 chars + newlines -> 300 + 1 + 300 + 1 + 300 = 902 (last \n trimmed)
+            // Chunk 2: p4 = 300 chars
             
-            // Allow some flexibility for newline handling, but length should be roughly 900 and 300
-            Assert.IsTrue(chunks[0].Length >= 900 && chunks[0].Length <= 905);
-            Assert.IsTrue(chunks[1].Length == 300);
+            // Replaced Assert.AreEqual(2, chunks.Count) with checking value.
+            Assert.HasCount(2, chunks);
+            
+            Assert.AreEqual(902, chunks[0].Length);
+            Assert.AreEqual(300, chunks[1].Length);
         }
     }
 }
