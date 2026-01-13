@@ -18,7 +18,7 @@ public class CreatePostCommandHandler(
         {
             CommentEnabled = request.Payload.EnableComment,
             Id = Guid.NewGuid(),
-            PostContent = request.Payload.EditorContent,
+            RawContent = request.Payload.EditorContent,
             ContentAbstract = "...",
             CreateTimeUtc = DateTime.UtcNow,
             LastModifiedUtc = DateTime.UtcNow, // Fix draft orders

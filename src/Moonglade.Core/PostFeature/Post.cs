@@ -33,7 +33,7 @@ public class Post
         Title = p.Title,
         Slug = p.Slug,
         Author = p.Author,
-        RawPostContent = p.PostContent,
+        RawPostContent = p.RawContent,
         ContentAbstract = p.ContentAbstract,
         CommentEnabled = p.CommentEnabled,
         CreateTimeUtc = p.CreateTimeUtc,

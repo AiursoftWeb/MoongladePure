@@ -68,7 +68,7 @@ public class OpenAiService(
             cancellationToken: token);
     }
 
-    public Task<string[]> GenerateTags(string trackedPostPostContent, CancellationToken token = default)
+    public Task<string[]> GenerateTags(string trackedPostRawContent, CancellationToken token = default)
     {
         return retryEngine.RunWithRetry(
             attempts: 8,
@@ -79,7 +79,7 @@ public class OpenAiService(
                      {TagsPrompt}
 
                      =====================
-                     {trackedPostPostContent}
+                     {trackedPostRawContent}
                      =====================
 
                      {WorkTagsPrompt}

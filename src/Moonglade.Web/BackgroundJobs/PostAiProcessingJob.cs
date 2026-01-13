@@ -75,9 +75,9 @@ namespace MoongladePure.Web.BackgroundJobs
                             {
                                 logger.LogInformation("Generating OpenAi abstract for post with slug: {PostSlug}...",
                                     trackedPost.Slug);
-                                var content = trackedPost.PostContent.Length > LengthAiCanProcess
-                                    ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - LengthAiCanProcess, LengthAiCanProcess)
-                                    : trackedPost.PostContent;
+                                var content = trackedPost.RawContent.Length > LengthAiCanProcess
+                                    ? trackedPost.RawContent.Substring(trackedPost.RawContent.Length - LengthAiCanProcess, LengthAiCanProcess)
+                                    : trackedPost.RawContent;
 
                                 var abstractForPost =
                                     await openAi.GenerateAbstract($"# {trackedPost.Title}" + "\r\n" + content);
@@ -140,9 +140,9 @@ namespace MoongladePure.Web.BackgroundJobs
                             {
                                 logger.LogInformation("Generating OpenAi comment for post with slug: {PostSlug}...",
                                     trackedPost.Slug);
-                                var content = trackedPost.PostContent.Length > LengthAiCanProcess
-                                    ? trackedPost.PostContent.Substring(trackedPost.PostContent.Length - LengthAiCanProcess, LengthAiCanProcess)
-                                    : trackedPost.PostContent;
+                                var content = trackedPost.RawContent.Length > LengthAiCanProcess
+                                    ? trackedPost.RawContent.Substring(trackedPost.RawContent.Length - LengthAiCanProcess, LengthAiCanProcess)
+                                    : trackedPost.RawContent;
 
                                 var newComment = await openAi.GenerateComment($"# {trackedPost.Title}" + "\r\n" + content);
                                 logger.LogInformation("Generated OpenAi comment for post with slug: {PostSlug}. New comment: {Comment}",
@@ -184,7 +184,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 .Select(pt => pt.Tag)
                                 .ToListAsync();
 
-                            var newTags = await openAi.GenerateTags(trackedPost.PostContent);
+                            var newTags = await openAi.GenerateTags(trackedPost.RawContent);
                             var newTagsToAdd = new List<string>();
                             foreach (var newTag in newTags
                                          .Select(t => t.Replace('-', ' ')))

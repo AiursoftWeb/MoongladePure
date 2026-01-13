@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MoongladePure.Data.Sqlite;
 
 #nullable disable
 
@@ -14,7 +15,7 @@ namespace MoongladePure.Data.Sqlite.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.1");
 
             modelBuilder.Entity("MoongladePure.Data.Entities.BlogAssetEntity", b =>
                 {
@@ -40,6 +41,7 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("CfgKey")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CfgValue")
@@ -79,16 +81,18 @@ namespace MoongladePure.Data.Sqlite.Migrations
             modelBuilder.Entity("MoongladePure.Data.Entities.CategoryEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DisplayName")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Note")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("RouteName")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -155,13 +159,14 @@ namespace MoongladePure.Data.Sqlite.Migrations
             modelBuilder.Entity("MoongladePure.Data.Entities.FriendLinkEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LinkUrl")
+                        .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -201,22 +206,24 @@ namespace MoongladePure.Data.Sqlite.Migrations
             modelBuilder.Entity("MoongladePure.Data.Entities.MenuEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Icon")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsOpenInNewTab")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Url")
+                        .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -264,21 +271,15 @@ namespace MoongladePure.Data.Sqlite.Migrations
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostCategoryEntity", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("PostId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
+                    b.HasKey("PostId", "CategoryId");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("PostId");
 
                     b.ToTable("PostCategory");
                 });
@@ -334,10 +335,10 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<string>("OriginLink")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PostContent")
+                    b.Property<DateTime?>("PubDateUtc")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("PubDateUtc")
+                    b.Property<string>("RawContent")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Slug")
@@ -369,19 +370,13 @@ namespace MoongladePure.Data.Sqlite.Migrations
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostTagEntity", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("PostId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TagId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
+                    b.HasKey("PostId", "TagId");
 
                     b.HasIndex("TagId");
 
@@ -391,7 +386,6 @@ namespace MoongladePure.Data.Sqlite.Migrations
             modelBuilder.Entity("MoongladePure.Data.Entities.SubMenuEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsOpenInNewTab")
@@ -401,9 +395,11 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Url")
+                        .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -420,29 +416,16 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("DisplayName")
+                        .HasMaxLength(32)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedName")
+                        .HasMaxLength(32)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.ToTable("Tag");
-                });
-
-            modelBuilder.Entity("PostEntityTagEntity", b =>
-                {
-                    b.Property<Guid>("PostsId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TagsId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("PostsId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("PostEntityTagEntity");
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.CommentEntity", b =>
@@ -523,21 +506,6 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .IsRequired();
 
                     b.Navigation("Menu");
-                });
-
-            modelBuilder.Entity("PostEntityTagEntity", b =>
-                {
-                    b.HasOne("MoongladePure.Data.Entities.PostEntity", null)
-                        .WithMany()
-                        .HasForeignKey("PostsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MoongladePure.Data.Entities.TagEntity", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.CategoryEntity", b =>

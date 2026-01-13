@@ -7,7 +7,7 @@ public class PostEntity
     public string Title { get; set; }
     public string Slug { get; set; }
     public string Author { get; set; }
-    public string PostContent { get; set; }
+    public string RawContent { get; set; }
     public bool CommentEnabled { get; set; }
     public DateTime CreateTimeUtc { get; set; }
     public string ContentAbstract { get; set; }
