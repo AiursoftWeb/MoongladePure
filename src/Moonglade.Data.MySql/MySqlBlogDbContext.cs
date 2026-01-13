@@ -23,6 +23,6 @@ public class MySqlContext(DbContextOptions<MySqlContext> options) : BlogDbContex
 
     public override Task MigrateAsync(CancellationToken cancellationToken)
     {
-        return Database.EnsureCreatedAsync(cancellationToken);
+        return Database.MigrateAsync(cancellationToken);
     }
 }
