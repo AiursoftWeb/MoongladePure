@@ -130,10 +130,6 @@ deploy_docker_registry:
         - docker save hub.aiursoft.com/${CI_PROJECT_NAMESPACE}/$CI_PROJECT_NAME:$TAG -o temp.tar
         - regctl image import hub.aiursoft.com/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$TAG temp.tar
         - rm ./temp.tar
-    rules:
-        - if: '$CI_COMMIT_BRANCH == "master"'
-          exists:
-              - Dockerfile
 
 deploy_docker_hub:
     stage: deploy
