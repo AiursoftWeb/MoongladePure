@@ -146,7 +146,11 @@
             <div class="dropdown d-inline-block ms-2">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi-translate"></i>
-                    @if (CultureInfo.CurrentUICulture.Name == "zh-CN")
+                    @if (HttpContext.Request.Query["mode"] == "original")
+                    {
+                        @:Original
+                    }
+                    else if (CultureInfo.CurrentUICulture.Name == "zh-CN")
                     {
                         @:中文 (Simplified Chinese)
                     }
@@ -164,7 +168,7 @@
                     <li><a class="dropdown-item" href="/api/settings/set-lang?culture=zh-CN&returnUrl=@Uri.EscapeDataString(HttpContext.Request.Path)">中文 (Simplified Chinese)</a></li>
                     @if (!string.IsNullOrWhiteSpace(Model.Post.ContentLanguageCode))
                     {
-                         <li><a class="dropdown-item" href="/api/settings/set-lang?culture=@Model.Post.ContentLanguageCode&returnUrl=@Uri.EscapeDataString(HttpContext.Request.Path)">Original (@Model.Post.ContentLanguageCode)</a></li>
+                         <li><a class="dropdown-item" href="?mode=original">Original (@Model.Post.ContentLanguageCode)</a></li>
                     }
                 </ul>
             </div>
