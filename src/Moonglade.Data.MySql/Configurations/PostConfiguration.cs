@@ -18,6 +18,8 @@ internal class PostConfiguration : IEntityTypeConfiguration<PostEntity>
         builder.Property(e => e.PubDateUtc).HasColumnType("datetime");
         builder.Property(e => e.LastModifiedUtc).HasColumnType("datetime");
         builder.Property(e => e.RawContent);
+        builder.Property(e => e.LocalizedChineseContent);
+        builder.Property(e => e.LocalizedEnglishContent);
 
         builder.Property(e => e.Author).HasMaxLength(64);
         builder.Property(e => e.Slug).HasMaxLength(128);

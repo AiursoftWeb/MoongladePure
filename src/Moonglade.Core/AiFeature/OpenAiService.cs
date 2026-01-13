@@ -104,4 +104,25 @@ public class OpenAiService(
                 return tags;
             });
     }
+
+    private const string LanguagePrompt =
+        "我需要你帮我探测一篇博客的语言。你需要阅读文章的内容，然后判断这篇文章使用的是什么语言。例如：中文、English、Français。请只输出语言的 BCP 47 语言代码（例如 zh-CN, en-US, fr-FR），不要输出其他内容。如果无法识别，请输出 'und'。文章内容如下：";
+
+    private const string WorkLanguagePrompt =
+        "好了，根据上面的文章，现在开始你的语言探测工作吧！请只输出语言的 BCP 47 语言代码（例如 zh-CN, en-US, fr-FR），不要输出其他内容。如果无法识别，请输出 'und'。";
+
+    public async Task<string> DetectLanguage(string content, CancellationToken token = default)
+    {
+        var response = await Ask(
+            $"""
+             {LanguagePrompt}
+
+             =====================
+             {content}
+             =====================
+
+             {WorkLanguagePrompt}
+             """, token);
+        return response.GetAnswerPart().Trim();
+    }
 }

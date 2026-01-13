@@ -88,6 +88,7 @@ namespace MoongladePure.Web
             if (runBackgroundJobs)
             {
                 services.AddSingleton<IHostedService, PostAiProcessingJob>();
+                services.AddSingleton<IHostedService, LangDetectJob>();
             }
 
             services.AddHttpClient();
