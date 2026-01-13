@@ -3,7 +3,7 @@ using Aiursoft.Canon;
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptClient.Services;
 using Microsoft.Extensions.Configuration;
-using System.Text;
+
 using MoongladePure.Core.Utils;
 namespace MoongladePure.Core.AiFeature;
 
