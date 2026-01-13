@@ -3,7 +3,8 @@ using Aiursoft.Canon;
 using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptClient.Services;
 using Microsoft.Extensions.Configuration;
-
+using System.Text;
+using MoongladePure.Core.Utils;
 namespace MoongladePure.Core.AiFeature;
 
 public class OpenAiService(
@@ -134,16 +135,24 @@ public class OpenAiService(
 
     public async Task<string> Translate(string content, string targetLanguage, CancellationToken token = default)
     {
-        var response = await Ask(
-            $"""
-             {TranslationPrompt}
+        var chunks = TextChunker.GetChunks(content, 1000);
+        var sb = new StringBuilder();
 
-             =====================
-             {content}
-             =====================
+        foreach (var chunk in chunks)
+        {
+            var response = await Ask(
+                $"""
+                 {TranslationPrompt}
 
-             {string.Format(WorkTranslationPrompt, targetLanguage)}
-             """, token);
-        return response.GetAnswerPart().Trim();
+                 =====================
+                 {chunk}
+                 =====================
+
+                 {string.Format(WorkTranslationPrompt, targetLanguage)}
+                 """, token);
+            sb.AppendLine(response.GetAnswerPart().Trim());
+        }
+
+        return sb.ToString().Trim();
     }
 }
