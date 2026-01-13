@@ -110,8 +110,8 @@ public class LangDetectJob(
             var postsToLocalize = await context.Post
                 .Where(p =>
                     p.LocalizeJobRunAt == null ||
-                    (string.IsNullOrWhiteSpace(p.LocalizedChineseContent)) ||
-                    (string.IsNullOrWhiteSpace(p.LocalizedEnglishContent)) ||
+                    (p.LocalizedChineseContent == null || p.LocalizedChineseContent == "") ||
+                    (p.LocalizedEnglishContent == null || p.LocalizedEnglishContent == "") ||
                     (p.LastModifiedUtc != null && p.LocalizeJobRunAt < p.LastModifiedUtc))
                 .OrderByDescending(p => p.PubDateUtc)
                 .Take(5)
