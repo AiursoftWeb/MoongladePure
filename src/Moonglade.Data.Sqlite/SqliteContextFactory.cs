@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-using MoongladePure.Data.Sqlite;
-namespace Aiursoft.MoongladePure.Sqlite;
+namespace MoongladePure.Data.Sqlite;
 
 // This class will be scanned by Entity framework during migrations adding. Do NOT delete!
 // On production, real database will respect the appsettings.json.

@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-using MoongladePure.Data.MySql;
-namespace Aiursoft.MoongladePure.MySql;
+namespace MoongladePure.Data.MySql;
 
 // This class will be scanned by Entity framework during migrations adding. Do NOT delete!
 // On production, real database will respect the appsettings.json.
