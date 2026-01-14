@@ -70,7 +70,7 @@ namespace MoongladePure.Web.BackgroundJobs
                             trackedPost.Slug);
 
                         // Generate Chinese abstract
-                        if (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractZh) || !trackedPost.ContentAbstractZh.EndsWith("--Qwen3"))
+                        if (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractZh) || !trackedPost.ContentAbstractZh.EndsWith("(AI Generated)"))
                         {
                             try
                             {
@@ -90,7 +90,7 @@ namespace MoongladePure.Web.BackgroundJobs
 
                                 logger.LogInformation("Generated OpenAi Chinese abstract for post with slug: {PostSlug}. New abstract: {Abstract}",
                                     trackedPost.Slug, abstractForPost.SafeSubstring(100));
-                                trackedPost.ContentAbstractZh = abstractForPost + "--Qwen3";
+                                trackedPost.ContentAbstractZh = abstractForPost + "(AI Generated)";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
@@ -108,7 +108,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         }
 
                         // Generate English abstract
-                        if (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractEn) || !trackedPost.ContentAbstractEn.EndsWith("--Qwen3"))
+                        if (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractEn) || !trackedPost.ContentAbstractEn.EndsWith("(AI Generated)"))
                         {
                             try
                             {
@@ -128,7 +128,7 @@ namespace MoongladePure.Web.BackgroundJobs
 
                                 logger.LogInformation("Generated OpenAi English abstract for post with slug: {PostSlug}. New abstract: {Abstract}",
                                     trackedPost.Slug, abstractForPost.SafeSubstring(100));
-                                trackedPost.ContentAbstractEn = abstractForPost + "--Qwen3";
+                                trackedPost.ContentAbstractEn = abstractForPost + "(AI Generated)";
                                 context.Post.Update(trackedPost);
                                 await context.SaveChangesAsync();
                             }
