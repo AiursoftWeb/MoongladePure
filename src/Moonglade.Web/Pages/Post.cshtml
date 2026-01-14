@@ -8,6 +8,8 @@
 
 @{
     ViewBag.BodyClass = "body-post-slug";
+    var isChinese = CultureInfo.CurrentUICulture.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
+    var contentAbstract = isChinese ? (!string.IsNullOrWhiteSpace(Model.Post.ContentAbstractZh) ? Model.Post.ContentAbstractZh : Model.Post.ContentAbstractEn) : Model.Post.ContentAbstractEn;
 }
 
 @section keywords {
@@ -50,13 +52,13 @@
     <meta property="og:site_name" content="@BlogConfig.GeneralSettings.SiteTitle">
     <meta property="og:title" content="@Model.Post.Title">
     <meta property="og:type" content="article" />
-    <meta property="og:description" content="@Model.Post.ContentAbstract" />
+    <meta property="og:description" content="@contentAbstract" />
     <meta property="og:url" content="@($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/post/{Model.Post.PubDateUtc.GetValueOrDefault().Year}/{Model.Post.PubDateUtc.GetValueOrDefault().Month}/{Model.Post.PubDateUtc.GetValueOrDefault().Day}/{Model.Post.Slug}")" />
     <link rel="canonical" href="@($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/post/{Model.Post.PubDateUtc.GetValueOrDefault().Year}/{Model.Post.PubDateUtc.GetValueOrDefault().Month}/{Model.Post.PubDateUtc.GetValueOrDefault().Day}/{Model.Post.Slug}")" />
 }
 
 @section metadescription{
-    <metadesc description="@Model.Post.ContentAbstract" />
+    <metadesc description="@contentAbstract" />
 }
 
 @section scripts {

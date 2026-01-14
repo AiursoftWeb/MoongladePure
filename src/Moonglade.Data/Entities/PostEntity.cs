@@ -12,7 +12,8 @@ public class PostEntity
     public string LocalizedEnglishContent { get; set; }
     public bool CommentEnabled { get; set; }
     public DateTime CreateTimeUtc { get; set; }
-    public string ContentAbstract { get; set; }
+    public string ContentAbstractZh { get; set; }
+    public string ContentAbstractEn { get; set; }
     public string ContentLanguageCode { get; set; }
     public bool IsFeedIncluded { get; set; }
     public DateTime? LocalizeJobRunAt { get; set; }

@@ -66,7 +66,7 @@ public class SyndicationDataSource : ISyndicationDataSource
             p.Title,
             p.PubDateUtc,
             p.Slug,
-            Description = _blogConfig.FeedSettings.UseFullContent ? p.RawContent : p.ContentAbstract,
+            Description = _blogConfig.FeedSettings.UseFullContent ? p.RawContent : p.ContentAbstractEn,
             Categories = p.PostCategory.Select(pc => pc.Category.DisplayName).ToArray()
         });
 
