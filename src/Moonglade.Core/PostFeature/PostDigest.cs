@@ -11,7 +11,9 @@ public class PostDigest
 
     public string Slug { get; set; }
 
-    public string ContentAbstract { get; set; }
+    public string ContentAbstractZh { get; set; }
+
+    public string ContentAbstractEn { get; set; }
 
     public string LangCode { get; set; }
 
@@ -23,7 +25,8 @@ public class PostDigest
     {
         Title = p.Title,
         Slug = p.Slug,
-        ContentAbstract = p.ContentAbstract,
+        ContentAbstractZh = p.ContentAbstractZh,
+        ContentAbstractEn = p.ContentAbstractEn,
         PubDateUtc = p.PubDateUtc.GetValueOrDefault(),
         LangCode = p.ContentLanguageCode,
         IsFeatured = p.IsFeatured,
@@ -38,7 +41,8 @@ public class PostDigest
     {
         Title = p.Post.Title,
         Slug = p.Post.Slug,
-        ContentAbstract = p.Post.ContentAbstract,
+        ContentAbstractZh = p.Post.ContentAbstractZh,
+        ContentAbstractEn = p.Post.ContentAbstractEn,
         PubDateUtc = p.Post.PubDateUtc.GetValueOrDefault(),
         LangCode = p.Post.ContentLanguageCode,
         IsFeatured = p.Post.IsFeatured,

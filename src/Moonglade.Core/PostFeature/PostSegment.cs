@@ -7,7 +7,8 @@ public struct PostSegment
     public Guid Id { get; set; }
     public string Title { get; set; }
     public string Slug { get; set; }
-    public string ContentAbstract { get; set; }
+    public string ContentAbstractZh { get; set; }
+    public string ContentAbstractEn { get; set; }
     public DateTime? PubDateUtc { get; set; }
     public DateTime CreateTimeUtc { get; set; }
     public DateTime? LastModifiedUtc { get; set; }
@@ -25,7 +26,8 @@ public struct PostSegment
         IsDeleted = p.IsDeleted,
         CreateTimeUtc = p.CreateTimeUtc,
         LastModifiedUtc = p.LastModifiedUtc,
-        ContentAbstract = p.ContentAbstract,
+        ContentAbstractZh = p.ContentAbstractZh,
+        ContentAbstractEn = p.ContentAbstractEn,
         Hits = p.PostExtension.Hits
     };
 }

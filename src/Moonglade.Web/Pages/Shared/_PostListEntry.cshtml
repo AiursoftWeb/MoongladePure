@@ -29,7 +29,16 @@
             }
         </h4>
 
-        <p class="post-summary-text">@(Model.ContentAbstract)</p>
+        <p class="post-summary-text">
+            @if (CultureInfo.CurrentUICulture.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
+            {
+                @(!string.IsNullOrWhiteSpace(Model.ContentAbstractZh) ? Model.ContentAbstractZh : Model.ContentAbstractEn)
+            }
+            else
+            {
+                @Model.ContentAbstractEn
+            }
+        </p>
         @if (null != Model.Tags)
         {
             <div class="post-summary-tags pt-2">
