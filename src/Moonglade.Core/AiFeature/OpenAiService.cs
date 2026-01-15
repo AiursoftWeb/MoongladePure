@@ -140,17 +140,25 @@ public class OpenAiService(
 
         foreach (var chunk in chunks)
         {
+            if (chunk.IsCodeBlock)
+            {
+                sb.AppendLine(chunk.Content);
+                sb.AppendLine();
+                continue;
+            }
+
             var response = await Ask(
                 $"""
                  {TranslationPrompt}
 
                  =====================
-                 {chunk}
+                 {chunk.Content}
                  =====================
 
                  {string.Format(WorkTranslationPrompt, targetLanguage)}
                  """, token);
             sb.AppendLine(response.GetAnswerPart().Trim());
+            sb.AppendLine();
         }
 
         return sb.ToString().Trim();
