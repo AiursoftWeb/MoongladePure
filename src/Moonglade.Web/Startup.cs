@@ -13,7 +13,6 @@ using Aiursoft.GptClient;
 using Aiursoft.WebTools.Abstractions.Models;
 using AspNetCoreRateLimit;
 using Aiursoft.Dotlang.Shared;
-using Aiursoft.Dotlang.AspNetTranslate;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Data.Infrastructure;
 using MoongladePure.Data.InMemory;

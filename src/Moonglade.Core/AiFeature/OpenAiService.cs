@@ -4,7 +4,6 @@ using Aiursoft.GptClient.Abstractions;
 using Aiursoft.GptClient.Services;
 using Microsoft.Extensions.Configuration;
 
-using MoongladePure.Core.Utils;
 namespace MoongladePure.Core.AiFeature;
 
 public class OpenAiService(
