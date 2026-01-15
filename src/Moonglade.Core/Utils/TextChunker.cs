@@ -1,53 +1,100 @@
+using System.Text.RegularExpressions;
+
 namespace MoongladePure.Core.Utils;
+
+public record TranslationChunk(string Content, bool IsCodeBlock);
 
 public static class TextChunker
 {
-    public static IEnumerable<string> GetChunks(string text, int maxChunkSize)
+    public static IEnumerable<TranslationChunk> GetChunks(string text, int maxChunkSize)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
             yield break;
         }
 
-        var paragraphs = text.Split('\n');
-        var currentChunk = new StringBuilder();
+        // 1. Identify code blocks
+        var codeBlockRegex = new Regex(@"^```[\s\S]*?^```", RegexOptions.Multiline | RegexOptions.Compiled);
+        var matches = codeBlockRegex.Matches(text);
 
-        foreach (var paragraph in paragraphs) 
+        var segments = new List<TranslationChunk>();
+        int lastIndex = 0;
+
+        foreach (Match match in matches)
         {
-            var p = paragraph + "\n"; // Add newline back as it was removed by Split
-            
-            // If adding the next paragraph exceeds the limit
-            if (currentChunk.Length + p.Length > maxChunkSize)
+            if (match.Index > lastIndex)
             {
-                // If the current chunk is not empty, yield it
-                if (currentChunk.Length > 0)
-                {
-                    yield return currentChunk.ToString().TrimEnd();
-                    currentChunk.Clear();
-                }
+                var textBefore = text.Substring(lastIndex, match.Index - lastIndex);
+                AddParagraphs(segments, textBefore);
+            }
 
-                // If the paragraph itself is larger than the limit, yield it as a standalone chunk
-                if (p.Length > maxChunkSize)
+            segments.Add(new TranslationChunk(match.Value, true));
+            lastIndex = match.Index + match.Length;
+        }
+
+        if (lastIndex < text.Length)
+        {
+            var textAfter = text.Substring(lastIndex);
+            AddParagraphs(segments, textAfter);
+        }
+
+        // 2. Greedy combine
+        var currentChunkContent = new StringBuilder();
+        foreach (var segment in segments)
+        {
+            if (segment.IsCodeBlock)
+            {
+                if (currentChunkContent.Length > 0)
                 {
-                    yield return p.TrimEnd();
+                    yield return new TranslationChunk(currentChunkContent.ToString().Trim(), false);
+                    currentChunkContent.Clear();
                 }
-                else
-                {
-                    // Otherwise, start the new chunk with this paragraph
-                    currentChunk.Append(p);
-                }
+                yield return segment;
             }
             else
             {
-                // Safe to add to current chunk
-                currentChunk.Append(p);
+                if (currentChunkContent.Length > 0 && currentChunkContent.Length + segment.Content.Length + 2 > maxChunkSize)
+                {
+                    yield return new TranslationChunk(currentChunkContent.ToString().Trim(), false);
+                    currentChunkContent.Clear();
+                }
+
+                if (segment.Content.Length > maxChunkSize)
+                {
+                    if (currentChunkContent.Length > 0)
+                    {
+                        yield return new TranslationChunk(currentChunkContent.ToString().Trim(), false);
+                        currentChunkContent.Clear();
+                    }
+                    yield return segment;
+                }
+                else
+                {
+                    if (currentChunkContent.Length > 0)
+                    {
+                        currentChunkContent.Append("\n\n");
+                    }
+                    currentChunkContent.Append(segment.Content);
+                }
             }
         }
 
-        // Yield any remaining content
-        if (currentChunk.Length > 0)
+        if (currentChunkContent.Length > 0)
         {
-            yield return currentChunk.ToString().TrimEnd();
+            yield return new TranslationChunk(currentChunkContent.ToString().Trim(), false);
+        }
+    }
+
+    private static void AddParagraphs(List<TranslationChunk> segments, string text)
+    {
+        var paragraphs = text.Split(new[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var p in paragraphs)
+        {
+            var trimmed = p.Trim('\r', '\n');
+            if (!string.IsNullOrWhiteSpace(trimmed))
+            {
+                segments.Add(new TranslationChunk(trimmed, false));
+            }
         }
     }
 }
