@@ -55,7 +55,7 @@ public class TextChunkerTests
         Assert.AreEqual("P1 before code.", chunks[0].Content);
 
         Assert.IsTrue(chunks[1].IsCodeBlock);
-        Assert.IsTrue(chunks[1].Content.Contains("var x = 1;"));
+        StringAssert.Contains(chunks[1].Content, "var x = 1;");
 
         Assert.IsFalse(chunks[2].IsCodeBlock);
         Assert.AreEqual("P2 after code.", chunks[2].Content);
