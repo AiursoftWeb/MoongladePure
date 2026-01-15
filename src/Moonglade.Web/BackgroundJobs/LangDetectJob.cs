@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MoongladePure.Core.AiFeature;
 using System.Text.RegularExpressions;
 
+using Aiursoft.Dotlang.Shared;
 namespace MoongladePure.Web.BackgroundJobs;
 
 public class LangDetectJob(
@@ -47,6 +48,7 @@ public class LangDetectJob(
             logger.LogInformation("LangDetectJob started!");
             using var scope = scopeFactory.CreateScope();
             var openAi = scope.ServiceProvider.GetRequiredService<OpenAiService>();
+            var translator = scope.ServiceProvider.GetRequiredService<OllamaBasedTranslatorEngine>();
             var context = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
 
             // 1. Detect language for posts with missing or invalid language code
@@ -128,20 +130,20 @@ public class LangDetectJob(
                     {
                         post.LocalizedChineseContent = post.RawContent;
                         // Translate to English
-                        var translated = await openAi.Translate(post.RawContent, "English");
+                        var translated = await translator.TranslateAsync(post.RawContent, "en-US");
                         post.LocalizedEnglishContent = translated;
                     }
                     else if (post.ContentLanguageCode == "en-US")
                     {
                         post.LocalizedEnglishContent = post.RawContent;
                         // Translate to Chinese
-                        var translated = await openAi.Translate(post.RawContent, "Chinese");
+                        var translated = await translator.TranslateAsync(post.RawContent, "zh-CN");
                         post.LocalizedChineseContent = translated;
                     }
                     else
                     {
-                        post.LocalizedEnglishContent = await openAi.Translate(post.RawContent, "English");
-                        post.LocalizedChineseContent = await openAi.Translate(post.RawContent, "Chinese");
+                        post.LocalizedEnglishContent = await translator.TranslateAsync(post.RawContent, "en-US");
+                        post.LocalizedChineseContent = await translator.TranslateAsync(post.RawContent, "zh-CN");
                     }
 
                     post.LocalizeJobRunAt = localizeJobStartTime;
