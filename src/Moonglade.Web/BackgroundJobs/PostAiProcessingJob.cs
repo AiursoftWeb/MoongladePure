@@ -56,6 +56,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         .AsNoTracking()
                         .Where(p => p.IsPublished)
                         .Where(p => !p.IsDeleted)
+                        .Where(p => p.PubDateUtc >= new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc))
                         .OrderByDescending(p => p.PubDateUtc)
                         .ToListAsync();
 

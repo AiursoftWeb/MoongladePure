@@ -58,6 +58,7 @@ public class LangDetectJob(
             // and then pick the ones that need processing.
             var allPostLanguages = await context.Post
                 .Select(p => new { p.Id, p.ContentLanguageCode, p.Title, p.PubDateUtc })
+                .Where(p => p.PubDateUtc >= new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc))
                 .OrderByDescending(p => p.PubDateUtc)
                 .ToListAsync();
 
@@ -115,6 +116,7 @@ public class LangDetectJob(
                     (p.LocalizedChineseContent == null || p.LocalizedChineseContent == "") ||
                     (p.LocalizedEnglishContent == null || p.LocalizedEnglishContent == "") ||
                     (p.LastModifiedUtc != null && p.LocalizeJobRunAt < p.LastModifiedUtc))
+                .Where(p => p.PubDateUtc >= new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc))
                 .OrderByDescending(p => p.PubDateUtc)
                 .Take(5)
                 .ToListAsync();
