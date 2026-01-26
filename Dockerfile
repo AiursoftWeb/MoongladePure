@@ -26,7 +26,7 @@ ARG PROJ_NAME
 WORKDIR /src
 
 # Build
-COPY . .
+COPY . ./
 RUN dotnet publish ${CSPROJ_PATH}/${PROJ_NAME}.csproj --configuration Release --no-self-contained --runtime linux-x64 --output /app
 
 # ============================
