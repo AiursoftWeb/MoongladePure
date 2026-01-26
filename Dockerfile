@@ -10,7 +10,7 @@ ARG FRONT_END_PATH
 WORKDIR /src
 
 # Restore
-COPY ${FRONT_END_PATH}/package*.json .
+COPY ${FRONT_END_PATH}/package*.json ./
 RUN npm install --loglevel verbose --force
 
 # Build (no need to build. Static files project)
