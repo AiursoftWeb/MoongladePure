@@ -49,6 +49,9 @@ namespace MoongladePure.Web.BackgroundJobs
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var services = scope.ServiceProvider;
+                    var configuration = services.GetRequiredService<IConfiguration>();
+                    var autoGenerateSummary = configuration.GetValue("OpenAI:AutoGenerateSummary", true);
+                    var autoGenerateComment = configuration.GetValue("OpenAI:AutoGenerateComment", true);
                     var openAi = services.GetRequiredService<OpenAiService>();
                     var logger = services.GetRequiredService<ILogger<PostAiProcessingJob>>();
                     var context = services.GetRequiredService<BlogDbContext>();
@@ -71,7 +74,7 @@ namespace MoongladePure.Web.BackgroundJobs
                             trackedPost.Slug);
 
                         // Generate Chinese abstract
-                        if (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractZh) || !trackedPost.ContentAbstractZh.EndsWith("--AI Generated"))
+                        if (autoGenerateSummary && (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractZh) || !trackedPost.ContentAbstractZh.EndsWith("--AI Generated")))
                         {
                             try
                             {
@@ -109,7 +112,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         }
 
                         // Generate English abstract
-                        if (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractEn) || !trackedPost.ContentAbstractEn.EndsWith("--AI Generated"))
+                        if (autoGenerateSummary && (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractEn) || !trackedPost.ContentAbstractEn.EndsWith("--AI Generated")))
                         {
                             try
                             {
@@ -174,7 +177,7 @@ namespace MoongladePure.Web.BackgroundJobs
 
                         // Skip valid posts.
                         // ReSharper disable once InvertIf
-                        if (!aiComments.Any())
+                        if (autoGenerateComment && !aiComments.Any())
                         {
                             try
                             {
