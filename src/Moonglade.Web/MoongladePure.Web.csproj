@@ -32,7 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aiursoft.DbTools.Switchable" Version="10.0.7" />
-    <PackageReference Include="Aiursoft.Dotlang.AspNetTranslate" Version="10.0.20" />
+    <PackageReference Include="Aiursoft.Dotlang.AspNetTranslate" Version="10.0.21" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Edi.ImageWatermark" Version="2.22.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
