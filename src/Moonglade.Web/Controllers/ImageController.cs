@@ -93,7 +93,7 @@ public class ImageController(
         {
             if (string.Compare(".gif", ext, StringComparison.OrdinalIgnoreCase) != 0)
             {
-                using var watermarker = new ImageWatermarker(stream, ext, blogConfig.ImageSettings.WatermarkSkipPixel);
+                using var watermarker = new ImageWatermarker(stream, blogConfig.ImageSettings.WatermarkSkipPixel);
 
                 watermarkedStream = watermarker.AddWatermark(
                     blogConfig.ImageSettings.WatermarkText,
