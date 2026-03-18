@@ -53,7 +53,7 @@ namespace MoongladePure.Web
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(20);
                 options.Cookie.HttpOnly = true;
-            }).AddSessionBasedCaptcha(options => options.FontStyle = FontStyle.Bold);
+            }).AddSessionBasedCaptcha(options => options.FontStyle = Edi.Captcha.CaptchaFontStyle.Bold);
 
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddControllers()
