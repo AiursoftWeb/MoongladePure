@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using MoongladePure.Data.MySql;
 using MoongladePure.Syndication;
 using System.Text.Json.Serialization;
-using SixLabors.Fonts;
 using System.Globalization;
 using Aiursoft.Canon;
 using Aiursoft.CSTools.Tools;
@@ -53,7 +52,7 @@ namespace MoongladePure.Web
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(20);
                 options.Cookie.HttpOnly = true;
-            }).AddSessionBasedCaptcha(options => options.FontStyle = Edi.Captcha.CaptchaFontStyle.Bold);
+            }).AddSessionBasedCaptcha(options => options.FontStyle = CaptchaFontStyle.Bold);
 
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddControllers()
