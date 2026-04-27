@@ -6,6 +6,7 @@ namespace MoongladePure.Data.Entities;
 public class MenuEntity
 {
     public Guid Id { get; set; }
+    public Guid SiteId { get; set; } = SystemIds.DefaultSiteId;
 
     public string Title { get; set; }
 
@@ -17,6 +18,7 @@ public class MenuEntity
 
     public bool IsOpenInNewTab { get; set; }
 
+    public virtual SiteEntity Site { get; set; }
     public virtual ICollection<SubMenuEntity> SubMenus { get; set; } = new HashSet<SubMenuEntity>();
 }
 

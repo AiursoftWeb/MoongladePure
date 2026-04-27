@@ -6,10 +6,12 @@ namespace MoongladePure.Data.Entities;
 public class CategoryEntity
 {
     public Guid Id { get; set; }
+    public Guid SiteId { get; set; } = SystemIds.DefaultSiteId;
     public string RouteName { get; set; }
     public string DisplayName { get; set; }
     public string Note { get; set; }
 
+    public virtual SiteEntity Site { get; set; }
     public virtual ICollection<PostCategoryEntity> PostCategory { get; set; } = new HashSet<PostCategoryEntity>();
 }
 

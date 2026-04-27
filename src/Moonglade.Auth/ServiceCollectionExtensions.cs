@@ -108,7 +108,8 @@ public class OidcUserSyncCommandHandler(IRepository<LocalAccountEntity> repo)
     public async Task<Guid> Handle(OidcUserSyncCommand request, CancellationToken ct)
     {
         // OIDC用户我们以Username为唯一标识
-        var account = await repo.GetAsync(p => p.Username == request.Username);
+        var username = request.Username.ToLower().Trim();
+        var account = await repo.GetAsync(p => p.NormalizedUsername == username || p.Username == request.Username);
 
         if (account is not null)
         {
@@ -120,7 +121,8 @@ public class OidcUserSyncCommandHandler(IRepository<LocalAccountEntity> repo)
         var newAccount = new LocalAccountEntity
         {
             Id = Guid.NewGuid(),
-            Username = request.Username,
+            Username = username,
+            NormalizedUsername = username,
             CreateTimeUtc = DateTime.UtcNow,
             PasswordHash = "OIDC_USER",
             PasswordSalt = string.Empty

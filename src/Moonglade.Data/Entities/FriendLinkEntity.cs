@@ -6,10 +6,13 @@ namespace MoongladePure.Data.Entities;
 public class FriendLinkEntity
 {
     public Guid Id { get; set; }
+    public Guid SiteId { get; set; } = SystemIds.DefaultSiteId;
 
     public string Title { get; set; }
 
     public string LinkUrl { get; set; }
+
+    public virtual SiteEntity Site { get; set; }
 }
 
 internal class FriendLinkConfiguration : IEntityTypeConfiguration<FriendLinkEntity>

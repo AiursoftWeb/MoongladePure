@@ -39,11 +39,13 @@ public class CreateAccountCommandHandler(IRepository<LocalAccountEntity> repo) :
         var salt = Helper.GenerateSalt();
         var hash = Helper.HashPassword2(request.Password.Trim(), salt);
 
+        var username = request.Username.ToLower().Trim();
         var account = new LocalAccountEntity
         {
             Id = uid,
             CreateTimeUtc = DateTime.UtcNow,
-            Username = request.Username.ToLower().Trim(),
+            Username = username,
+            NormalizedUsername = username,
             PasswordSalt = salt,
             PasswordHash = hash
         };

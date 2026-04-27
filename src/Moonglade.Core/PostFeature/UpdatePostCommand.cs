@@ -11,6 +11,8 @@ public class UpdatePostCommandHandler(
     IRepository<PostTagEntity> ptRepository,
     IRepository<TagEntity> tagRepo,
     IRepository<PostEntity> postRepo,
+    IRepository<PostContentEntity> postContentRepo,
+    IRepository<PostRouteEntity> postRouteRepo,
     IBlogCache cache)
     : IRequestHandler<UpdatePostCommand, PostEntity>
 {
@@ -56,6 +58,8 @@ public class UpdatePostCommandHandler(
         var input = $"{post.Slug}#{post.PubDateUtc.GetValueOrDefault():yyyyMMdd}";
         var checkSum = Helper.ComputeCheckSum(input);
         post.HashCheckSum = checkSum;
+        await UpsertPostContent(post, ct);
+        await UpsertPostRoute(post, ct);
 
         // 1. Add new tags to tag lib
         var tags = string.IsNullOrWhiteSpace(postEditModel.Tags) ?
@@ -113,5 +117,62 @@ public class UpdatePostCommandHandler(
 
         cache.Remove(CacheDivision.Post, guid.ToString());
         return post;
+    }
+
+    private async Task UpsertPostContent(PostEntity post, CancellationToken ct)
+    {
+        var rawContent = await postContentRepo.GetAsync(p =>
+            p.PostId == post.Id &&
+            p.ContentKind == PostContentKind.RawMarkdown &&
+            p.IsOriginal);
+
+        if (rawContent is null)
+        {
+            await postContentRepo.AddAsync(new()
+            {
+                SiteId = post.SiteId,
+                PostId = post.Id,
+                CultureCode = post.ContentLanguageCode,
+                ContentKind = PostContentKind.RawMarkdown,
+                Body = post.RawContent,
+                IsOriginal = true,
+                UpdatedAtUtc = DateTime.UtcNow
+            }, ct);
+        }
+        else
+        {
+            rawContent.CultureCode = post.ContentLanguageCode;
+            rawContent.Body = post.RawContent;
+            rawContent.UpdatedAtUtc = DateTime.UtcNow;
+            await postContentRepo.UpdateAsync(rawContent, ct);
+        }
+    }
+
+    private async Task UpsertPostRoute(PostEntity post, CancellationToken ct)
+    {
+        if (!post.PubDateUtc.HasValue)
+        {
+            return;
+        }
+
+        var route = await postRouteRepo.GetAsync(p => p.PostId == post.Id && p.IsCanonical);
+        if (route is null)
+        {
+            await postRouteRepo.AddAsync(new()
+            {
+                SiteId = post.SiteId,
+                PostId = post.Id,
+                RouteDate = post.PubDateUtc.Value.Date,
+                Slug = post.Slug,
+                HashCheckSum = post.HashCheckSum,
+                IsCanonical = true
+            }, ct);
+            return;
+        }
+
+        route.RouteDate = post.PubDateUtc.Value.Date;
+        route.Slug = post.Slug;
+        route.HashCheckSum = post.HashCheckSum;
+        await postRouteRepo.UpdateAsync(route, ct);
     }
 }

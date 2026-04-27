@@ -4,6 +4,7 @@ namespace MoongladePure.Data.Entities;
 public class PageEntity
 {
     public Guid Id { get; set; }
+    public Guid SiteId { get; set; } = SystemIds.DefaultSiteId;
     public string Title { get; set; }
     public string Slug { get; set; }
     public string MetaDescription { get; set; }
@@ -13,4 +14,6 @@ public class PageEntity
     public bool IsPublished { get; set; }
     public DateTime CreateTimeUtc { get; set; }
     public DateTime? UpdateTimeUtc { get; set; }
+
+    public virtual SiteEntity Site { get; set; }
 }

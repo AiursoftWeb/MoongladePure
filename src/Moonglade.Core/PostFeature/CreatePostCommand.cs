@@ -71,6 +71,45 @@ public class CreatePostCommandHandler(
         var input = $"{post.Slug}#{post.PubDateUtc.GetValueOrDefault():yyyyMMdd}";
         var checkSum = Helper.ComputeCheckSum(input);
         post.HashCheckSum = checkSum;
+        post.Contents.Add(new()
+        {
+            SiteId = post.SiteId,
+            PostId = post.Id,
+            CultureCode = post.ContentLanguageCode,
+            ContentKind = PostContentKind.RawMarkdown,
+            Body = post.RawContent,
+            IsOriginal = true
+        });
+        post.Contents.Add(new()
+        {
+            SiteId = post.SiteId,
+            PostId = post.Id,
+            CultureCode = "zh-CN",
+            ContentKind = PostContentKind.Summary,
+            Abstract = post.ContentAbstractZh,
+            GeneratedBy = AiGeneratedBy.Ai
+        });
+        post.Contents.Add(new()
+        {
+            SiteId = post.SiteId,
+            PostId = post.Id,
+            CultureCode = "en-US",
+            ContentKind = PostContentKind.Summary,
+            Abstract = post.ContentAbstractEn,
+            GeneratedBy = AiGeneratedBy.Ai
+        });
+        if (post.PubDateUtc.HasValue)
+        {
+            post.Routes.Add(new()
+            {
+                SiteId = post.SiteId,
+                PostId = post.Id,
+                RouteDate = post.PubDateUtc.Value.Date,
+                Slug = post.Slug,
+                HashCheckSum = post.HashCheckSum,
+                IsCanonical = true
+            });
+        }
 
         // add categories
         if (request.Payload.SelectedCatIds is { Length: > 0 })

@@ -4,6 +4,7 @@
 public class PostEntity
 {
     public Guid Id { get; set; }
+    public Guid SiteId { get; set; } = SystemIds.DefaultSiteId;
     public string Title { get; set; }
     public string Slug { get; set; }
     public string Author { get; set; }
@@ -28,8 +29,11 @@ public class PostEntity
     public bool IsFeatured { get; set; }
     public int HashCheckSum { get; set; }
 
+    public virtual SiteEntity Site { get; set; }
     public virtual PostExtensionEntity PostExtension { get; set; }
     public virtual ICollection<CommentEntity> Comments { get; set; } = new HashSet<CommentEntity>();
     public virtual ICollection<PostCategoryEntity> PostCategory { get; set; } = new HashSet<PostCategoryEntity>();
     public virtual ICollection<TagEntity> Tags { get; set; } = new HashSet<TagEntity>();
+    public virtual ICollection<PostContentEntity> Contents { get; set; } = new HashSet<PostContentEntity>();
+    public virtual ICollection<PostRouteEntity> Routes { get; set; } = new HashSet<PostRouteEntity>();
 }

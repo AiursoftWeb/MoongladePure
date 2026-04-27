@@ -11,7 +11,8 @@ public class ValidateLoginCommandHandler(IRepository<LocalAccountEntity> repo)
 {
     public async Task<Guid> Handle(ValidateLoginCommand request, CancellationToken ct)
     {
-        var account = await repo.GetAsync(p => p.Username == request.Username);
+        var username = request.Username.ToLower().Trim();
+        var account = await repo.GetAsync(p => p.NormalizedUsername == username || p.Username == username);
         if (account is null) return Guid.Empty;
 
         var valid = account.PasswordHash == (string.IsNullOrWhiteSpace(account.PasswordSalt)
@@ -26,6 +27,7 @@ public class ValidateLoginCommandHandler(IRepository<LocalAccountEntity> repo)
 
             account.PasswordSalt = salt;
             account.PasswordHash = newHash;
+            account.NormalizedUsername = account.Username.ToLower().Trim();
 
             await repo.UpdateAsync(account, ct);
         }

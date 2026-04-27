@@ -15,12 +15,110 @@ namespace MoongladePure.Data.Sqlite.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.AiArtifactEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ArtifactType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CultureCode")
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("JobId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TargetEntityId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TargetEntityType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("SiteId", "TargetEntityType", "TargetEntityId", "ArtifactType");
+
+                    b.ToTable("AiArtifact", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.AiJobEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2048)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("FinishedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("JobType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Provider")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("RequestedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("StartedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("TargetEntityId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TargetEntityType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestedByUserId");
+
+                    b.HasIndex("SiteId", "Status", "JobType", "CreatedAtUtc");
+
+                    b.ToTable("AiJob", (string)null);
+                });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.BlogAssetEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Base64Data")
@@ -29,9 +127,14 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<DateTime>("LastModifiedTimeUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
-                    b.ToTable("BlogAsset");
+                    b.HasIndex("SiteId");
+
+                    b.ToTable("SiteBinaryAsset", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.BlogConfigurationEntity", b =>
@@ -41,6 +144,7 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("CfgKey")
+                        .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
@@ -50,9 +154,18 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<DateTime?>("LastModifiedTimeUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("SchemaVersion")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
-                    b.ToTable("BlogConfiguration");
+                    b.HasIndex("SiteId", "CfgKey")
+                        .IsUnique();
+
+                    b.ToTable("SiteSetting", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.BlogThemeEntity", b =>
@@ -67,7 +180,12 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<string>("CssRules")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ThemeName")
+                        .IsRequired()
+                        .HasMaxLength(32)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("ThemeType")
@@ -75,7 +193,10 @@ namespace MoongladePure.Data.Sqlite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BlogTheme");
+                    b.HasIndex("SiteId", "ThemeName")
+                        .IsUnique();
+
+                    b.ToTable("Theme", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.CategoryEntity", b =>
@@ -84,6 +205,7 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
@@ -92,30 +214,39 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("RouteName")
+                        .IsRequired()
                         .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category");
+                    b.HasIndex("SiteId", "RouteName")
+                        .IsUnique();
+
+                    b.ToTable("Category", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.CommentEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CommentContent")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateTimeUtc")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("IPAddress")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsApproved")
@@ -124,20 +255,28 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Username")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Comment");
+                    b.HasIndex("SiteId", "PostId", "CreateTimeUtc");
+
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.CommentReplyEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CommentId")
@@ -149,11 +288,19 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<string>("ReplyContent")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CommentId");
 
-                    b.ToTable("CommentReply");
+                    b.HasIndex("SiteId");
+
+                    b.ToTable("CommentReply", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.FriendLinkEntity", b =>
@@ -162,45 +309,171 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LinkUrl")
-                        .HasMaxLength(256)
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("FriendLink");
+                    b.HasIndex("SiteId");
+
+                    b.ToTable("FriendLink", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.LocalAccountEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateTimeUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("LastLoginIp")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("LastLoginTimeUtc")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedUsername")
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("PasswordHash")
+                        .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordSalt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(32)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("LocalAccount");
+                    b.HasIndex("NormalizedUsername")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.MediaAssetEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Bucket")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("MimeType")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OriginalFileName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("OwnerUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PublicUrl")
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId");
+
+                    b.HasIndex("SiteId", "ContentHash");
+
+                    b.ToTable("MediaAsset", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.MediaVariantEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("MediaAssetId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VariantName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MediaAssetId");
+
+                    b.ToTable("MediaVariant", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.MenuEntity", b =>
@@ -218,7 +491,11 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<bool>("IsOpenInNewTab")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
@@ -228,13 +505,14 @@ namespace MoongladePure.Data.Sqlite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Menu");
+                    b.HasIndex("SiteId", "DisplayOrder");
+
+                    b.ToTable("Menu", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PageEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateTimeUtc")
@@ -253,12 +531,20 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MetaDescription")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdateTimeUtc")
@@ -266,7 +552,10 @@ namespace MoongladePure.Data.Sqlite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CustomPage");
+                    b.HasIndex("SiteId", "Slug")
+                        .IsUnique();
+
+                    b.ToTable("Page", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostCategoryEntity", b =>
@@ -277,32 +566,89 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("PostId", "CategoryId");
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("PostCategory");
+                    b.HasIndex("SiteId");
+
+                    b.ToTable("PostCategory", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.PostContentEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Abstract")
+                        .HasMaxLength(2048)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Body")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ContentKind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CultureCode")
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("GeneratedBy")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("GenerationId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsOriginal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("SiteId", "PostId", "CultureCode", "ContentKind");
+
+                    b.ToTable("PostContent", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Author")
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("CommentEnabled")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ContentAbstractEn")
+                        .HasMaxLength(1024)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ContentAbstractZh")
+                        .HasMaxLength(1024)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ContentLanguageCode")
+                        .HasMaxLength(16)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateTimeUtc")
@@ -312,9 +658,11 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("HeroImageUrl")
+                        .HasMaxLength(512)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("InlineCss")
+                        .HasMaxLength(2048)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
@@ -345,6 +693,7 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("OriginLink")
+                        .HasMaxLength(512)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("PubDateUtc")
@@ -353,15 +702,26 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<string>("RawContent")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Post");
+                    b.HasIndex("SiteId", "IsFeatured", "PubDateUtc");
+
+                    b.HasIndex("SiteId", "IsDeleted", "IsPublished", "PubDateUtc");
+
+                    b.ToTable("Post", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostExtensionEntity", b =>
@@ -375,9 +735,54 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<int>("Likes")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("PostId");
 
-                    b.ToTable("PostExtension");
+                    b.HasIndex("SiteId");
+
+                    b.ToTable("PostMetric", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.PostRouteEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("HashCheckSum")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsCanonical")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("RouteDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("SiteId", "HashCheckSum");
+
+                    b.HasIndex("SiteId", "RouteDate", "Slug")
+                        .IsUnique();
+
+                    b.ToTable("PostRoute", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostTagEntity", b =>
@@ -388,11 +793,121 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<int>("TagId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("PostId", "TagId");
+
+                    b.HasIndex("SiteId");
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("PostTag");
+                    b.ToTable("PostTag", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.SiteDomainEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Host")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Host")
+                        .IsUnique();
+
+                    b.HasIndex("SiteId");
+
+                    b.ToTable("SiteDomain", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.SiteEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DefaultCulture")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Slug")
+                        .IsUnique();
+
+                    b.ToTable("Site", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.SiteMembershipEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("SiteId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("SiteMembership", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.SubMenuEntity", b =>
@@ -406,7 +921,11 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<Guid>("MenuId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
@@ -418,7 +937,9 @@ namespace MoongladePure.Data.Sqlite.Migrations
 
                     b.HasIndex("MenuId");
 
-                    b.ToTable("SubMenu");
+                    b.HasIndex("SiteId");
+
+                    b.ToTable("SubMenu", (string)null);
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.TagEntity", b =>
@@ -428,16 +949,124 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedName")
+                        .IsRequired()
                         .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SiteId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tag");
+                    b.HasIndex("SiteId", "NormalizedName")
+                        .IsUnique();
+
+                    b.ToTable("Tag", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.TenantEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tenant", (string)null);
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.AiArtifactEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.AiJobEntity", "Job")
+                        .WithMany("Artifacts")
+                        .HasForeignKey("JobId");
+
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.AiJobEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.LocalAccountEntity", "RequestedByUser")
+                        .WithMany()
+                        .HasForeignKey("RequestedByUserId");
+
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RequestedByUser");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.BlogAssetEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.BlogConfigurationEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.BlogThemeEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.CategoryEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.CommentEntity", b =>
@@ -448,7 +1077,15 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Post");
+
+                    b.Navigation("Site");
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.CommentReplyEntity", b =>
@@ -457,7 +1094,87 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .WithMany("Replies")
                         .HasForeignKey("CommentId");
 
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Comment");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.FriendLinkEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.LocalAccountEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.TenantEntity", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.MediaAssetEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.LocalAccountEntity", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId");
+
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OwnerUser");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.MediaVariantEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.MediaAssetEntity", "MediaAsset")
+                        .WithMany("Variants")
+                        .HasForeignKey("MediaAssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaAsset");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.MenuEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.PageEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostCategoryEntity", b =>
@@ -474,9 +1191,47 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Category");
 
                     b.Navigation("Post");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.PostContentEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.PostEntity", "Post")
+                        .WithMany("Contents")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.PostEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostExtensionEntity", b =>
@@ -487,7 +1242,34 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Post");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.PostRouteEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.PostEntity", "Post")
+                        .WithMany("Routes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Site");
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.PostTagEntity", b =>
@@ -495,6 +1277,12 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.HasOne("MoongladePure.Data.Entities.PostEntity", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -506,7 +1294,50 @@ namespace MoongladePure.Data.Sqlite.Migrations
 
                     b.Navigation("Post");
 
+                    b.Navigation("Site");
+
                     b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.SiteDomainEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany("Domains")
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.SiteEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.TenantEntity", "Tenant")
+                        .WithMany("Sites")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.SiteMembershipEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoongladePure.Data.Entities.LocalAccountEntity", "User")
+                        .WithMany("SiteMemberships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.SubMenuEntity", b =>
@@ -517,7 +1348,31 @@ namespace MoongladePure.Data.Sqlite.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Menu");
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.TagEntity", b =>
+                {
+                    b.HasOne("MoongladePure.Data.Entities.SiteEntity", "Site")
+                        .WithMany()
+                        .HasForeignKey("SiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Site");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.AiJobEntity", b =>
+                {
+                    b.Navigation("Artifacts");
                 });
 
             modelBuilder.Entity("MoongladePure.Data.Entities.CategoryEntity", b =>
@@ -530,6 +1385,16 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Navigation("Replies");
                 });
 
+            modelBuilder.Entity("MoongladePure.Data.Entities.LocalAccountEntity", b =>
+                {
+                    b.Navigation("SiteMemberships");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.MediaAssetEntity", b =>
+                {
+                    b.Navigation("Variants");
+                });
+
             modelBuilder.Entity("MoongladePure.Data.Entities.MenuEntity", b =>
                 {
                     b.Navigation("SubMenus");
@@ -539,9 +1404,23 @@ namespace MoongladePure.Data.Sqlite.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("Contents");
+
                     b.Navigation("PostCategory");
 
                     b.Navigation("PostExtension");
+
+                    b.Navigation("Routes");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.SiteEntity", b =>
+                {
+                    b.Navigation("Domains");
+                });
+
+            modelBuilder.Entity("MoongladePure.Data.Entities.TenantEntity", b =>
+                {
+                    b.Navigation("Sites");
                 });
 #pragma warning restore 612, 618
         }
