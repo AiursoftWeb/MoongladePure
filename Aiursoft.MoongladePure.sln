@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoongladePure.Data.Sqlite",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoongladePure.Data.InMemory", "src\Moonglade.Data.InMemory\MoongladePure.Data.InMemory.csproj", "{A2D884BC-B381-4F66-AE1A-5626ABD52203}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoongladePure.Migration", "src\Moonglade.Migration\MoongladePure.Migration.csproj", "{5038592B-201F-4C74-A374-F944146E9ED8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{A2D884BC-B381-4F66-AE1A-5626ABD52203}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2D884BC-B381-4F66-AE1A-5626ABD52203}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2D884BC-B381-4F66-AE1A-5626ABD52203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5038592B-201F-4C74-A374-F944146E9ED8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5038592B-201F-4C74-A374-F944146E9ED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5038592B-201F-4C74-A374-F944146E9ED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5038592B-201F-4C74-A374-F944146E9ED8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -143,6 +149,7 @@ Global
 		{F7FBB89C-6AF3-4DEC-9F8F-DE7785FA5077} = {9E479481-2D56-4C75-8825-E05DAFA1300A}
 		{245EFF1D-3C5C-4477-A498-E3C5FF7EEFFB} = {41072B8B-1052-4CC6-930F-83A5F8EA7482}
 		{A2D884BC-B381-4F66-AE1A-5626ABD52203} = {41072B8B-1052-4CC6-930F-83A5F8EA7482}
+		{5038592B-201F-4C74-A374-F944146E9ED8} = {41072B8B-1052-4CC6-930F-83A5F8EA7482}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EBD14882-9899-4C4B-B9BC-22C0B93BD559}
