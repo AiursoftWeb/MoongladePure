@@ -12,4 +12,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Moonglade.Data.Sqlite\MoongladePure.Data.Sqlite.csproj" />
+    <ProjectReference Include="..\Moonglade.Utils\MoongladePure.Utils.csproj" />
+  </ItemGroup>
 </Project>

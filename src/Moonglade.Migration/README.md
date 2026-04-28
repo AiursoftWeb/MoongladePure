@@ -1,0 +1,73 @@
+# MoongladePure Migration Tool
+
+`MoongladePure.Migration` is an independent console project for legacy database checks and migration.
+
+It is not a runtime dependency of `MoongladePure.Web`, and it is not a NuGet package. The project has `IsPackable=false`, so its intended output is a command-line executable that operators run during an upgrade.
+
+## Build Output
+
+The project target is `net10.0` and the assembly name is `MoongladePure.Migration`.
+
+After a normal debug build, the main output is:
+
+```bash
+src/Moonglade.Migration/bin/Debug/net10.0/MoongladePure.Migration.dll
+```
+
+Depending on the SDK and platform, .NET may also create a native apphost executable next to the dll.
+
+## Independent Build
+
+The tool can be built independently:
+
+```bash
+dotnet build src/Moonglade.Migration/MoongladePure.Migration.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+```
+
+It references the SQLite data provider and shared utility project:
+
+```text
+Moonglade.Data.Sqlite
+Moonglade.Utils
+```
+
+These references let the tool create the new code-first SQLite schema through EF Core migrations and reuse the same post route checksum logic as the web application.
+
+## Commands
+
+Run a read-only preflight check against a legacy SQLite database:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- preflight --source old.db
+```
+
+Write a JSON preflight report:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- preflight --source old.db --json report.json
+```
+
+Migrate a legacy SQLite database into a new MoongladePure2 SQLite database:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --target new.db
+```
+
+Overwrite an existing target database:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --target new.db --overwrite
+```
+
+## Current Scope
+
+The first migration version supports the core blog data path:
+
+- Tenant, site, admin account, and site membership
+- Blog settings, themes, and binary assets
+- Categories, tags, posts, post content, post routes, post metrics
+- Post-category and post-tag relationships
+- Comments and replies
+- Pages, menus, submenus, and friend links
+
+The migration is designed to be run before switching traffic to the new instance. It does not aim for zero-downtime migration.

@@ -28,17 +28,20 @@ internal static class Program
 
         try
         {
-            var report = LegacySqliteAnalyzer.Analyze(options.SourcePath);
-            LegacySqliteReportWriter.WriteText(report, Console.Out);
-
-            if (!string.IsNullOrWhiteSpace(options.JsonPath))
+            if (options.Command == MigrationCommand.Migrate)
             {
-                LegacySqliteReportWriter.WriteJson(report, options.JsonPath);
-                Console.Out.WriteLine();
-                Console.Out.WriteLine($"JSON report written to: {options.JsonPath}");
+                if (string.IsNullOrWhiteSpace(options.TargetPath))
+                {
+                    Console.Error.WriteLine("Missing required option for migrate: --target <path>");
+                    return 1;
+                }
+
+                var result = LegacySqliteMigrator.Migrate(options);
+                LegacySqliteMigrationReportWriter.WriteText(result, Console.Out);
+                return result.Errors.Count == 0 ? 0 : 3;
             }
 
-            return report.Errors.Count == 0 ? 0 : 3;
+            return RunPreflight(options);
         }
         catch (SqliteException ex)
         {
@@ -52,21 +55,51 @@ internal static class Program
         }
     }
 
+    private static int RunPreflight(MigrationOptions options)
+    {
+        var report = LegacySqliteAnalyzer.Analyze(options.SourcePath);
+        LegacySqliteReportWriter.WriteText(report, Console.Out);
+
+        if (!string.IsNullOrWhiteSpace(options.JsonPath))
+        {
+            LegacySqliteReportWriter.WriteJson(report, options.JsonPath);
+            Console.Out.WriteLine();
+            Console.Out.WriteLine($"JSON report written to: {options.JsonPath}");
+        }
+
+        return report.Errors.Count == 0 ? 0 : 3;
+    }
+
     private static void PrintHelp(TextWriter writer)
     {
-        writer.WriteLine("MoongladePure migration preflight for legacy SQLite databases.");
+        writer.WriteLine("MoongladePure migration tool for legacy SQLite databases.");
         writer.WriteLine();
         writer.WriteLine("Usage:");
-        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- --source <legacy.db> [--json <report.json>]");
+        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- preflight --source <legacy.db> [--json <report.json>]");
+        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- migrate --source <legacy.db> --target <new.db> [--overwrite]");
         writer.WriteLine();
         writer.WriteLine("Options:");
         writer.WriteLine("  --source <path>   Path to the legacy SQLite database.");
+        writer.WriteLine("  --target <path>   Path to the new SQLite database created by migrate.");
         writer.WriteLine("  --json <path>     Optional JSON report output path.");
+        writer.WriteLine("  --overwrite       Delete the target database first when it already exists.");
         writer.WriteLine("  --help            Show this help.");
     }
 }
 
-internal sealed record MigrationOptions(string SourcePath, string? JsonPath, bool ShowHelp)
+internal enum MigrationCommand
+{
+    Preflight = 0,
+    Migrate = 1
+}
+
+internal sealed record MigrationOptions(
+    MigrationCommand Command,
+    string SourcePath,
+    string? TargetPath,
+    string? JsonPath,
+    bool Overwrite,
+    bool ShowHelp)
 {
     public static MigrationOptions? Parse(string[] args, TextWriter errorWriter)
     {
@@ -76,19 +109,39 @@ internal sealed record MigrationOptions(string SourcePath, string? JsonPath, boo
         }
 
         string? sourcePath = null;
+        string? targetPath = null;
         string? jsonPath = null;
+        var overwrite = false;
+        var command = MigrationCommand.Preflight;
+        var startIndex = 0;
 
-        for (var i = 0; i < args.Length; i++)
+        if (args[0] is "preflight" or "migrate")
+        {
+            command = args[0] == "migrate" ? MigrationCommand.Migrate : MigrationCommand.Preflight;
+            startIndex = 1;
+        }
+
+        for (var i = startIndex; i < args.Length; i++)
         {
             var arg = args[i];
             if (arg is "--help" or "-h")
             {
-                return new MigrationOptions(string.Empty, null, true);
+                return new MigrationOptions(command, string.Empty, null, null, false, true);
             }
 
             if (arg is "--source" or "-s")
             {
                 if (!TryReadValue(args, ref i, arg, errorWriter, out sourcePath))
+                {
+                    return null;
+                }
+
+                continue;
+            }
+
+            if (arg is "--target" or "-t")
+            {
+                if (!TryReadValue(args, ref i, arg, errorWriter, out targetPath))
                 {
                     return null;
                 }
@@ -106,6 +159,12 @@ internal sealed record MigrationOptions(string SourcePath, string? JsonPath, boo
                 continue;
             }
 
+            if (arg == "--overwrite")
+            {
+                overwrite = true;
+                continue;
+            }
+
             errorWriter.WriteLine($"Unknown option: {arg}");
             return null;
         }
@@ -116,7 +175,13 @@ internal sealed record MigrationOptions(string SourcePath, string? JsonPath, boo
             return null;
         }
 
-        return new MigrationOptions(Path.GetFullPath(sourcePath), string.IsNullOrWhiteSpace(jsonPath) ? null : Path.GetFullPath(jsonPath), false);
+        return new MigrationOptions(
+            command,
+            Path.GetFullPath(sourcePath),
+            string.IsNullOrWhiteSpace(targetPath) ? null : Path.GetFullPath(targetPath),
+            string.IsNullOrWhiteSpace(jsonPath) ? null : Path.GetFullPath(jsonPath),
+            overwrite,
+            false);
     }
 
     private static bool TryReadValue(string[] args, ref int index, string optionName, TextWriter errorWriter, out string? value)
