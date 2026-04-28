@@ -11,7 +11,7 @@ MoongladePure is an open source blog system.
 
 ![overview](./screenshot.png)
 
-Default username is `admin` and default password is `admin123`.
+Default username is `admin` and default password is `Admin@123456!`.
 
 ## Try
 
