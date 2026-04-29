@@ -5,7 +5,7 @@ namespace MoongladePure.Migration;
 
 internal static class Program
 {
-    private static int Main(string[] args)
+    internal static int Main(string[] args)
     {
         var options = MigrationOptions.Parse(args, Console.Error);
         if (options is null)
@@ -57,6 +57,14 @@ internal static class Program
 
                 var result = LegacySqliteMigrator.Migrate(options);
                 LegacySqliteMigrationReportWriter.WriteText(result, Console.Out);
+
+                if (!string.IsNullOrWhiteSpace(options.JsonPath))
+                {
+                    LegacySqliteMigrationReportWriter.WriteJson(result, options.JsonPath);
+                    Console.Out.WriteLine();
+                    Console.Out.WriteLine($"JSON report written to: {options.JsonPath}");
+                }
+
                 return result.Errors.Count == 0 ? 0 : 3;
             }
 
@@ -110,7 +118,7 @@ internal static class Program
         writer.WriteLine();
         writer.WriteLine("Usage:");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- preflight --source <legacy.db> [--json <report.json>]");
-        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- migrate --source <legacy.db> --target <new.db> [--overwrite]");
+        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- migrate --source <legacy.db> --target <new.db> [--overwrite] [--json <report.json>]");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- validate --target <new.db> [--json <report.json>]");
         writer.WriteLine();
         writer.WriteLine("Options:");

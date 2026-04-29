@@ -731,6 +731,11 @@ internal sealed class LegacySqliteMigrationResult(string sourcePath, string targ
 
 internal static class LegacySqliteMigrationReportWriter
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = true
+    };
+
     public static void WriteText(LegacySqliteMigrationResult result, TextWriter writer)
     {
         writer.WriteLine("MoongladePure legacy SQLite migration report");
@@ -771,5 +776,16 @@ internal static class LegacySqliteMigrationReportWriter
         {
             writer.WriteLine($"  [{error.Code}] {error.Message}");
         }
+    }
+
+    public static void WriteJson(LegacySqliteMigrationResult result, string jsonPath)
+    {
+        var directory = Path.GetDirectoryName(jsonPath);
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        File.WriteAllText(jsonPath, JsonSerializer.Serialize(result, JsonOptions));
     }
 }

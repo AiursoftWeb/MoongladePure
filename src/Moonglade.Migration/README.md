@@ -53,6 +53,12 @@ Migrate a legacy SQLite database into a new MoongladePure2 SQLite database:
 dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --target new.db
 ```
 
+Write a JSON migration report:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --target new.db --json migration-report.json
+```
+
 Overwrite an existing target database:
 
 ```bash

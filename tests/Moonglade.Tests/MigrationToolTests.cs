@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using MoongladePure.Migration;
 
@@ -45,6 +46,44 @@ public class MigrationToolTests
         Assert.AreEqual(1, validationReport.TableRows["PostRoute"]);
         Assert.AreEqual(1, validationReport.TableRows["User"]);
         Assert.AreEqual(1, validationReport.TableRows["SiteMembership"]);
+    }
+
+    [TestMethod]
+    public void MigrateCommandWritesJsonReport()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        var jsonPath = Path.Combine(Path.GetDirectoryName(fixture.TargetPath)!, "migration-report.json");
+        var originalOut = Console.Out;
+
+        try
+        {
+            using var output = new StringWriter();
+            Console.SetOut(output);
+
+            var exitCode = Program.Main([
+                "migrate",
+                "--source",
+                fixture.SourcePath,
+                "--target",
+                fixture.TargetPath,
+                "--json",
+                jsonPath
+            ]);
+
+            Assert.AreEqual(0, exitCode);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+
+        using var json = JsonDocument.Parse(File.ReadAllText(jsonPath));
+        var root = json.RootElement;
+
+        Assert.AreEqual(fixture.SourcePath, root.GetProperty("sourcePath").GetString());
+        Assert.AreEqual(fixture.TargetPath, root.GetProperty("targetPath").GetString());
+        Assert.AreEqual(1, root.GetProperty("migratedRows").GetProperty("Post").GetInt32());
+        Assert.AreEqual(1, root.GetProperty("migratedRows").GetProperty("LocalAccount").GetInt32());
     }
 
     [TestMethod]
