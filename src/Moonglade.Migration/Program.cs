@@ -309,6 +309,7 @@ internal static class LegacySqliteAnalyzer
         warnings.AddRange(DetectRequiredValueIssues(connection, tableSet));
         warnings.AddRange(DetectRelationshipIssues(connection, tableSet));
         warnings.AddRange(DetectMissingSettings(connection, tableSet));
+        warnings.AddRange(DetectInvalidSettingJson(connection, tableSet));
 
         return new LegacySqliteReport(
             sourcePath,
@@ -445,6 +446,23 @@ internal static class LegacySqliteAnalyzer
         }
 
         return warnings;
+    }
+
+    private static IReadOnlyList<LegacyIssue> DetectInvalidSettingJson(SqliteConnection connection, HashSet<string> tableSet)
+    {
+        if (!HasColumns(connection, tableSet, "BlogConfiguration", ["CfgKey", "CfgValue"]))
+        {
+            return [];
+        }
+
+        return DetectInvalidJsonRows(
+            connection,
+            "BlogConfiguration",
+            "CfgKey",
+            "CfgValue",
+            "BlogConfigurationJsonInvalid",
+            "Blog configuration JSON is invalid",
+            "Warning");
     }
 
     private static string? DetectLatestMigration(SqliteConnection connection, HashSet<string> tableSet)
@@ -611,6 +629,55 @@ internal static class LegacySqliteAnalyzer
         return rows;
     }
 
+    internal static IReadOnlyList<LegacyIssue> DetectInvalidJsonRows(
+        SqliteConnection connection,
+        string tableName,
+        string keyColumnName,
+        string jsonColumnName,
+        string code,
+        string message,
+        string severity)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            $"SELECT {QuoteIdentifier(keyColumnName)}, {QuoteIdentifier(jsonColumnName)} " +
+            $"FROM {QuoteIdentifier(tableName)} " +
+            $"WHERE {QuoteIdentifier(jsonColumnName)} IS NOT NULL " +
+            $"AND TRIM(CAST({QuoteIdentifier(jsonColumnName)} AS TEXT)) <> '';";
+        using var reader = command.ExecuteReader();
+        var issues = new List<LegacyIssue>();
+
+        while (reader.Read())
+        {
+            var key = Convert.ToString(reader.GetValue(0)) ?? "(unknown)";
+            var json = Convert.ToString(reader.GetValue(1));
+            if (!IsValidJson(json))
+            {
+                issues.Add(new LegacyIssue(code, $"{message}: {key}", severity));
+            }
+        }
+
+        return issues;
+    }
+
+    private static bool IsValidJson(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return true;
+        }
+
+        try
+        {
+            using var _ = JsonDocument.Parse(json);
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     private static string QuoteIdentifier(string identifier)
     {
         return $"\"{identifier.Replace("\"", "\"\"")}\"";
@@ -672,6 +739,7 @@ internal static class TargetSqliteValidator
         AddRelationshipErrors(connection, tableSet, errors);
         AddPostShapeErrors(connection, tableSet, errors);
         AddLegacyPostRouteErrors(connection, tableSet, sourcePath, errors);
+        AddSiteSettingJsonErrors(connection, tableSet, errors);
         AddSourceTargetCountErrors(comparisons, errors);
 
         return new TargetSqliteValidationReport(
@@ -880,6 +948,23 @@ internal static class TargetSqliteValidator
                     "Error"));
             }
         }
+    }
+
+    private static void AddSiteSettingJsonErrors(SqliteConnection connection, HashSet<string> tableSet, List<LegacyIssue> errors)
+    {
+        if (!HasColumns(connection, tableSet, "SiteSetting", ["CfgKey", "CfgValue"]))
+        {
+            return;
+        }
+
+        errors.AddRange(LegacySqliteAnalyzer.DetectInvalidJsonRows(
+            connection,
+            "SiteSetting",
+            "CfgKey",
+            "CfgValue",
+            "SiteSettingJsonInvalid",
+            "Site setting JSON is invalid",
+            "Error"));
     }
 
     private static HashSet<PostRouteKey> LoadRoutes(SqliteConnection connection, string tableName, string routeDateColumn, string slugColumn)

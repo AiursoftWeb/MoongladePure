@@ -22,6 +22,17 @@ public class MigrationToolTests
     }
 
     [TestMethod]
+    public void AnalyzeLegacyDatabaseReportsInvalidConfigurationJson()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        fixture.ExecuteSource("UPDATE \"BlogConfiguration\" SET \"CfgValue\" = '{bad-json' WHERE \"CfgKey\" = 'GeneralSettings';");
+
+        var report = LegacySqliteAnalyzer.Analyze(fixture.SourcePath);
+
+        Assert.IsTrue(report.Warnings.Any(w => w.Code == "BlogConfigurationJsonInvalid"));
+    }
+
+    [TestMethod]
     public void MigrateLegacyDatabaseProducesValidTargetDatabase()
     {
         using var fixture = LegacyDatabaseFixture.Create();
@@ -140,6 +151,25 @@ public class MigrationToolTests
         Assert.IsFalse(validationReport.Errors.Any(e => e.Code == "SourceTargetCountMismatch"));
     }
 
+    [TestMethod]
+    public void ValidateTargetDatabaseReportsInvalidSiteSettingJson()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        var migrateOptions = new MigrationOptions(
+            MigrationCommand.Migrate,
+            fixture.SourcePath,
+            fixture.TargetPath,
+            null,
+            false,
+            false);
+        LegacySqliteMigrator.Migrate(migrateOptions);
+        fixture.ExecuteTarget("UPDATE \"SiteSetting\" SET \"CfgValue\" = '{bad-json' WHERE \"CfgKey\" = 'GeneralSettings';");
+
+        var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
+
+        Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "SiteSettingJsonInvalid"));
+    }
+
     private sealed class LegacyDatabaseFixture : IDisposable
     {
         private readonly string _directory;
@@ -182,6 +212,13 @@ public class MigrationToolTests
         public void ExecuteTarget(string sql)
         {
             using var connection = new SqliteConnection($"Data Source={TargetPath}");
+            connection.Open();
+            Execute(connection, sql);
+        }
+
+        public void ExecuteSource(string sql)
+        {
+            using var connection = new SqliteConnection($"Data Source={SourcePath}");
             connection.Open();
             Execute(connection, sql);
         }
