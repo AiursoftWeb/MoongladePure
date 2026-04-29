@@ -33,6 +33,12 @@ internal static class Program
                 Console.Error.WriteLine($"Target database does not exist: {options.TargetPath}");
                 return 2;
             }
+
+            if (!string.IsNullOrWhiteSpace(options.SourcePath) && !File.Exists(options.SourcePath))
+            {
+                Console.Error.WriteLine($"Source database does not exist: {options.SourcePath}");
+                return 2;
+            }
         }
         else if (!File.Exists(options.SourcePath))
         {
@@ -99,7 +105,9 @@ internal static class Program
 
     private static int RunValidate(MigrationOptions options)
     {
-        var report = TargetSqliteValidator.Validate(options.TargetPath!);
+        var report = string.IsNullOrWhiteSpace(options.SourcePath)
+            ? TargetSqliteValidator.Validate(options.TargetPath!)
+            : TargetSqliteValidator.Validate(options.TargetPath!, options.SourcePath);
         TargetSqliteValidationReportWriter.WriteText(report, Console.Out);
 
         if (!string.IsNullOrWhiteSpace(options.JsonPath))
@@ -119,7 +127,7 @@ internal static class Program
         writer.WriteLine("Usage:");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- preflight --source <legacy.db> [--json <report.json>]");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- migrate --source <legacy.db> --target <new.db> [--overwrite] [--json <report.json>]");
-        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- validate --target <new.db> [--json <report.json>]");
+        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- validate --target <new.db> [--source <legacy.db>] [--json <report.json>]");
         writer.WriteLine();
         writer.WriteLine("Options:");
         writer.WriteLine("  --source <path>   Path to the legacy SQLite database.");
@@ -645,9 +653,15 @@ internal static class TargetSqliteValidator
 
     public static TargetSqliteValidationReport Validate(string targetPath)
     {
+        return Validate(targetPath, null);
+    }
+
+    public static TargetSqliteValidationReport Validate(string targetPath, string? sourcePath)
+    {
         using var connection = OpenReadOnlyConnection(targetPath);
         var tableSet = LoadTables(connection).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var tableRows = CountExpectedRows(connection, tableSet);
+        var sourceRows = string.IsNullOrWhiteSpace(sourcePath) ? null : CountLegacyRows(sourcePath);
         var warnings = new List<LegacyIssue>();
         var errors = new List<LegacyIssue>();
 
@@ -656,10 +670,13 @@ internal static class TargetSqliteValidator
         AddForeignKeyErrors(connection, errors);
         AddRelationshipErrors(connection, tableSet, errors);
         AddPostShapeErrors(connection, tableSet, errors);
+        AddSourceTargetCountErrors(sourceRows, tableRows, errors);
 
         return new TargetSqliteValidationReport(
+            sourcePath,
             targetPath,
             DateTimeOffset.UtcNow,
+            sourceRows ?? new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase),
             tableRows,
             warnings,
             errors);
@@ -703,6 +720,46 @@ internal static class TargetSqliteValidator
             {
                 rows[tableName] = CountRows(connection, tableName);
             }
+        }
+
+        return rows;
+    }
+
+    private static Dictionary<string, long> CountLegacyRows(string sourcePath)
+    {
+        using var connection = OpenReadOnlyConnection(sourcePath);
+        var tableSet = LoadTables(connection).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var rows = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var tableName in new[]
+                 {
+                     "BlogAsset",
+                     "BlogConfiguration",
+                     "BlogTheme",
+                     "Category",
+                     "Comment",
+                     "CommentReply",
+                     "CustomPage",
+                     "FriendLink",
+                     "LocalAccount",
+                     "Menu",
+                     "Post",
+                     "PostCategory",
+                     "PostExtension",
+                     "PostTag",
+                     "SubMenu",
+                     "Tag"
+                 })
+        {
+            if (tableSet.Contains(tableName))
+            {
+                rows[tableName] = CountRows(connection, tableName);
+            }
+        }
+
+        if (tableSet.Contains("Post") && HasColumns(connection, tableSet, "Post", ["PubDateUtc"]))
+        {
+            rows["PublishedPostWithRoute"] = ExecuteScalarLong(connection, "SELECT COUNT(*) FROM \"Post\" WHERE \"PubDateUtc\" IS NOT NULL;");
         }
 
         return rows;
@@ -793,6 +850,51 @@ internal static class TargetSqliteValidator
             "PublishedPostWithoutRoute",
             "Published post is missing a route",
             "SELECT COUNT(*) FROM \"Post\" p LEFT JOIN \"PostRoute\" pr ON p.\"Id\" = pr.\"PostId\" WHERE p.\"PubDateUtc\" IS NOT NULL AND pr.\"PostId\" IS NULL;");
+    }
+
+    private static void AddSourceTargetCountErrors(Dictionary<string, long>? sourceRows, Dictionary<string, long> targetRows, List<LegacyIssue> errors)
+    {
+        if (sourceRows is null)
+        {
+            return;
+        }
+
+        AddCountMismatchError(sourceRows, targetRows, errors, "LocalAccount", "User");
+        AddCountMismatchError(sourceRows, targetRows, errors, "Category", "Category");
+        AddCountMismatchError(sourceRows, targetRows, errors, "Tag", "Tag");
+        AddCountMismatchError(sourceRows, targetRows, errors, "BlogConfiguration", "SiteSetting");
+        AddCountMismatchError(sourceRows, targetRows, errors, "BlogTheme", "Theme");
+        AddCountMismatchError(sourceRows, targetRows, errors, "BlogAsset", "SiteBinaryAsset");
+        AddCountMismatchError(sourceRows, targetRows, errors, "FriendLink", "FriendLink");
+        AddCountMismatchError(sourceRows, targetRows, errors, "Menu", "Menu");
+        AddCountMismatchError(sourceRows, targetRows, errors, "SubMenu", "SubMenu");
+        AddCountMismatchError(sourceRows, targetRows, errors, "CustomPage", "Page");
+        AddCountMismatchError(sourceRows, targetRows, errors, "Post", "Post");
+        AddCountMismatchError(sourceRows, targetRows, errors, "Post", "PostContent");
+        AddCountMismatchError(sourceRows, targetRows, errors, "PublishedPostWithRoute", "PostRoute");
+        AddCountMismatchError(sourceRows, targetRows, errors, "PostExtension", "PostMetric");
+        AddCountMismatchError(sourceRows, targetRows, errors, "PostCategory", "PostCategory");
+        AddCountMismatchError(sourceRows, targetRows, errors, "PostTag", "PostTag");
+        AddCountMismatchError(sourceRows, targetRows, errors, "Comment", "Comment");
+        AddCountMismatchError(sourceRows, targetRows, errors, "CommentReply", "CommentReply");
+    }
+
+    private static void AddCountMismatchError(
+        Dictionary<string, long> sourceRows,
+        Dictionary<string, long> targetRows,
+        List<LegacyIssue> errors,
+        string sourceName,
+        string targetName)
+    {
+        if (!sourceRows.TryGetValue(sourceName, out var sourceCount) || !targetRows.TryGetValue(targetName, out var targetCount) || sourceCount == targetCount)
+        {
+            return;
+        }
+
+        errors.Add(new LegacyIssue(
+            "SourceTargetCountMismatch",
+            $"Source {sourceName} has {sourceCount} rows, but target {targetName} has {targetCount} rows.",
+            "Error"));
     }
 
     private static void AddOrphanError(
@@ -897,8 +999,25 @@ internal static class TargetSqliteValidationReportWriter
     public static void WriteText(TargetSqliteValidationReport report, TextWriter writer)
     {
         writer.WriteLine("MoongladePure target SQLite validation report");
+        if (!string.IsNullOrWhiteSpace(report.SourcePath))
+        {
+            writer.WriteLine($"Source: {report.SourcePath}");
+        }
+
         writer.WriteLine($"Target: {report.TargetPath}");
         writer.WriteLine($"Generated UTC: {report.GeneratedAtUtc:O}");
+
+        if (report.SourceRows.Count > 0)
+        {
+            writer.WriteLine();
+            writer.WriteLine("Source rows:");
+
+            foreach (var item in report.SourceRows.OrderBy(static item => item.Key))
+            {
+                writer.WriteLine($"  {item.Key}: {item.Value}");
+            }
+        }
+
         writer.WriteLine();
         writer.WriteLine("Target rows:");
 
@@ -937,8 +1056,10 @@ internal static class TargetSqliteValidationReportWriter
 }
 
 internal sealed record TargetSqliteValidationReport(
+    string? SourcePath,
     string TargetPath,
     DateTimeOffset GeneratedAtUtc,
+    IReadOnlyDictionary<string, long> SourceRows,
     IReadOnlyDictionary<string, long> TableRows,
     IReadOnlyList<LegacyIssue> Warnings,
     IReadOnlyList<LegacyIssue> Errors);

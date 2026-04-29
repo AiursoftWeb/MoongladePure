@@ -35,12 +35,14 @@ public class MigrationToolTests
             false);
 
         var migrationResult = LegacySqliteMigrator.Migrate(migrateOptions);
-        var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath);
+        var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
 
         Assert.HasCount(0, migrationResult.Errors);
         Assert.AreEqual(1, migrationResult.MigratedRows["Post"]);
         Assert.AreEqual(1, migrationResult.MigratedRows["LocalAccount"]);
         Assert.HasCount(0, validationReport.Errors);
+        Assert.AreEqual(1, validationReport.SourceRows["Post"]);
+        Assert.AreEqual(1, validationReport.SourceRows["LocalAccount"]);
         Assert.AreEqual(1, validationReport.TableRows["Post"]);
         Assert.AreEqual(1, validationReport.TableRows["PostContent"]);
         Assert.AreEqual(1, validationReport.TableRows["PostRoute"]);
@@ -96,6 +98,25 @@ public class MigrationToolTests
         Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "TargetTableMissing"));
     }
 
+    [TestMethod]
+    public void ValidateTargetDatabaseWithSourceReportsCountMismatch()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        var migrateOptions = new MigrationOptions(
+            MigrationCommand.Migrate,
+            fixture.SourcePath,
+            fixture.TargetPath,
+            null,
+            false,
+            false);
+        LegacySqliteMigrator.Migrate(migrateOptions);
+        fixture.ExecuteTarget("DELETE FROM \"PostRoute\";");
+
+        var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
+
+        Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "SourceTargetCountMismatch"));
+    }
+
     private sealed class LegacyDatabaseFixture : IDisposable
     {
         private readonly string _directory;
@@ -133,6 +154,13 @@ public class MigrationToolTests
             {
                 Directory.Delete(_directory, true);
             }
+        }
+
+        public void ExecuteTarget(string sql)
+        {
+            using var connection = new SqliteConnection($"Data Source={TargetPath}");
+            connection.Open();
+            Execute(connection, sql);
         }
 
         private static void CreateSchema(SqliteConnection connection)
