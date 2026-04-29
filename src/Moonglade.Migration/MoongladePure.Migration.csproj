@@ -13,6 +13,11 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
   </ItemGroup>
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>MoongladePure.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Moonglade.Data.Sqlite\MoongladePure.Data.Sqlite.csproj" />
     <ProjectReference Include="..\Moonglade.Utils\MoongladePure.Utils.csproj" />
   </ItemGroup>

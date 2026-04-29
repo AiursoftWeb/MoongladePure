@@ -17,6 +17,7 @@
     <PackageReference Include="MSTest.TestAdapter" Version="4.2.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Moonglade.Migration\MoongladePure.Migration.csproj" />
     <ProjectReference Include="..\..\src\Moonglade.Web\MoongladePure.Web.csproj" />
   </ItemGroup>
   <ItemGroup>
