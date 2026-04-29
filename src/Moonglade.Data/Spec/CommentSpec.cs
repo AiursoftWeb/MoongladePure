@@ -5,7 +5,7 @@ namespace MoongladePure.Data.Spec;
 
 public sealed class CommentSpec : BaseSpecification<CommentEntity>
 {
-    public CommentSpec(int pageSize, int pageIndex) : base(c => true)
+    public CommentSpec(int pageSize, int pageIndex) : base(c => c.SiteId == SystemIds.DefaultSiteId)
     {
         var startRow = (pageIndex - 1) * pageSize;
 
@@ -16,12 +16,13 @@ public sealed class CommentSpec : BaseSpecification<CommentEntity>
         ApplyPaging(startRow, pageSize);
     }
 
-    public CommentSpec(Guid[] ids) : base(c => EF.Constant(ids).Contains(c.Id))
+    public CommentSpec(Guid[] ids) : base(c => c.SiteId == SystemIds.DefaultSiteId && EF.Constant(ids).Contains(c.Id))
     {
 
     }
 
-    public CommentSpec(Guid postId) : base(c => c.PostId == postId &&
+    public CommentSpec(Guid postId) : base(c => c.SiteId == SystemIds.DefaultSiteId &&
+                                                c.PostId == postId &&
                                                 c.IsApproved)
     {
         AddInclude(comments => comments.Include(c => c.Replies));

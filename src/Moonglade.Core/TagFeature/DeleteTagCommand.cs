@@ -10,7 +10,7 @@ public class DeleteTagCommandHandler(IRepository<TagEntity> tagRepo, IRepository
 {
     public async Task<OperationCode> Handle(DeleteTagCommand request, CancellationToken ct)
     {
-        var exists = await tagRepo.AnyAsync(c => c.Id == request.Id, ct);
+        var exists = await tagRepo.AnyAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.Id == request.Id, ct);
         if (!exists) return OperationCode.ObjectNotFound;
 
         // 1. Delete Post-Tag Association

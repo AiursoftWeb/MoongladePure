@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using Microsoft.EntityFrameworkCore;
 using MoongladePure.Data.Infrastructure;
 using System.Globalization;
 using System.Linq.Expressions;
@@ -9,9 +10,15 @@ public class CSVExporter<T>(IRepository<T> repository, string fileNamePrefix, st
     : IExporter<T>
     where T : class
 {
-    public async Task<ExportResult> ExportData<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct)
+    public async Task<ExportResult> ExportData<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct, Expression<Func<T, bool>> filter = null)
     {
-        var data = await repository.SelectAsync(selector, ct);
+        var query = repository.AsQueryable();
+        if (filter is not null)
+        {
+            query = query.Where(filter);
+        }
+
+        var data = await query.Select(selector).ToListAsync(ct);
         var result = await ToCSVResult(data, ct);
         return result;
     }

@@ -19,6 +19,6 @@ public class ExportCategoryDataCommandHandler(IRepository<CategoryEntity> repo)
             p.DisplayName,
             p.RouteName,
             p.Note
-        }, ct);
+        }, ct, p => p.SiteId == SystemIds.DefaultSiteId);
     }
 }

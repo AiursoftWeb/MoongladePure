@@ -11,7 +11,7 @@ public class GetStyleSheetQueryHandler(IRepository<BlogThemeEntity> repo) : IReq
 {
     public async Task<string> Handle(GetStyleSheetQuery request, CancellationToken ct)
     {
-        var theme = await repo.GetAsync(request.Id, ct);
+        var theme = await repo.GetAsync(t => (t.SiteId == null || t.SiteId == SystemIds.DefaultSiteId) && t.Id == request.Id);
         if (null == theme) return null;
 
         if (string.IsNullOrWhiteSpace(theme.CssRules))

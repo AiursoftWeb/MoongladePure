@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using MoongladePure.Data.Entities;
 using MoongladePure.Data.Infrastructure;
 
@@ -9,13 +10,16 @@ public record GetAllLinksQuery : IRequest<IReadOnlyList<Link>>;
 public class GetAllLinksQueryHandler(IRepository<FriendLinkEntity> repo)
     : IRequestHandler<GetAllLinksQuery, IReadOnlyList<Link>>
 {
-    public Task<IReadOnlyList<Link>> Handle(GetAllLinksQuery request, CancellationToken ct)
+    public async Task<IReadOnlyList<Link>> Handle(GetAllLinksQuery request, CancellationToken ct)
     {
-        return repo.SelectAsync(f => new Link
-        {
-            Id = f.Id,
-            LinkUrl = f.LinkUrl,
-            Title = f.Title
-        }, ct);
+        return await repo.AsQueryable()
+            .Where(f => f.SiteId == SystemIds.DefaultSiteId)
+            .Select(f => new Link
+            {
+                Id = f.Id,
+                LinkUrl = f.LinkUrl,
+                Title = f.Title
+            })
+            .ToListAsync(ct);
     }
 }

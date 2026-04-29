@@ -11,7 +11,7 @@ public class UpdateMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHa
 {
     public async Task Handle(UpdateMenuCommand request, CancellationToken ct)
     {
-        var menu = await repo.GetAsync(request.Payload.Id, ct);
+        var menu = await repo.GetAsync(m => m.SiteId == SystemIds.DefaultSiteId && m.Id == request.Payload.Id);
         if (menu is null)
         {
             throw new InvalidOperationException($"MenuEntity with Id '{request.Payload.Id}' not found.");
@@ -31,6 +31,7 @@ public class UpdateMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHa
             var sms = request.Payload.SubMenus.Select(p => new SubMenuEntity
             {
                 Id = Guid.NewGuid(),
+                SiteId = menu.SiteId,
                 IsOpenInNewTab = p.IsOpenInNewTab,
                 Title = p.Title,
                 Url = p.Url,

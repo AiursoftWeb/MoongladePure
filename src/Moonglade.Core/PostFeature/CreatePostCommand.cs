@@ -55,6 +55,7 @@ public class CreatePostCommandHandler(
         // If it strictly requires ISpecification, you will need to create a new PostDateRangeSpec
         var slugToCheck = post.Slug;
         var isDuplicate = await postRepo.AnyAsync(p =>
+            p.SiteId == post.SiteId &&
             p.Slug == slugToCheck &&
             p.PubDateUtc >= todayUtc &&
             p.PubDateUtc < tomorrowUtc, ct);
@@ -118,6 +119,7 @@ public class CreatePostCommandHandler(
             {
                 post.PostCategory.Add(new()
                 {
+                    SiteId = post.SiteId,
                     CategoryId = id,
                     PostId = post.Id
                 });
@@ -135,7 +137,7 @@ public class CreatePostCommandHandler(
             {
                 if (!Tag.ValidateName(item)) continue;
 
-                var tag = await tagRepo.GetAsync(q => q.DisplayName == item) ?? await CreateTag(item);
+                var tag = await tagRepo.GetAsync(q => q.SiteId == post.SiteId && q.DisplayName == item) ?? await CreateTag(item, post.SiteId);
                 post.Tags.Add(tag);
             }
         }
@@ -145,10 +147,11 @@ public class CreatePostCommandHandler(
         return post;
     }
 
-    private async Task<TagEntity> CreateTag(string item)
+    private async Task<TagEntity> CreateTag(string item, Guid siteId)
     {
         var newTag = new TagEntity
         {
+            SiteId = siteId,
             DisplayName = item,
             NormalizedName = Tag.NormalizeName(item, Helper.TagNormalizationDictionary)
         };

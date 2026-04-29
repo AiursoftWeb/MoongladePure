@@ -6,7 +6,7 @@ public class GetPageByIdQueryHandler(IRepository<PageEntity> repo) : IRequestHan
 {
     public async Task<BlogPage> Handle(GetPageByIdQuery request, CancellationToken ct)
     {
-        var entity = await repo.GetAsync(request.Id, ct);
+        var entity = await repo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Id == request.Id);
         if (entity == null) return null;
 
         var item = new BlogPage(entity);

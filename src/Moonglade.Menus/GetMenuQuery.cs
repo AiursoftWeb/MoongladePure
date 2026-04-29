@@ -10,7 +10,7 @@ public class GetMenuQueryHandler(IRepository<MenuEntity> repo) : IRequestHandler
 {
     public async Task<Menu> Handle(GetMenuQuery request, CancellationToken ct)
     {
-        var entity = await repo.GetAsync(request.Id, ct);
+        var entity = await repo.GetAsync(m => m.SiteId == SystemIds.DefaultSiteId && m.Id == request.Id);
         if (null == entity) return null;
 
         var item = new Menu(entity);

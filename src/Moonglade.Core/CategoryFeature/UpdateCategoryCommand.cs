@@ -13,7 +13,7 @@ public class UpdateCategoryCommandHandler(IRepository<CategoryEntity> repo, IBlo
 {
     public async Task<OperationCode> Handle(UpdateCategoryCommand request, CancellationToken ct)
     {
-        var cat = await repo.GetAsync(request.Id, ct);
+        var cat = await repo.GetAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.Id == request.Id);
         if (cat is null) return OperationCode.ObjectNotFound;
 
         cat.RouteName = request.RouteName.Trim();

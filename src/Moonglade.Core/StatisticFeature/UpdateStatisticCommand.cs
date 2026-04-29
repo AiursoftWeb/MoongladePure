@@ -7,7 +7,7 @@ public class UpdateStatisticCommandHandler(IRepository<PostExtensionEntity> repo
 {
     public async Task Handle(UpdateStatisticCommand request, CancellationToken ct)
     {
-        var pp = await repo.GetAsync(request.PostId, ct);
+        var pp = await repo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.PostId == request.PostId);
         if (pp is null) return;
 
         if (request.IsLike)

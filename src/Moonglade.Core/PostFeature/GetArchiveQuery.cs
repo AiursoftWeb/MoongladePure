@@ -10,7 +10,7 @@ public class GetArchiveQueryHandler(IRepository<PostEntity> repo)
 {
     public async Task<IReadOnlyList<Archive>> Handle(GetArchiveQuery request, CancellationToken ct)
     {
-        if (!await repo.AnyAsync(p => p.IsPublished && !p.IsDeleted, ct))
+        if (!await repo.AnyAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.IsPublished && !p.IsDeleted, ct))
         {
             return new List<Archive>();
         }

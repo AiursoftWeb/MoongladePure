@@ -12,11 +12,12 @@ public class CreateThemeCommandHandler(IRepository<BlogThemeEntity> repo) : IReq
     public async Task<int> Handle(CreateThemeCommand request, CancellationToken ct)
     {
         var (name, dictionary) = request;
-        if (await repo.AnyAsync(p => p.ThemeName == name.Trim(), ct)) return 0;
+        if (await repo.AnyAsync(p => (p.SiteId == null || p.SiteId == SystemIds.DefaultSiteId) && p.ThemeName == name.Trim(), ct)) return 0;
 
         var rules = JsonSerializer.Serialize(dictionary);
         var blogTheme = new BlogThemeEntity
         {
+            SiteId = SystemIds.DefaultSiteId,
             ThemeName = name.Trim(),
             CssRules = rules,
             ThemeType = ThemeType.User

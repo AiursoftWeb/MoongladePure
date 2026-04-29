@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using MoongladePure.Data.Entities;
 using MoongladePure.Data.Infrastructure;
 
@@ -9,12 +10,15 @@ public record GetAllThemeSegmentQuery : IRequest<IReadOnlyList<ThemeSegment>>;
 public class GetAllThemeSegmentQueryHandler(IRepository<BlogThemeEntity> repo)
     : IRequestHandler<GetAllThemeSegmentQuery, IReadOnlyList<ThemeSegment>>
 {
-    public Task<IReadOnlyList<ThemeSegment>> Handle(GetAllThemeSegmentQuery request, CancellationToken ct)
+    public async Task<IReadOnlyList<ThemeSegment>> Handle(GetAllThemeSegmentQuery request, CancellationToken ct)
     {
-        return repo.SelectAsync(p => new ThemeSegment
-        {
-            Id = p.Id,
-            Name = p.ThemeName
-        }, ct);
+        return await repo.AsQueryable()
+            .Where(p => p.SiteId == null || p.SiteId == SystemIds.DefaultSiteId)
+            .Select(p => new ThemeSegment
+            {
+                Id = p.Id,
+                Name = p.ThemeName
+            })
+            .ToListAsync(ct);
     }
 }

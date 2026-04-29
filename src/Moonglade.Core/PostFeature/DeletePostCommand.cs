@@ -10,7 +10,7 @@ public class DeletePostCommandHandler(IRepository<PostEntity> repo, IBlogCache c
     public async Task Handle(DeletePostCommand request, CancellationToken ct)
     {
         var (guid, softDelete) = request;
-        var post = await repo.GetAsync(guid, ct);
+        var post = await repo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Id == guid);
         if (null == post) return;
 
         if (softDelete)

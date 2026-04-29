@@ -19,7 +19,7 @@ public class UpdateLinkCommandHandler(IRepository<FriendLinkEntity> repo) : IReq
             throw new InvalidOperationException($"{nameof(request.LinkUrl)} is not a valid url.");
         }
 
-        var link = await repo.GetAsync(request.Id, ct);
+        var link = await repo.GetAsync(l => l.SiteId == SystemIds.DefaultSiteId && l.Id == request.Id);
         if (link is not null)
         {
             link.Title = request.Title;

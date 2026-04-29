@@ -38,7 +38,7 @@ public class SyndicationDataSource : ISyndicationDataSource
         IReadOnlyList<FeedEntry> itemCollection;
         if (!string.IsNullOrWhiteSpace(catRoute))
         {
-            var cat = await _catRepo.GetAsync(c => c.RouteName == catRoute);
+            var cat = await _catRepo.GetAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.RouteName == catRoute);
             if (cat is null) return null;
 
             itemCollection = await GetFeedEntriesAsync(cat.Id);

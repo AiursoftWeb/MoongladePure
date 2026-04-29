@@ -1,5 +1,6 @@
 ﻿using Aiursoft.DbTools;
 using Microsoft.EntityFrameworkCore;
+using MoongladePure.Data.Entities;
 using static Aiursoft.WebTools.Extends;
 
 namespace MoongladePure.Web;
@@ -27,7 +28,7 @@ public static class ProgramExtends
         var context = services.GetRequiredService<BlogDbContext>();
         var bc = services.GetRequiredService<IBlogConfig>();
 
-        var isNew = !await context.BlogConfiguration.AnyAsync();
+        var isNew = !await context.BlogConfiguration.AnyAsync(c => c.SiteId == SystemIds.DefaultSiteId);
         if (isNew)
         {
             await Seed.SeedAsync(context, logger);

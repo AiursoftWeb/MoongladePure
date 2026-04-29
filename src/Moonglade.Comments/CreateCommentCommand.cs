@@ -46,6 +46,7 @@ public class CreateCommentCommandHandler(
         var model = new CommentEntity
         {
             Id = Guid.NewGuid(),
+            SiteId = SystemIds.DefaultSiteId,
             Username = request.Payload.Username,
             CommentContent = request.Payload.Content,
             PostId = request.PostId,

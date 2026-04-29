@@ -10,7 +10,7 @@ public class DeleteMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHa
 {
     public async Task Handle(DeleteMenuCommand request, CancellationToken ct)
     {
-        var menu = await repo.GetAsync(request.Id, ct);
-        if (menu != null) await repo.DeleteAsync(request.Id, ct);
+        var menu = await repo.GetAsync(m => m.SiteId == SystemIds.DefaultSiteId && m.Id == request.Id);
+        if (menu != null) await repo.DeleteAsync(menu, ct);
     }
 }

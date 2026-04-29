@@ -13,7 +13,7 @@ public class UpdateConfigurationCommandHandler(IRepository<BlogConfigurationEnti
     public async Task<OperationCode> Handle(UpdateConfigurationCommand request, CancellationToken ct)
     {
         var (name, json) = request;
-        var entity = await repository.GetAsync(p => p.CfgKey == name);
+        var entity = await repository.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.CfgKey == name);
         if (entity == null) return OperationCode.ObjectNotFound;
 
         entity.CfgValue = json;

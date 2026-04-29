@@ -57,6 +57,7 @@ namespace MoongladePure.Web.BackgroundJobs
                     var context = services.GetRequiredService<BlogDbContext>();
                     var posts = await context.Post
                         .AsNoTracking()
+                        .Where(p => p.SiteId == SystemIds.DefaultSiteId)
                         .Where(p => p.IsPublished)
                         .Where(p => !p.IsDeleted)
                         .Where(p => p.PubDateUtc >= new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc))
@@ -66,7 +67,7 @@ namespace MoongladePure.Web.BackgroundJobs
                     foreach (var postId in posts.Select(p => p.Id))
                     {
                         // Fetch again. Because this job may run in a long time.
-                        var trackedPost = await context.Post.FindAsync(postId) ??
+                        var trackedPost = await context.Post.FirstOrDefaultAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Id == postId) ??
                                           throw new InvalidOperationException("Failed to locate post with ID: " + postId);
 
                         // Log.
@@ -152,6 +153,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         // Delete all obsolete comments. (If multiple comments has the same username, only keep the latest one.)
                         {
                             var allComments = await context.Comment
+                                .Where(c => c.SiteId == trackedPost.SiteId)
                                 .Where(c => c.PostId == postId)
                                 .Where(c => c.IPAddress == "127.0.0.1")
                                 .ToListAsync();
@@ -170,6 +172,7 @@ namespace MoongladePure.Web.BackgroundJobs
 
                         // Get all AI comments.
                         var aiComments = await context.Comment
+                            .Where(c => c.SiteId == trackedPost.SiteId)
                             .Where(c => c.PostId == postId)
                             .Where(c => c.IPAddress == "127.0.0.1")
                             .Where(c => c.Username == "Qwen3")
@@ -193,6 +196,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 await context.Comment.AddAsync(new CommentEntity
                                 {
                                     Id = Guid.NewGuid(),
+                                    SiteId = trackedPost.SiteId,
                                     PostId = postId,
                                     IPAddress = "127.0.0.1",
                                     Email = "qwen3@alibaba.com",
@@ -216,6 +220,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         }
 
                         var existingTagsCount = await context.PostTag
+                            .Where(pt => pt.SiteId == trackedPost.SiteId)
                             .Where(pt => pt.PostId == postId)
                             .CountAsync();
                         if (existingTagsCount < 6)
@@ -223,6 +228,7 @@ namespace MoongladePure.Web.BackgroundJobs
                             logger.LogInformation("Generating OpenAi tags for post with slug: {PostSlug}...",
                                 trackedPost.Slug);
                             var existingTags = await context.PostTag
+                                .Where(pt => pt.SiteId == trackedPost.SiteId)
                                 .Where(pt => pt.PostId == postId)
                                 .Select(pt => pt.Tag)
                                 .ToListAsync();
@@ -253,12 +259,13 @@ namespace MoongladePure.Web.BackgroundJobs
 
                                 // Create new tag if not exists.
                                 var tag = await context.Tag
-                                    .FirstOrDefaultAsync(t => t.NormalizedName == newTagNormalized);
+                                    .FirstOrDefaultAsync(t => t.SiteId == trackedPost.SiteId && t.NormalizedName == newTagNormalized);
                                 if (tag == null)
                                 {
                                     logger.LogInformation("Creating new tag: '{Tag}' in db...", newTag);
                                     tag = new TagEntity
                                     {
+                                        SiteId = trackedPost.SiteId,
                                         DisplayName = newTag,
                                         NormalizedName = newTagNormalized
                                     };
@@ -270,6 +277,7 @@ namespace MoongladePure.Web.BackgroundJobs
                                 logger.LogInformation("Adding tag {Tag} to post {PostSlug}...", newTag, trackedPost.Slug);
                                 await context.PostTag.AddAsync(new PostTagEntity
                                 {
+                                    SiteId = trackedPost.SiteId,
                                     PostId = postId,
                                     TagId = tag.Id
                                 });

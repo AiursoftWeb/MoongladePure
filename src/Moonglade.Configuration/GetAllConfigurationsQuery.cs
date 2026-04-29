@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using MoongladePure.Data.Entities;
 using MoongladePure.Data.Infrastructure;
 
@@ -11,7 +12,10 @@ public class GetAllConfigurationsQueryHandler(IRepository<BlogConfigurationEntit
 {
     public async Task<IDictionary<string, string>> Handle(GetAllConfigurationsQuery request, CancellationToken ct)
     {
-        var entities = await repo.SelectAsync(p => new { p.CfgKey, p.CfgValue }, ct);
+        var entities = await repo.AsQueryable()
+            .Where(p => p.SiteId == SystemIds.DefaultSiteId)
+            .Select(p => new { p.CfgKey, p.CfgValue })
+            .ToListAsync(ct);
         return entities.ToDictionary(k => k.CfgKey, v => v.CfgValue);
     }
 }

@@ -34,7 +34,7 @@ public class SearchPostQueryHandler(IRepository<PostEntity> repo)
         // Only include posts that are not deleted and published,
         // and that contain at least one of the search terms in any of the four fields.
         var posts = repo.AsQueryable()
-            .Where(p => !p.IsDeleted && p.IsPublished)
+            .Where(p => p.SiteId == SystemIds.DefaultSiteId && !p.IsDeleted && p.IsPublished)
             .AsNoTracking()
             .AsEnumerable() // TODO: Translate to original LINQ query
             .Where(p => terms.Any(term =>

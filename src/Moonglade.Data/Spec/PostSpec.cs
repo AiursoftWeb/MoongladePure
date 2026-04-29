@@ -6,7 +6,8 @@ namespace MoongladePure.Data.Spec;
 public sealed class PostSpec : BaseSpecification<PostEntity>
 {
     public PostSpec(Guid? categoryId, int? top = null) :
-        base(p => !p.IsDeleted &&
+        base(p => p.SiteId == SystemIds.DefaultSiteId &&
+                  !p.IsDeleted &&
                   p.IsPublished &&
                   p.IsFeedIncluded &&
                   (categoryId == null || p.PostCategory.Any(c => c.CategoryId == categoryId.Value)))
@@ -20,7 +21,8 @@ public sealed class PostSpec : BaseSpecification<PostEntity>
     }
 
     public PostSpec(int year, int month = 0) :
-        base(p => p.PubDateUtc.Value.Year == year &&
+        base(p => p.SiteId == SystemIds.DefaultSiteId &&
+                  p.PubDateUtc.Value.Year == year &&
                   (month == 0 || p.PubDateUtc.Value.Month == month))
     {
         // Fix #313: Filter out unpublished posts
@@ -31,6 +33,7 @@ public sealed class PostSpec : BaseSpecification<PostEntity>
 
     public PostSpec(string slug, DateTime pubDateUtc) :
         base(p =>
+        p.SiteId == SystemIds.DefaultSiteId &&
         p.Slug == slug &&
         p.PubDateUtc != null
         && p.PubDateUtc.Value.Year == pubDateUtc.Year
@@ -41,7 +44,7 @@ public sealed class PostSpec : BaseSpecification<PostEntity>
     }
 
     public PostSpec(int hashCheckSum)
-        : base(p => p.HashCheckSum == hashCheckSum && p.IsPublished && !p.IsDeleted)
+        : base(p => p.SiteId == SystemIds.DefaultSiteId && p.HashCheckSum == hashCheckSum && p.IsPublished && !p.IsDeleted)
     {
         AddInclude(post => post
             .Include(p => p.PostExtension)
@@ -51,7 +54,8 @@ public sealed class PostSpec : BaseSpecification<PostEntity>
     }
 
     public PostSpec(DateTime date, string slug)
-        : base(p => p.Slug == slug &&
+        : base(p => p.SiteId == SystemIds.DefaultSiteId &&
+                    p.Slug == slug &&
                     p.IsPublished &&
                     p.PubDateUtc.Value.Date == date &&
                     !p.IsDeleted)
@@ -63,7 +67,7 @@ public sealed class PostSpec : BaseSpecification<PostEntity>
             .Include(p => p.PostCategory).ThenInclude(pc => pc.Category));
     }
 
-    public PostSpec(Guid id, bool includeRelatedData = true) : base(p => p.Id == id)
+    public PostSpec(Guid id, bool includeRelatedData = true) : base(p => p.SiteId == SystemIds.DefaultSiteId && p.Id == id)
     {
         if (includeRelatedData)
         {
@@ -76,6 +80,8 @@ public sealed class PostSpec : BaseSpecification<PostEntity>
 
     public PostSpec(PostStatus status)
     {
+        AddCriteria(p => p.SiteId == SystemIds.DefaultSiteId);
+
         switch (status)
         {
             case PostStatus.Draft:
@@ -96,13 +102,13 @@ public sealed class PostSpec : BaseSpecification<PostEntity>
     }
 
     public PostSpec(bool isDeleted) :
-        base(p => p.IsDeleted == isDeleted)
+        base(p => p.SiteId == SystemIds.DefaultSiteId && p.IsDeleted == isDeleted)
     {
 
     }
 
     public PostSpec() :
-        base(p => p.IsDeleted)
+        base(p => p.SiteId == SystemIds.DefaultSiteId && p.IsDeleted)
     {
 
     }

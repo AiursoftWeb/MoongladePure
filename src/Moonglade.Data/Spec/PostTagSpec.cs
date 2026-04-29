@@ -5,13 +5,14 @@ namespace MoongladePure.Data.Spec;
 
 public sealed class PostTagSpec : BaseSpecification<PostTagEntity>
 {
-    public PostTagSpec(int tagId) : base(pt => pt.TagId == tagId)
+    public PostTagSpec(int tagId) : base(pt => pt.SiteId == SystemIds.DefaultSiteId && pt.TagId == tagId)
     {
     }
 
     public PostTagSpec(int tagId, int pageSize, int pageIndex)
         : base(pt =>
             pt.TagId == tagId
+            && pt.SiteId == SystemIds.DefaultSiteId
             && !pt.Post.IsDeleted
             && pt.Post.IsPublished)
     {

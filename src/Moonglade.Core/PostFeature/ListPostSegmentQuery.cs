@@ -34,7 +34,7 @@ public class ListPostSegmentQueryHandler(IRepository<PostEntity> repo)
         var spec = new PostPagingSpec(request.PostStatus, request.Keyword, request.PageSize, request.Offset);
         var posts = await repo.SelectAsync(spec, PostSegment.EntitySelector);
 
-        Expression<Func<PostEntity, bool>> countExp = p => null == request.Keyword || p.Title.Contains(request.Keyword);
+        Expression<Func<PostEntity, bool>> countExp = p => p.SiteId == SystemIds.DefaultSiteId && (null == request.Keyword || p.Title.Contains(request.Keyword));
 
         countExp = request.PostStatus switch
         {

@@ -9,7 +9,7 @@ public class RestorePostCommandHandler(IRepository<PostEntity> repo, IBlogCache 
 {
     public async Task Handle(RestorePostCommand request, CancellationToken ct)
     {
-        var pp = await repo.GetAsync(request.Id, ct);
+        var pp = await repo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Id == request.Id);
         if (null == pp) return;
 
         pp.IsDeleted = false;

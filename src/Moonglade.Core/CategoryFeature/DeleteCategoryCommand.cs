@@ -13,10 +13,10 @@ public class DeleteCategoryCommandHandler(
 {
     public async Task<OperationCode> Handle(DeleteCategoryCommand request, CancellationToken ct)
     {
-        var exists = await catRepo.AnyAsync(c => c.Id == request.Id, ct);
+        var exists = await catRepo.AnyAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.Id == request.Id, ct);
         if (!exists) return OperationCode.ObjectNotFound;
 
-        var pcs = await postCatRepo.GetAsync(pc => pc.CategoryId == request.Id);
+        var pcs = await postCatRepo.GetAsync(pc => pc.SiteId == SystemIds.DefaultSiteId && pc.CategoryId == request.Id);
         if (pcs is not null) await postCatRepo.DeleteAsync(pcs, ct);
 
         await catRepo.DeleteAsync(request.Id, ct);

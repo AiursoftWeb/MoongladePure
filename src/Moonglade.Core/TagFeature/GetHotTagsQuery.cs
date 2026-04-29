@@ -9,7 +9,7 @@ public class GetHotTagsQueryHandler(IRepository<TagEntity> repo)
 {
     public async Task<IReadOnlyList<KeyValuePair<Tag, int>>> Handle(GetHotTagsQuery request, CancellationToken ct)
     {
-        if (!await repo.AnyAsync(ct: ct)) return new List<KeyValuePair<Tag, int>>();
+        if (!await repo.AnyAsync(t => t.SiteId == SystemIds.DefaultSiteId, ct)) return new List<KeyValuePair<Tag, int>>();
 
         var spec = new TagSpec(request.Top);
         var tags = await repo.SelectAsync(spec, t =>

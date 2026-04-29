@@ -28,7 +28,7 @@ public class GetPostBySlugQueryHandler(IRepository<PostEntity> repo, IBlogCache 
             if (pid == Guid.Empty) return null;
 
             // Post is found, fill it's checksum so that next time the query can be run against checksum
-            var p = await repo.GetAsync(pid, ct);
+            var p = await repo.GetAsync(post => post.SiteId == SystemIds.DefaultSiteId && post.Id == pid);
             p.HashCheckSum = slugCheckSum;
 
             await repo.UpdateAsync(p, ct);

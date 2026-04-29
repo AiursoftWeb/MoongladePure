@@ -27,7 +27,7 @@ public class CreateCategoryCommandHandler(IRepository<CategoryEntity> catRepo, I
 {
     public async Task Handle(CreateCategoryCommand request, CancellationToken ct)
     {
-        var exists = await catRepo.AnyAsync(c => c.RouteName == request.RouteName, ct);
+        var exists = await catRepo.AnyAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.RouteName == request.RouteName, ct);
         if (exists) return;
 
         var category = new CategoryEntity

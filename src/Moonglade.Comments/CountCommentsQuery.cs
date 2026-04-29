@@ -8,5 +8,5 @@ public record CountCommentsQuery : IRequest<int>;
 
 public class CountCommentsQueryHandler(IRepository<CommentEntity> repo) : IRequestHandler<CountCommentsQuery, int>
 {
-    public Task<int> Handle(CountCommentsQuery request, CancellationToken ct) => repo.CountAsync(ct: ct);
+    public Task<int> Handle(CountCommentsQuery request, CancellationToken ct) => repo.CountAsync(c => c.SiteId == SystemIds.DefaultSiteId, ct);
 }

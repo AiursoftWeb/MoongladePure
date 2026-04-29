@@ -7,7 +7,7 @@ public class GetStatisticQueryHandler(IRepository<PostExtensionEntity> repo)
 {
     public async Task<(int Hits, int Likes)> Handle(GetStatisticQuery request, CancellationToken ct)
     {
-        var pp = await repo.GetAsync(request.PostId, ct);
+        var pp = await repo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.PostId == request.PostId);
         return (pp.Hits, pp.Likes);
     }
 }

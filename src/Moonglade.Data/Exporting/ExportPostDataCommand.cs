@@ -31,7 +31,7 @@ public class ExportPostDataCommandHandler(IRepository<PostEntity> repo)
             p.IsPublished,
             Categories = p.PostCategory.Select(pc => pc.Category.DisplayName),
             Tags = p.Tags.Select(pt => pt.DisplayName)
-        }, ct);
+        }, ct, p => p.SiteId == SystemIds.DefaultSiteId);
 
         return poExportData;
     }

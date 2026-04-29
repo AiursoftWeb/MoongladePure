@@ -26,6 +26,7 @@ public class CreateMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHa
             var sms = request.Payload.SubMenus.Select(p => new SubMenuEntity
             {
                 Id = Guid.NewGuid(),
+                SiteId = menu.SiteId,
                 IsOpenInNewTab = p.IsOpenInNewTab,
                 Title = p.Title,
                 Url = p.Url,

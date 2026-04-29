@@ -12,13 +12,14 @@ public class CreateTagCommandHandler(IRepository<TagEntity> repo) : IRequestHand
         if (!Tag.ValidateName(request.Name)) return null;
 
         var normalizedName = Tag.NormalizeName(request.Name, Helper.TagNormalizationDictionary);
-        if (await repo.AnyAsync(t => t.NormalizedName == normalizedName, ct))
+        if (await repo.AnyAsync(t => t.SiteId == SystemIds.DefaultSiteId && t.NormalizedName == normalizedName, ct))
         {
             return await repo.FirstOrDefaultAsync(new TagSpec(normalizedName), Tag.EntitySelector);
         }
 
         var newTag = new TagEntity
         {
+            SiteId = SystemIds.DefaultSiteId,
             DisplayName = request.Name,
             NormalizedName = normalizedName
         };

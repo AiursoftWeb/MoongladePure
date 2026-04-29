@@ -1,4 +1,5 @@
-﻿using MoongladePure.Caching;
+﻿using Microsoft.EntityFrameworkCore;
+using MoongladePure.Caching;
 
 namespace MoongladePure.Core.CategoryFeature;
 
@@ -12,8 +13,11 @@ public class GetCategoriesQueryHandler(IRepository<CategoryEntity> repo, IBlogCa
         return cache.GetOrCreateAsync(CacheDivision.General, "allcats", async entry =>
         {
             entry.SlidingExpiration = TimeSpan.FromHours(1);
-            var list = await repo.SelectAsync(Category.EntitySelector, ct);
-            return list;
+            var list = await repo.AsQueryable()
+                .Where(c => c.SiteId == SystemIds.DefaultSiteId)
+                .Select(Category.EntitySelector)
+                .ToListAsync(ct);
+            return (IReadOnlyList<Category>)list;
         });
     }
 }

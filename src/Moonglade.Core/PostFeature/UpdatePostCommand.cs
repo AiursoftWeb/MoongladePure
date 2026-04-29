@@ -19,7 +19,7 @@ public class UpdatePostCommandHandler(
     public async Task<PostEntity> Handle(UpdatePostCommand request, CancellationToken ct)
     {
         var (guid, postEditModel) = request;
-        var post = await postRepo.GetAsync(guid, ct);
+        var post = await postRepo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Id == guid);
         if (null == post)
         {
             throw new InvalidOperationException($"Post {guid} is not found.");
@@ -68,10 +68,11 @@ public class UpdatePostCommandHandler(
 
         foreach (var item in tags)
         {
-            if (!await tagRepo.AnyAsync(p => p.DisplayName == item, ct))
+            if (!await tagRepo.AnyAsync(p => p.SiteId == post.SiteId && p.DisplayName == item, ct))
             {
                 await tagRepo.AddAsync(new()
                 {
+                    SiteId = post.SiteId,
                     DisplayName = item,
                     NormalizedName = Tag.NormalizeName(item, Helper.TagNormalizationDictionary)
                 }, ct);
@@ -79,7 +80,7 @@ public class UpdatePostCommandHandler(
         }
 
         // 2. update tags
-        var oldTags = await ptRepository.AsQueryable().Where(pc => pc.PostId == post.Id).ToListAsync();
+        var oldTags = await ptRepository.AsQueryable().Where(pc => pc.SiteId == post.SiteId && pc.PostId == post.Id).ToListAsync();
         await ptRepository.DeleteAsync(oldTags);
         post.Tags.Clear();
         if (tags.Any())
@@ -91,13 +92,13 @@ public class UpdatePostCommandHandler(
                     continue;
                 }
 
-                var tag = await tagRepo.GetAsync(t => t.DisplayName == tagName);
+                var tag = await tagRepo.GetAsync(t => t.SiteId == post.SiteId && t.DisplayName == tagName);
                 if (tag is not null) post.Tags.Add(tag);
             }
         }
 
         // 3. update categories
-        var oldpcs = await pcRepository.AsQueryable().Where(pc => pc.PostId == post.Id).ToListAsync();
+        var oldpcs = await pcRepository.AsQueryable().Where(pc => pc.SiteId == post.SiteId && pc.PostId == post.Id).ToListAsync();
         await pcRepository.DeleteAsync(oldpcs);
 
         post.PostCategory.Clear();
@@ -107,6 +108,7 @@ public class UpdatePostCommandHandler(
             {
                 post.PostCategory.Add(new()
                 {
+                    SiteId = post.SiteId,
                     PostId = post.Id,
                     CategoryId = cid
                 });
@@ -122,6 +124,7 @@ public class UpdatePostCommandHandler(
     private async Task UpsertPostContent(PostEntity post, CancellationToken ct)
     {
         var rawContent = await postContentRepo.GetAsync(p =>
+            p.SiteId == post.SiteId &&
             p.PostId == post.Id &&
             p.ContentKind == PostContentKind.RawMarkdown &&
             p.IsOriginal);
@@ -155,7 +158,7 @@ public class UpdatePostCommandHandler(
             return;
         }
 
-        var route = await postRouteRepo.GetAsync(p => p.PostId == post.Id && p.IsCanonical);
+        var route = await postRouteRepo.GetAsync(p => p.SiteId == post.SiteId && p.PostId == post.Id && p.IsCanonical);
         if (route is null)
         {
             await postRouteRepo.AddAsync(new()

@@ -6,7 +6,7 @@ public class GetAssetQueryHandler(IRepository<BlogAssetEntity> repo) : IRequestH
 {
     public async Task<string> Handle(GetAssetQuery request, CancellationToken ct)
     {
-        var asset = await repo.GetAsync(request.AssetId, ct);
+        var asset = await repo.GetAsync(a => a.SiteId == SystemIds.DefaultSiteId && a.Id == request.AssetId);
         return asset?.Base64Data;
     }
 }

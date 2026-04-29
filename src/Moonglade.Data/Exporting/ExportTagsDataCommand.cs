@@ -18,6 +18,6 @@ public class ExportTagsDataCommandHandler(IRepository<TagEntity> repo)
             p.Id,
             p.NormalizedName,
             p.DisplayName
-        }, ct);
+        }, ct, p => p.SiteId == SystemIds.DefaultSiteId);
     }
 }

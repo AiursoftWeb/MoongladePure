@@ -23,23 +23,24 @@ public class CountPostQueryHandler(
         switch (request.CountType)
         {
             case CountType.Public:
-                count = await postRepo.CountAsync(p => p.IsPublished && !p.IsDeleted, ct);
+                count = await postRepo.CountAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.IsPublished && !p.IsDeleted, ct);
                 break;
 
             case CountType.Category:
                 if (request.CatId == null) throw new ArgumentNullException(nameof(request.CatId));
-                count = await postCatRepo.CountAsync(c => c.CategoryId == request.CatId.Value
+                count = await postCatRepo.CountAsync(c => c.SiteId == SystemIds.DefaultSiteId
+                                                           && c.CategoryId == request.CatId.Value
                                                            && c.Post.IsPublished
                                                            && !c.Post.IsDeleted, ct);
                 break;
 
             case CountType.Tag:
                 if (request.TagId == null) throw new ArgumentNullException(nameof(request.TagId));
-                count = await postTagRepo.CountAsync(p => p.TagId == request.TagId.Value && p.Post.IsPublished && !p.Post.IsDeleted, ct);
+                count = await postTagRepo.CountAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.TagId == request.TagId.Value && p.Post.IsPublished && !p.Post.IsDeleted, ct);
                 break;
 
             case CountType.Featured:
-                count = await postRepo.CountAsync(p => p.IsFeatured && p.IsPublished && !p.IsDeleted, ct);
+                count = await postRepo.CountAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.IsFeatured && p.IsPublished && !p.IsDeleted, ct);
                 break;
         }
 

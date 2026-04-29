@@ -15,13 +15,14 @@ public class ReplyCommentCommandHandler(
 {
     public async Task<CommentReply> Handle(ReplyCommentCommand request, CancellationToken ct)
     {
-        var cmt = await commentRepo.GetAsync(request.CommentId, ct);
+        var cmt = await commentRepo.GetAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.Id == request.CommentId);
         if (cmt is null) throw new InvalidOperationException($"Comment {request.CommentId} is not found.");
 
         var id = Guid.NewGuid();
         var model = new CommentReplyEntity
         {
             Id = id,
+            SiteId = cmt.SiteId,
             ReplyContent = request.ReplyContent,
             CreateTimeUtc = DateTime.UtcNow,
             CommentId = request.CommentId
@@ -29,7 +30,7 @@ public class ReplyCommentCommandHandler(
 
         await commentReplyRepo.AddAsync(model, ct);
 
-        cmt.Post = await postRepo.GetAsync(cmt.PostId, ct);
+        cmt.Post = await postRepo.GetAsync(p => p.SiteId == cmt.SiteId && p.Id == cmt.PostId);
         var reply = new CommentReply
         {
             CommentContent = cmt.CommentContent,

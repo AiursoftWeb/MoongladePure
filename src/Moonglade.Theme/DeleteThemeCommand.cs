@@ -12,11 +12,11 @@ public class DeleteThemeCommandHandler(IRepository<BlogThemeEntity> repo)
 {
     public async Task<OperationCode> Handle(DeleteThemeCommand request, CancellationToken ct)
     {
-        var theme = await repo.GetAsync(request.Id, ct);
+        var theme = await repo.GetAsync(t => (t.SiteId == null || t.SiteId == SystemIds.DefaultSiteId) && t.Id == request.Id);
         if (null == theme) return OperationCode.ObjectNotFound;
         if (theme.ThemeType == ThemeType.System) return OperationCode.Canceled;
 
-        await repo.DeleteAsync(request.Id, ct);
+        await repo.DeleteAsync(theme, ct);
         return OperationCode.Done;
     }
 }

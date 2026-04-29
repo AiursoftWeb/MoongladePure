@@ -10,7 +10,7 @@ public class UpdateTagCommandHandler(IRepository<TagEntity> repo) : IRequestHand
     public async Task<OperationCode> Handle(UpdateTagCommand request, CancellationToken ct)
     {
         var (id, name) = request;
-        var tag = await repo.GetAsync(id, ct);
+        var tag = await repo.GetAsync(t => t.SiteId == SystemIds.DefaultSiteId && t.Id == id);
         if (null == tag) return OperationCode.ObjectNotFound;
 
         tag.DisplayName = name;

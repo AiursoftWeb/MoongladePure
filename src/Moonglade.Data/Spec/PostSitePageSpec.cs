@@ -4,4 +4,4 @@ using MoongladePure.Data.Infrastructure;
 namespace MoongladePure.Data.Spec;
 
 public class PostSitePageSpec() : BaseSpecification<PostEntity>(p =>
-    p.IsPublished && !p.IsDeleted);
+    p.SiteId == SystemIds.DefaultSiteId && p.IsPublished && !p.IsDeleted);

@@ -9,7 +9,7 @@ public class SaveAssetCommandHandler(IRepository<BlogAssetEntity> repo) : INotif
         if (request.AssetId == Guid.Empty) throw new ArgumentOutOfRangeException(nameof(request.AssetId));
         if (string.IsNullOrWhiteSpace(request.AssetBase64)) throw new ArgumentNullException(nameof(request.AssetBase64));
 
-        var entity = await repo.GetAsync(request.AssetId, ct);
+        var entity = await repo.GetAsync(a => a.SiteId == SystemIds.DefaultSiteId && a.Id == request.AssetId);
 
         if (null == entity)
         {

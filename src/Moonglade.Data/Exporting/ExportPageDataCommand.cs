@@ -25,6 +25,6 @@ public class ExportPageDataCommandHandler(IRepository<PageEntity> repo)
             p.IsPublished,
             p.CreateTimeUtc,
             p.UpdateTimeUtc
-        }, ct);
+        }, ct, p => p.SiteId == SystemIds.DefaultSiteId);
     }
 }

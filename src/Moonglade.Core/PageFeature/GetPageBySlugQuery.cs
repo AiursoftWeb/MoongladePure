@@ -7,7 +7,7 @@ public class GetPageBySlugQueryHandler(IRepository<PageEntity> repo) : IRequestH
     public async Task<BlogPage> Handle(GetPageBySlugQuery request, CancellationToken ct)
     {
         var lower = request.Slug.ToLower();
-        var entity = await repo.GetAsync(p => p.Slug == lower);
+        var entity = await repo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Slug == lower);
         if (entity == null) return null;
 
         var item = new BlogPage(entity);
