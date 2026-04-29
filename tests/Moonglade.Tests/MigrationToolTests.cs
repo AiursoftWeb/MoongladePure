@@ -43,6 +43,7 @@ public class MigrationToolTests
             fixture.TargetPath,
             null,
             false,
+            false,
             false);
 
         var migrationResult = LegacySqliteMigrator.Migrate(migrateOptions);
@@ -102,6 +103,36 @@ public class MigrationToolTests
     }
 
     [TestMethod]
+    public void MigrateCommandDryRunDoesNotWriteTargetDatabase()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        var originalOut = Console.Out;
+
+        try
+        {
+            using var output = new StringWriter();
+            Console.SetOut(output);
+
+            var exitCode = Program.Main([
+                "migrate",
+                "--source",
+                fixture.SourcePath,
+                "--target",
+                fixture.TargetPath,
+                "--dry-run"
+            ]);
+
+            Assert.AreEqual(0, exitCode);
+            Assert.IsFalse(File.Exists(fixture.TargetPath));
+            Assert.Contains("MoongladePure legacy SQLite dry-run report", output.ToString());
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [TestMethod]
     public void ValidateTargetDatabaseReportsLegacyDatabaseAsInvalidTarget()
     {
         using var fixture = LegacyDatabaseFixture.Create();
@@ -120,6 +151,7 @@ public class MigrationToolTests
             fixture.SourcePath,
             fixture.TargetPath,
             null,
+            false,
             false,
             false);
         LegacySqliteMigrator.Migrate(migrateOptions);
@@ -141,6 +173,7 @@ public class MigrationToolTests
             fixture.TargetPath,
             null,
             false,
+            false,
             false);
         LegacySqliteMigrator.Migrate(migrateOptions);
         fixture.ExecuteTarget("UPDATE \"PostRoute\" SET \"Slug\" = 'changed';");
@@ -161,6 +194,7 @@ public class MigrationToolTests
             fixture.TargetPath,
             null,
             false,
+            false,
             false);
         LegacySqliteMigrator.Migrate(migrateOptions);
         fixture.ExecuteTarget("UPDATE \"SiteSetting\" SET \"CfgValue\" = '{bad-json' WHERE \"CfgKey\" = 'GeneralSettings';");
@@ -168,6 +202,66 @@ public class MigrationToolTests
         var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
 
         Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "SiteSettingJsonInvalid"));
+    }
+
+    [TestMethod]
+    public void ValidateTargetDatabaseWithSourceReportsContentHashMismatch()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        var migrateOptions = new MigrationOptions(
+            MigrationCommand.Migrate,
+            fixture.SourcePath,
+            fixture.TargetPath,
+            null,
+            false,
+            false,
+            false);
+        LegacySqliteMigrator.Migrate(migrateOptions);
+        fixture.ExecuteTarget("UPDATE \"PostContent\" SET \"Body\" = 'changed';");
+
+        var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
+
+        Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "PostContentHashMismatch"));
+    }
+
+    [TestMethod]
+    public void ValidateTargetDatabaseWithSourceReportsPostStateCountMismatch()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        var migrateOptions = new MigrationOptions(
+            MigrationCommand.Migrate,
+            fixture.SourcePath,
+            fixture.TargetPath,
+            null,
+            false,
+            false,
+            false);
+        LegacySqliteMigrator.Migrate(migrateOptions);
+        fixture.ExecuteTarget("UPDATE \"Post\" SET \"IsPublished\" = 0;");
+
+        var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
+
+        Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "PostStateCountMismatch"));
+    }
+
+    [TestMethod]
+    public void ValidateTargetDatabaseWithSourceReportsPostMetricValueMismatch()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        var migrateOptions = new MigrationOptions(
+            MigrationCommand.Migrate,
+            fixture.SourcePath,
+            fixture.TargetPath,
+            null,
+            false,
+            false,
+            false);
+        LegacySqliteMigrator.Migrate(migrateOptions);
+        fixture.ExecuteTarget("UPDATE \"PostMetric\" SET \"Hits\" = 999;");
+
+        var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
+
+        Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "PostMetricValueMismatch"));
     }
 
     private sealed class LegacyDatabaseFixture : IDisposable

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
 
@@ -57,6 +59,9 @@ internal static class TargetSqliteValidator
         AddPostShapeErrors(connection, tableSet, errors);
         AddLegacyPostRouteErrors(connection, tableSet, sourcePath, errors);
         AddSiteSettingJsonErrors(connection, tableSet, errors);
+        AddContentHashErrors(connection, tableSet, sourcePath, errors);
+        AddPostStateCountErrors(connection, tableSet, sourcePath, errors);
+        AddPostMetricValueErrors(connection, tableSet, sourcePath, errors);
         AddSourceTargetCountErrors(comparisons, errors);
 
         return new TargetSqliteValidationReport(
@@ -282,6 +287,256 @@ internal static class TargetSqliteValidator
             "SiteSettingJsonInvalid",
             "Site setting JSON is invalid",
             "Error"));
+    }
+
+    private static void AddContentHashErrors(SqliteConnection targetConnection, HashSet<string> targetTableSet, string? sourcePath, List<LegacyIssue> errors)
+    {
+        if (string.IsNullOrWhiteSpace(sourcePath))
+        {
+            return;
+        }
+
+        using var sourceConnection = OpenReadOnlyConnection(sourcePath);
+        var sourceTableSet = LoadTables(sourceConnection).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        AddContentHashErrors(
+            sourceConnection,
+            sourceTableSet,
+            targetConnection,
+            targetTableSet,
+            errors,
+            "Post",
+            "Id",
+            ["RawContent", "PostContent", "Content"],
+            "PostContent",
+            "PostId",
+            "Body",
+            "PostContentHashMismatch",
+            "Post content hash differs");
+        AddContentHashErrors(
+            sourceConnection,
+            sourceTableSet,
+            targetConnection,
+            targetTableSet,
+            errors,
+            "CustomPage",
+            "Id",
+            ["HtmlContent", "Content"],
+            "Page",
+            "Id",
+            "HtmlContent",
+            "PageContentHashMismatch",
+            "Page content hash differs");
+        AddContentHashErrors(
+            sourceConnection,
+            sourceTableSet,
+            targetConnection,
+            targetTableSet,
+            errors,
+            "Comment",
+            "Id",
+            ["CommentContent", "Content"],
+            "Comment",
+            "Id",
+            "CommentContent",
+            "CommentContentHashMismatch",
+            "Comment content hash differs");
+        AddContentHashErrors(
+            sourceConnection,
+            sourceTableSet,
+            targetConnection,
+            targetTableSet,
+            errors,
+            "CommentReply",
+            "Id",
+            ["ReplyContent", "Content"],
+            "CommentReply",
+            "Id",
+            "ReplyContent",
+            "CommentReplyContentHashMismatch",
+            "Comment reply content hash differs");
+    }
+
+    private static void AddPostStateCountErrors(SqliteConnection targetConnection, HashSet<string> targetTableSet, string? sourcePath, List<LegacyIssue> errors)
+    {
+        if (string.IsNullOrWhiteSpace(sourcePath) || !HasColumns(targetConnection, targetTableSet, "Post", ["IsPublished", "IsDeleted"]))
+        {
+            return;
+        }
+
+        using var sourceConnection = OpenReadOnlyConnection(sourcePath);
+        var sourceTableSet = LoadTables(sourceConnection).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (!HasColumns(sourceConnection, sourceTableSet, "Post", ["IsPublished", "IsDeleted"]))
+        {
+            return;
+        }
+
+        AddPostStateCountError(
+            CountPostsByState(sourceConnection, "IsPublished = 1 AND IsDeleted = 0"),
+            CountPostsByState(targetConnection, "IsPublished = 1 AND IsDeleted = 0"),
+            "published",
+            errors);
+        AddPostStateCountError(
+            CountPostsByState(sourceConnection, "IsPublished = 0 AND IsDeleted = 0"),
+            CountPostsByState(targetConnection, "IsPublished = 0 AND IsDeleted = 0"),
+            "draft",
+            errors);
+        AddPostStateCountError(
+            CountPostsByState(sourceConnection, "IsDeleted = 1"),
+            CountPostsByState(targetConnection, "IsDeleted = 1"),
+            "deleted",
+            errors);
+    }
+
+    private static void AddPostStateCountError(long sourceCount, long targetCount, string stateName, List<LegacyIssue> errors)
+    {
+        if (sourceCount != targetCount)
+        {
+            errors.Add(new LegacyIssue("PostStateCountMismatch", $"Source {stateName} posts: {sourceCount}; target {stateName} posts: {targetCount}.", "Error"));
+        }
+    }
+
+    private static long CountPostsByState(SqliteConnection connection, string filter)
+    {
+        return ExecuteScalarLong(connection, $"SELECT COUNT(*) FROM \"Post\" WHERE {filter};");
+    }
+
+    private static void AddPostMetricValueErrors(SqliteConnection targetConnection, HashSet<string> targetTableSet, string? sourcePath, List<LegacyIssue> errors)
+    {
+        if (string.IsNullOrWhiteSpace(sourcePath) || !HasColumns(targetConnection, targetTableSet, "PostMetric", ["PostId", "Hits", "Likes"]))
+        {
+            return;
+        }
+
+        using var sourceConnection = OpenReadOnlyConnection(sourcePath);
+        var sourceTableSet = LoadTables(sourceConnection).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (!HasColumns(sourceConnection, sourceTableSet, "PostExtension", ["PostId", "Hits", "Likes"]))
+        {
+            return;
+        }
+
+        var sourceMetrics = LoadPostMetrics(sourceConnection, "PostExtension");
+        var targetMetrics = LoadPostMetrics(targetConnection, "PostMetric");
+
+        foreach (var sourceMetric in sourceMetrics)
+        {
+            if (!targetMetrics.TryGetValue(sourceMetric.Key, out var targetMetric))
+            {
+                errors.Add(new LegacyIssue("PostMetricValueMismatch", $"Post metric is missing in target: {sourceMetric.Key}", "Error"));
+                continue;
+            }
+
+            if (sourceMetric.Value != targetMetric)
+            {
+                errors.Add(new LegacyIssue(
+                    "PostMetricValueMismatch",
+                    $"Post metric differs for {sourceMetric.Key}: source hits/likes {sourceMetric.Value.Hits}/{sourceMetric.Value.Likes}; target hits/likes {targetMetric.Hits}/{targetMetric.Likes}.",
+                    "Error"));
+            }
+        }
+    }
+
+    private static Dictionary<string, PostMetricValues> LoadPostMetrics(SqliteConnection connection, string tableName)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = $"SELECT \"PostId\", \"Hits\", \"Likes\" FROM {QuoteIdentifier(tableName)} WHERE \"PostId\" IS NOT NULL;";
+        using var reader = command.ExecuteReader();
+        var metrics = new Dictionary<string, PostMetricValues>(StringComparer.OrdinalIgnoreCase);
+
+        while (reader.Read())
+        {
+            var postId = Convert.ToString(reader.GetValue(0));
+            if (string.IsNullOrWhiteSpace(postId))
+            {
+                continue;
+            }
+
+            metrics[postId] = new PostMetricValues(Convert.ToInt32(reader.GetValue(1)), Convert.ToInt32(reader.GetValue(2)));
+        }
+
+        return metrics;
+    }
+
+    private static void AddContentHashErrors(
+        SqliteConnection sourceConnection,
+        HashSet<string> sourceTableSet,
+        SqliteConnection targetConnection,
+        HashSet<string> targetTableSet,
+        List<LegacyIssue> errors,
+        string sourceTable,
+        string sourceKeyColumn,
+        string[] sourceContentColumns,
+        string targetTable,
+        string targetKeyColumn,
+        string targetContentColumn,
+        string code,
+        string message)
+    {
+        var sourceContentColumn = FindFirstColumn(sourceConnection, sourceTableSet, sourceTable, sourceContentColumns);
+        if (sourceContentColumn is null || !HasColumns(targetConnection, targetTableSet, targetTable, [targetKeyColumn, targetContentColumn]))
+        {
+            return;
+        }
+
+        var sourceHashes = LoadContentHashes(sourceConnection, sourceTable, sourceKeyColumn, sourceContentColumn);
+        var targetHashes = LoadContentHashes(targetConnection, targetTable, targetKeyColumn, targetContentColumn);
+
+        foreach (var item in sourceHashes)
+        {
+            if (!targetHashes.TryGetValue(item.Key, out var targetHash))
+            {
+                errors.Add(new LegacyIssue(code, $"{message}: {item.Key} target row missing", "Error"));
+                continue;
+            }
+
+            if (!string.Equals(item.Value, targetHash, StringComparison.Ordinal))
+            {
+                errors.Add(new LegacyIssue(code, $"{message}: {item.Key}", "Error"));
+            }
+        }
+    }
+
+    private static string? FindFirstColumn(SqliteConnection connection, HashSet<string> tableSet, string tableName, string[] columnNames)
+    {
+        foreach (var columnName in columnNames)
+        {
+            if (HasColumns(connection, tableSet, tableName, [columnName]))
+            {
+                return columnName;
+            }
+        }
+
+        return null;
+    }
+
+    private static Dictionary<string, string> LoadContentHashes(SqliteConnection connection, string tableName, string keyColumnName, string contentColumnName)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            $"SELECT {QuoteIdentifier(keyColumnName)}, {QuoteIdentifier(contentColumnName)} " +
+            $"FROM {QuoteIdentifier(tableName)} " +
+            $"WHERE {QuoteIdentifier(keyColumnName)} IS NOT NULL;";
+        using var reader = command.ExecuteReader();
+        var hashes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        while (reader.Read())
+        {
+            var key = Convert.ToString(reader.GetValue(0));
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                continue;
+            }
+
+            var content = Convert.ToString(reader.GetValue(1)) ?? string.Empty;
+            hashes[key] = ComputeContentHash(content);
+        }
+
+        return hashes;
+    }
+
+    private static string ComputeContentHash(string content)
+    {
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)));
     }
 
     private static HashSet<PostRouteKey> LoadRoutes(SqliteConnection connection, string tableName, string routeDateColumn, string slugColumn)
@@ -564,3 +819,5 @@ internal sealed record TargetRowComparison(
     bool Matches);
 
 internal sealed record PostRouteKey(string RouteDate, string Slug);
+
+internal sealed record PostMetricValues(int Hits, int Likes);

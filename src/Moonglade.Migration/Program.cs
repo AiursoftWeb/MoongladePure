@@ -54,6 +54,11 @@ internal static class Program
 
             if (options.Command == MigrationCommand.Migrate)
             {
+                if (options.DryRun)
+                {
+                    return RunDryRun(options);
+                }
+
                 if (string.IsNullOrWhiteSpace(options.TargetPath))
                 {
                     Console.Error.WriteLine("Missing required option for migrate: --target <path>");
@@ -102,6 +107,21 @@ internal static class Program
         return report.Errors.Count == 0 ? 0 : 3;
     }
 
+    private static int RunDryRun(MigrationOptions options)
+    {
+        var result = LegacySqliteDryRun.Run(options);
+        LegacySqliteDryRunReportWriter.WriteText(result, Console.Out);
+
+        if (!string.IsNullOrWhiteSpace(options.JsonPath))
+        {
+            LegacySqliteDryRunReportWriter.WriteJson(result, options.JsonPath);
+            Console.Out.WriteLine();
+            Console.Out.WriteLine($"JSON report written to: {options.JsonPath}");
+        }
+
+        return result.Errors.Count == 0 ? 0 : 3;
+    }
+
     private static int RunValidate(MigrationOptions options)
     {
         var report = string.IsNullOrWhiteSpace(options.SourcePath)
@@ -126,6 +146,7 @@ internal static class Program
         writer.WriteLine("Usage:");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- preflight --source <legacy.db> [--json <report.json>]");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- migrate --source <legacy.db> --target <new.db> [--overwrite] [--json <report.json>]");
+        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- migrate --source <legacy.db> --dry-run [--json <report.json>]");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- validate --target <new.db> [--source <legacy.db>] [--json <report.json>]");
         writer.WriteLine();
         writer.WriteLine("Options:");
@@ -133,6 +154,7 @@ internal static class Program
         writer.WriteLine("  --target <path>   Path to the new SQLite database created by migrate.");
         writer.WriteLine("  --json <path>     Optional JSON report output path.");
         writer.WriteLine("  --overwrite       Delete the target database first when it already exists.");
+        writer.WriteLine("  --dry-run         Simulate migration into a temporary target database and validate it.");
         writer.WriteLine("  --help            Show this help.");
     }
 }
@@ -150,6 +172,7 @@ internal sealed record MigrationOptions(
     string? TargetPath,
     string? JsonPath,
     bool Overwrite,
+    bool DryRun,
     bool ShowHelp)
 {
     public static MigrationOptions? Parse(string[] args, TextWriter errorWriter)
@@ -163,6 +186,7 @@ internal sealed record MigrationOptions(
         string? targetPath = null;
         string? jsonPath = null;
         var overwrite = false;
+        var dryRun = false;
         var command = MigrationCommand.Preflight;
         var startIndex = 0;
 
@@ -182,7 +206,7 @@ internal sealed record MigrationOptions(
             var arg = args[i];
             if (arg is "--help" or "-h")
             {
-                return new MigrationOptions(command, string.Empty, null, null, false, true);
+                return new MigrationOptions(command, string.Empty, null, null, false, false, true);
             }
 
             if (arg is "--source" or "-s")
@@ -221,7 +245,19 @@ internal sealed record MigrationOptions(
                 continue;
             }
 
+            if (arg == "--dry-run")
+            {
+                dryRun = true;
+                continue;
+            }
+
             errorWriter.WriteLine($"Unknown option: {arg}");
+            return null;
+        }
+
+        if (dryRun && command != MigrationCommand.Migrate)
+        {
+            errorWriter.WriteLine("Option --dry-run is only supported by migrate.");
             return null;
         }
 
@@ -237,6 +273,7 @@ internal sealed record MigrationOptions(
             string.IsNullOrWhiteSpace(targetPath) ? null : Path.GetFullPath(targetPath),
             string.IsNullOrWhiteSpace(jsonPath) ? null : Path.GetFullPath(jsonPath),
             overwrite,
+            dryRun,
             false);
     }
 

@@ -65,6 +65,18 @@ Overwrite an existing target database:
 dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --target new.db --overwrite
 ```
 
+Run a migration dry-run. This creates a temporary target database, runs the full migration and validation flow against it, then deletes the temporary database. It does not write the `--target` database:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --dry-run
+```
+
+Write a JSON dry-run report:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --dry-run --json dry-run-report.json
+```
+
 Validate a migrated target database:
 
 ```bash
@@ -77,7 +89,7 @@ Validate a migrated target database against its legacy source row counts:
 dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- validate --source old.db --target new.db
 ```
 
-When `--source` is provided, the validation report includes source rows, source-to-target comparisons, such as `LocalAccount -> User`, `CustomPage -> Page`, `PostExtension -> PostMetric`, a legacy post route check that verifies each old `PubDateUtc + Slug` route exists in `PostRoute`, and JSON parsing checks for migrated site settings.
+When `--source` is provided, the validation report includes source rows, source-to-target comparisons, such as `LocalAccount -> User`, `CustomPage -> Page`, `PostExtension -> PostMetric`, a legacy post route check that verifies each old `PubDateUtc + Slug` route exists in `PostRoute`, content hash checks for posts, pages, comments and replies, post state and hit/like checks, and JSON parsing checks for migrated site settings.
 
 Write a JSON validation report:
 
