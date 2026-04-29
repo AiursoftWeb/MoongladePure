@@ -59,6 +59,18 @@ Overwrite an existing target database:
 dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --target new.db --overwrite
 ```
 
+Validate a migrated target database:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- validate --target new.db
+```
+
+Write a JSON validation report:
+
+```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- validate --target new.db --json validation-report.json
+```
+
 ## Validation
 
 The current migration path has been tested with a real legacy SQLite database whose latest EF migration was:
@@ -79,6 +91,7 @@ The migration also completed without errors, and the migrated database was manua
 Useful post-migration SQLite checks:
 
 ```bash
+dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- validate --target new.db
 sqlite3 new.db "select count(*) from Post;"
 sqlite3 new.db "select count(*) from PostContent;"
 sqlite3 new.db "select count(*) from PostRoute;"

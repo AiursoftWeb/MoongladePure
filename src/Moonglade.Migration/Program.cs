@@ -20,7 +20,21 @@ internal static class Program
             return 0;
         }
 
-        if (!File.Exists(options.SourcePath))
+        if (options.Command == MigrationCommand.Validate)
+        {
+            if (string.IsNullOrWhiteSpace(options.TargetPath))
+            {
+                Console.Error.WriteLine("Missing required option for validate: --target <path>");
+                return 1;
+            }
+
+            if (!File.Exists(options.TargetPath))
+            {
+                Console.Error.WriteLine($"Target database does not exist: {options.TargetPath}");
+                return 2;
+            }
+        }
+        else if (!File.Exists(options.SourcePath))
         {
             Console.Error.WriteLine($"Source database does not exist: {options.SourcePath}");
             return 2;
@@ -28,6 +42,11 @@ internal static class Program
 
         try
         {
+            if (options.Command == MigrationCommand.Validate)
+            {
+                return RunValidate(options);
+            }
+
             if (options.Command == MigrationCommand.Migrate)
             {
                 if (string.IsNullOrWhiteSpace(options.TargetPath))
@@ -70,6 +89,21 @@ internal static class Program
         return report.Errors.Count == 0 ? 0 : 3;
     }
 
+    private static int RunValidate(MigrationOptions options)
+    {
+        var report = TargetSqliteValidator.Validate(options.TargetPath!);
+        TargetSqliteValidationReportWriter.WriteText(report, Console.Out);
+
+        if (!string.IsNullOrWhiteSpace(options.JsonPath))
+        {
+            TargetSqliteValidationReportWriter.WriteJson(report, options.JsonPath);
+            Console.Out.WriteLine();
+            Console.Out.WriteLine($"JSON report written to: {options.JsonPath}");
+        }
+
+        return report.Errors.Count == 0 ? 0 : 3;
+    }
+
     private static void PrintHelp(TextWriter writer)
     {
         writer.WriteLine("MoongladePure migration tool for legacy SQLite databases.");
@@ -77,6 +111,7 @@ internal static class Program
         writer.WriteLine("Usage:");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- preflight --source <legacy.db> [--json <report.json>]");
         writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- migrate --source <legacy.db> --target <new.db> [--overwrite]");
+        writer.WriteLine("  dotnet run --project src/Moonglade.Migration -- validate --target <new.db> [--json <report.json>]");
         writer.WriteLine();
         writer.WriteLine("Options:");
         writer.WriteLine("  --source <path>   Path to the legacy SQLite database.");
@@ -90,7 +125,8 @@ internal static class Program
 internal enum MigrationCommand
 {
     Preflight = 0,
-    Migrate = 1
+    Migrate = 1,
+    Validate = 2
 }
 
 internal sealed record MigrationOptions(
@@ -115,9 +151,14 @@ internal sealed record MigrationOptions(
         var command = MigrationCommand.Preflight;
         var startIndex = 0;
 
-        if (args[0] is "preflight" or "migrate")
+        if (args[0] is "preflight" or "migrate" or "validate")
         {
-            command = args[0] == "migrate" ? MigrationCommand.Migrate : MigrationCommand.Preflight;
+            command = args[0] switch
+            {
+                "migrate" => MigrationCommand.Migrate,
+                "validate" => MigrationCommand.Validate,
+                _ => MigrationCommand.Preflight
+            };
             startIndex = 1;
         }
 
@@ -169,7 +210,7 @@ internal sealed record MigrationOptions(
             return null;
         }
 
-        if (string.IsNullOrWhiteSpace(sourcePath))
+        if (command != MigrationCommand.Validate && string.IsNullOrWhiteSpace(sourcePath))
         {
             errorWriter.WriteLine("Missing required option: --source <path>");
             return null;
@@ -177,7 +218,7 @@ internal sealed record MigrationOptions(
 
         return new MigrationOptions(
             command,
-            Path.GetFullPath(sourcePath),
+            string.IsNullOrWhiteSpace(sourcePath) ? string.Empty : Path.GetFullPath(sourcePath),
             string.IsNullOrWhiteSpace(targetPath) ? null : Path.GetFullPath(targetPath),
             string.IsNullOrWhiteSpace(jsonPath) ? null : Path.GetFullPath(jsonPath),
             overwrite,
@@ -561,6 +602,338 @@ internal static class LegacySqliteAnalyzer
 
     private sealed record KeyCount(string Key, long Count);
 }
+
+internal static class TargetSqliteValidator
+{
+    private static readonly string[] ExpectedTables =
+    [
+        "AiArtifact",
+        "AiJob",
+        "Category",
+        "Comment",
+        "CommentReply",
+        "FriendLink",
+        "MediaAsset",
+        "MediaVariant",
+        "Menu",
+        "Page",
+        "Post",
+        "PostCategory",
+        "PostContent",
+        "PostMetric",
+        "PostRoute",
+        "PostTag",
+        "Site",
+        "SiteBinaryAsset",
+        "SiteDomain",
+        "SiteMembership",
+        "SiteSetting",
+        "SubMenu",
+        "Tag",
+        "Tenant",
+        "Theme",
+        "User"
+    ];
+
+    public static TargetSqliteValidationReport Validate(string targetPath)
+    {
+        using var connection = OpenReadOnlyConnection(targetPath);
+        var tableSet = LoadTables(connection).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var tableRows = CountExpectedRows(connection, tableSet);
+        var warnings = new List<LegacyIssue>();
+        var errors = new List<LegacyIssue>();
+
+        AddMissingTableErrors(tableSet, errors);
+        AddMinimumRowCountErrors(tableRows, errors);
+        AddForeignKeyErrors(connection, errors);
+        AddRelationshipErrors(connection, tableSet, errors);
+        AddPostShapeErrors(connection, tableSet, errors);
+
+        return new TargetSqliteValidationReport(
+            targetPath,
+            DateTimeOffset.UtcNow,
+            tableRows,
+            warnings,
+            errors);
+    }
+
+    private static SqliteConnection OpenReadOnlyConnection(string targetPath)
+    {
+        var builder = new SqliteConnectionStringBuilder
+        {
+            DataSource = targetPath,
+            Mode = SqliteOpenMode.ReadOnly
+        };
+
+        var connection = new SqliteConnection(builder.ToString());
+        connection.Open();
+        return connection;
+    }
+
+    private static IReadOnlyList<string> LoadTables(SqliteConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name;";
+        using var reader = command.ExecuteReader();
+        var tables = new List<string>();
+
+        while (reader.Read())
+        {
+            tables.Add(reader.GetString(0));
+        }
+
+        return tables;
+    }
+
+    private static Dictionary<string, long> CountExpectedRows(SqliteConnection connection, HashSet<string> tableSet)
+    {
+        var rows = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var tableName in ExpectedTables)
+        {
+            if (tableSet.Contains(tableName))
+            {
+                rows[tableName] = CountRows(connection, tableName);
+            }
+        }
+
+        return rows;
+    }
+
+    private static void AddMissingTableErrors(HashSet<string> tableSet, List<LegacyIssue> errors)
+    {
+        foreach (var tableName in ExpectedTables)
+        {
+            if (!tableSet.Contains(tableName))
+            {
+                errors.Add(new LegacyIssue("TargetTableMissing", $"Expected target table is missing: {tableName}", "Error"));
+            }
+        }
+    }
+
+    private static void AddMinimumRowCountErrors(Dictionary<string, long> tableRows, List<LegacyIssue> errors)
+    {
+        AddMinimumRowCountError(tableRows, errors, "Tenant", 1);
+        AddMinimumRowCountError(tableRows, errors, "Site", 1);
+        AddMinimumRowCountError(tableRows, errors, "User", 1);
+        AddMinimumRowCountError(tableRows, errors, "SiteMembership", 1);
+    }
+
+    private static void AddMinimumRowCountError(Dictionary<string, long> tableRows, List<LegacyIssue> errors, string tableName, long minimum)
+    {
+        if (tableRows.TryGetValue(tableName, out var count) && count < minimum)
+        {
+            errors.Add(new LegacyIssue("TargetTableTooSmall", $"Target table {tableName} has {count} rows; expected at least {minimum}.", "Error"));
+        }
+    }
+
+    private static void AddForeignKeyErrors(SqliteConnection connection, List<LegacyIssue> errors)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "PRAGMA foreign_key_check;";
+        using var reader = command.ExecuteReader();
+
+        while (reader.Read())
+        {
+            var table = reader.IsDBNull(0) ? "(unknown)" : reader.GetString(0);
+            var rowId = reader.IsDBNull(1) ? "(unknown)" : reader.GetValue(1).ToString();
+            var parent = reader.IsDBNull(2) ? "(unknown)" : reader.GetString(2);
+            errors.Add(new LegacyIssue("ForeignKeyViolation", $"Foreign key violation in {table} row {rowId}; parent table: {parent}.", "Error"));
+        }
+    }
+
+    private static void AddRelationshipErrors(SqliteConnection connection, HashSet<string> tableSet, List<LegacyIssue> errors)
+    {
+        AddOrphanError(connection, tableSet, errors, "PostContent", "PostId", "Post", "Id", "PostContentOrphanPost", "Post content points to a missing post");
+        AddOrphanError(connection, tableSet, errors, "PostRoute", "PostId", "Post", "Id", "PostRouteOrphanPost", "Post route points to a missing post");
+        AddOrphanError(connection, tableSet, errors, "PostMetric", "PostId", "Post", "Id", "PostMetricOrphanPost", "Post metric points to a missing post");
+        AddOrphanError(connection, tableSet, errors, "PostCategory", "PostId", "Post", "Id", "PostCategoryOrphanPost", "Post category points to a missing post");
+        AddOrphanError(connection, tableSet, errors, "PostCategory", "CategoryId", "Category", "Id", "PostCategoryOrphanCategory", "Post category points to a missing category");
+        AddOrphanError(connection, tableSet, errors, "PostTag", "PostId", "Post", "Id", "PostTagOrphanPost", "Post tag points to a missing post");
+        AddOrphanError(connection, tableSet, errors, "PostTag", "TagId", "Tag", "Id", "PostTagOrphanTag", "Post tag points to a missing tag");
+        AddOrphanError(connection, tableSet, errors, "Comment", "PostId", "Post", "Id", "CommentOrphanPost", "Comment points to a missing post");
+        AddOrphanError(connection, tableSet, errors, "CommentReply", "CommentId", "Comment", "Id", "CommentReplyOrphanComment", "Comment reply points to a missing comment");
+        AddOrphanError(connection, tableSet, errors, "SubMenu", "MenuId", "Menu", "Id", "SubMenuOrphanMenu", "Sub menu points to a missing menu");
+        AddOrphanError(connection, tableSet, errors, "SiteMembership", "UserId", "User", "Id", "SiteMembershipOrphanUser", "Site membership points to a missing user");
+    }
+
+    private static void AddPostShapeErrors(SqliteConnection connection, HashSet<string> tableSet, List<LegacyIssue> errors)
+    {
+        AddCountError(
+            connection,
+            tableSet,
+            errors,
+            ["Post", "PostContent"],
+            "PostWithoutContent",
+            "Post is missing raw content",
+            "SELECT COUNT(*) FROM \"Post\" p LEFT JOIN \"PostContent\" pc ON p.\"Id\" = pc.\"PostId\" WHERE pc.\"PostId\" IS NULL;");
+
+        AddCountError(
+            connection,
+            tableSet,
+            errors,
+            ["Post", "PostMetric"],
+            "PostWithoutMetric",
+            "Post is missing metrics",
+            "SELECT COUNT(*) FROM \"Post\" p LEFT JOIN \"PostMetric\" pm ON p.\"Id\" = pm.\"PostId\" WHERE pm.\"PostId\" IS NULL;");
+
+        AddCountError(
+            connection,
+            tableSet,
+            errors,
+            ["Post", "PostRoute"],
+            "PublishedPostWithoutRoute",
+            "Published post is missing a route",
+            "SELECT COUNT(*) FROM \"Post\" p LEFT JOIN \"PostRoute\" pr ON p.\"Id\" = pr.\"PostId\" WHERE p.\"PubDateUtc\" IS NOT NULL AND pr.\"PostId\" IS NULL;");
+    }
+
+    private static void AddOrphanError(
+        SqliteConnection connection,
+        HashSet<string> tableSet,
+        List<LegacyIssue> errors,
+        string childTable,
+        string childColumn,
+        string parentTable,
+        string parentColumn,
+        string code,
+        string message)
+    {
+        if (!HasColumns(connection, tableSet, childTable, [childColumn]) || !HasColumns(connection, tableSet, parentTable, [parentColumn]))
+        {
+            return;
+        }
+
+        var sql =
+            $"SELECT COUNT(*) FROM {QuoteIdentifier(childTable)} c " +
+            $"LEFT JOIN {QuoteIdentifier(parentTable)} p ON c.{QuoteIdentifier(childColumn)} = p.{QuoteIdentifier(parentColumn)} " +
+            $"WHERE c.{QuoteIdentifier(childColumn)} IS NOT NULL AND p.{QuoteIdentifier(parentColumn)} IS NULL;";
+        var count = ExecuteScalarLong(connection, sql);
+        if (count > 0)
+        {
+            errors.Add(new LegacyIssue(code, $"{message}: {count} rows", "Error"));
+        }
+    }
+
+    private static void AddCountError(
+        SqliteConnection connection,
+        HashSet<string> tableSet,
+        List<LegacyIssue> errors,
+        string[] requiredTables,
+        string code,
+        string message,
+        string sql)
+    {
+        if (requiredTables.Any(tableName => !tableSet.Contains(tableName)))
+        {
+            return;
+        }
+
+        var count = ExecuteScalarLong(connection, sql);
+        if (count > 0)
+        {
+            errors.Add(new LegacyIssue(code, $"{message}: {count} rows", "Error"));
+        }
+    }
+
+    private static bool HasColumns(SqliteConnection connection, HashSet<string> tableSet, string tableName, string[] columnNames)
+    {
+        if (!tableSet.Contains(tableName))
+        {
+            return false;
+        }
+
+        var columns = LoadColumns(connection, tableName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return columnNames.All(columns.Contains);
+    }
+
+    private static IReadOnlyList<string> LoadColumns(SqliteConnection connection, string tableName)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = $"PRAGMA table_info({QuoteIdentifier(tableName)});";
+        using var reader = command.ExecuteReader();
+        var columns = new List<string>();
+
+        while (reader.Read())
+        {
+            columns.Add(reader.GetString(1));
+        }
+
+        return columns;
+    }
+
+    private static long CountRows(SqliteConnection connection, string tableName)
+    {
+        return ExecuteScalarLong(connection, $"SELECT COUNT(*) FROM {QuoteIdentifier(tableName)};");
+    }
+
+    private static long ExecuteScalarLong(SqliteConnection connection, string sql)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        return Convert.ToInt64(command.ExecuteScalar());
+    }
+
+    private static string QuoteIdentifier(string identifier)
+    {
+        return $"\"{identifier.Replace("\"", "\"\"")}\"";
+    }
+}
+
+internal static class TargetSqliteValidationReportWriter
+{
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = true
+    };
+
+    public static void WriteText(TargetSqliteValidationReport report, TextWriter writer)
+    {
+        writer.WriteLine("MoongladePure target SQLite validation report");
+        writer.WriteLine($"Target: {report.TargetPath}");
+        writer.WriteLine($"Generated UTC: {report.GeneratedAtUtc:O}");
+        writer.WriteLine();
+        writer.WriteLine("Target rows:");
+
+        foreach (var item in report.TableRows.OrderBy(static item => item.Key))
+        {
+            writer.WriteLine($"  {item.Key}: {item.Value}");
+        }
+
+        writer.WriteLine();
+        writer.WriteLine($"Warnings: {report.Warnings.Count}");
+
+        foreach (var warning in report.Warnings)
+        {
+            writer.WriteLine($"  [{warning.Code}] {warning.Message}");
+        }
+
+        writer.WriteLine();
+        writer.WriteLine($"Errors: {report.Errors.Count}");
+
+        foreach (var error in report.Errors)
+        {
+            writer.WriteLine($"  [{error.Code}] {error.Message}");
+        }
+    }
+
+    public static void WriteJson(TargetSqliteValidationReport report, string jsonPath)
+    {
+        var directory = Path.GetDirectoryName(jsonPath);
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        File.WriteAllText(jsonPath, JsonSerializer.Serialize(report, JsonOptions));
+    }
+}
+
+internal sealed record TargetSqliteValidationReport(
+    string TargetPath,
+    DateTimeOffset GeneratedAtUtc,
+    IReadOnlyDictionary<string, long> TableRows,
+    IReadOnlyList<LegacyIssue> Warnings,
+    IReadOnlyList<LegacyIssue> Errors);
 
 internal static class LegacySqliteReportWriter
 {
