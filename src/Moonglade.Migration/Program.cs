@@ -662,6 +662,7 @@ internal static class TargetSqliteValidator
         var tableSet = LoadTables(connection).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var tableRows = CountExpectedRows(connection, tableSet);
         var sourceRows = string.IsNullOrWhiteSpace(sourcePath) ? null : CountLegacyRows(sourcePath);
+        var comparisons = BuildSourceTargetComparisons(sourceRows, tableRows);
         var warnings = new List<LegacyIssue>();
         var errors = new List<LegacyIssue>();
 
@@ -670,7 +671,7 @@ internal static class TargetSqliteValidator
         AddForeignKeyErrors(connection, errors);
         AddRelationshipErrors(connection, tableSet, errors);
         AddPostShapeErrors(connection, tableSet, errors);
-        AddSourceTargetCountErrors(sourceRows, tableRows, errors);
+        AddSourceTargetCountErrors(comparisons, errors);
 
         return new TargetSqliteValidationReport(
             sourcePath,
@@ -678,6 +679,7 @@ internal static class TargetSqliteValidator
             DateTimeOffset.UtcNow,
             sourceRows ?? new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase),
             tableRows,
+            comparisons,
             warnings,
             errors);
     }
@@ -852,49 +854,59 @@ internal static class TargetSqliteValidator
             "SELECT COUNT(*) FROM \"Post\" p LEFT JOIN \"PostRoute\" pr ON p.\"Id\" = pr.\"PostId\" WHERE p.\"PubDateUtc\" IS NOT NULL AND pr.\"PostId\" IS NULL;");
     }
 
-    private static void AddSourceTargetCountErrors(Dictionary<string, long>? sourceRows, Dictionary<string, long> targetRows, List<LegacyIssue> errors)
+    private static IReadOnlyList<TargetRowComparison> BuildSourceTargetComparisons(Dictionary<string, long>? sourceRows, Dictionary<string, long> targetRows)
     {
         if (sourceRows is null)
         {
-            return;
+            return [];
         }
 
-        AddCountMismatchError(sourceRows, targetRows, errors, "LocalAccount", "User");
-        AddCountMismatchError(sourceRows, targetRows, errors, "Category", "Category");
-        AddCountMismatchError(sourceRows, targetRows, errors, "Tag", "Tag");
-        AddCountMismatchError(sourceRows, targetRows, errors, "BlogConfiguration", "SiteSetting");
-        AddCountMismatchError(sourceRows, targetRows, errors, "BlogTheme", "Theme");
-        AddCountMismatchError(sourceRows, targetRows, errors, "BlogAsset", "SiteBinaryAsset");
-        AddCountMismatchError(sourceRows, targetRows, errors, "FriendLink", "FriendLink");
-        AddCountMismatchError(sourceRows, targetRows, errors, "Menu", "Menu");
-        AddCountMismatchError(sourceRows, targetRows, errors, "SubMenu", "SubMenu");
-        AddCountMismatchError(sourceRows, targetRows, errors, "CustomPage", "Page");
-        AddCountMismatchError(sourceRows, targetRows, errors, "Post", "Post");
-        AddCountMismatchError(sourceRows, targetRows, errors, "Post", "PostContent");
-        AddCountMismatchError(sourceRows, targetRows, errors, "PublishedPostWithRoute", "PostRoute");
-        AddCountMismatchError(sourceRows, targetRows, errors, "PostExtension", "PostMetric");
-        AddCountMismatchError(sourceRows, targetRows, errors, "PostCategory", "PostCategory");
-        AddCountMismatchError(sourceRows, targetRows, errors, "PostTag", "PostTag");
-        AddCountMismatchError(sourceRows, targetRows, errors, "Comment", "Comment");
-        AddCountMismatchError(sourceRows, targetRows, errors, "CommentReply", "CommentReply");
+        var comparisons = new List<TargetRowComparison>();
+        AddComparison(sourceRows, targetRows, comparisons, "LocalAccount", "User");
+        AddComparison(sourceRows, targetRows, comparisons, "Category", "Category");
+        AddComparison(sourceRows, targetRows, comparisons, "Tag", "Tag");
+        AddComparison(sourceRows, targetRows, comparisons, "BlogConfiguration", "SiteSetting");
+        AddComparison(sourceRows, targetRows, comparisons, "BlogTheme", "Theme");
+        AddComparison(sourceRows, targetRows, comparisons, "BlogAsset", "SiteBinaryAsset");
+        AddComparison(sourceRows, targetRows, comparisons, "FriendLink", "FriendLink");
+        AddComparison(sourceRows, targetRows, comparisons, "Menu", "Menu");
+        AddComparison(sourceRows, targetRows, comparisons, "SubMenu", "SubMenu");
+        AddComparison(sourceRows, targetRows, comparisons, "CustomPage", "Page");
+        AddComparison(sourceRows, targetRows, comparisons, "Post", "Post");
+        AddComparison(sourceRows, targetRows, comparisons, "Post", "PostContent");
+        AddComparison(sourceRows, targetRows, comparisons, "PublishedPostWithRoute", "PostRoute");
+        AddComparison(sourceRows, targetRows, comparisons, "PostExtension", "PostMetric");
+        AddComparison(sourceRows, targetRows, comparisons, "PostCategory", "PostCategory");
+        AddComparison(sourceRows, targetRows, comparisons, "PostTag", "PostTag");
+        AddComparison(sourceRows, targetRows, comparisons, "Comment", "Comment");
+        AddComparison(sourceRows, targetRows, comparisons, "CommentReply", "CommentReply");
+        return comparisons;
     }
 
-    private static void AddCountMismatchError(
+    private static void AddComparison(
         Dictionary<string, long> sourceRows,
         Dictionary<string, long> targetRows,
-        List<LegacyIssue> errors,
+        List<TargetRowComparison> comparisons,
         string sourceName,
         string targetName)
     {
-        if (!sourceRows.TryGetValue(sourceName, out var sourceCount) || !targetRows.TryGetValue(targetName, out var targetCount) || sourceCount == targetCount)
+        if (!sourceRows.TryGetValue(sourceName, out var sourceCount) || !targetRows.TryGetValue(targetName, out var targetCount))
         {
             return;
         }
 
-        errors.Add(new LegacyIssue(
-            "SourceTargetCountMismatch",
-            $"Source {sourceName} has {sourceCount} rows, but target {targetName} has {targetCount} rows.",
-            "Error"));
+        comparisons.Add(new TargetRowComparison(sourceName, targetName, sourceCount, targetCount, sourceCount == targetCount));
+    }
+
+    private static void AddSourceTargetCountErrors(IReadOnlyList<TargetRowComparison> comparisons, List<LegacyIssue> errors)
+    {
+        foreach (var comparison in comparisons.Where(static comparison => !comparison.Matches))
+        {
+            errors.Add(new LegacyIssue(
+                "SourceTargetCountMismatch",
+                $"Source {comparison.SourceName} has {comparison.SourceCount} rows, but target {comparison.TargetName} has {comparison.TargetCount} rows.",
+                "Error"));
+        }
     }
 
     private static void AddOrphanError(
@@ -1018,6 +1030,18 @@ internal static class TargetSqliteValidationReportWriter
             }
         }
 
+        if (report.SourceTargetComparisons.Count > 0)
+        {
+            writer.WriteLine();
+            writer.WriteLine("Source-target comparisons:");
+
+            foreach (var comparison in report.SourceTargetComparisons)
+            {
+                var status = comparison.Matches ? "OK" : "Mismatch";
+                writer.WriteLine($"  {comparison.SourceName} -> {comparison.TargetName}: {comparison.SourceCount} -> {comparison.TargetCount} ({status})");
+            }
+        }
+
         writer.WriteLine();
         writer.WriteLine("Target rows:");
 
@@ -1061,8 +1085,16 @@ internal sealed record TargetSqliteValidationReport(
     DateTimeOffset GeneratedAtUtc,
     IReadOnlyDictionary<string, long> SourceRows,
     IReadOnlyDictionary<string, long> TableRows,
+    IReadOnlyList<TargetRowComparison> SourceTargetComparisons,
     IReadOnlyList<LegacyIssue> Warnings,
     IReadOnlyList<LegacyIssue> Errors);
+
+internal sealed record TargetRowComparison(
+    string SourceName,
+    string TargetName,
+    long SourceCount,
+    long TargetCount,
+    bool Matches);
 
 internal static class LegacySqliteReportWriter
 {

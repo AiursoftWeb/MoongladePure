@@ -43,6 +43,8 @@ public class MigrationToolTests
         Assert.HasCount(0, validationReport.Errors);
         Assert.AreEqual(1, validationReport.SourceRows["Post"]);
         Assert.AreEqual(1, validationReport.SourceRows["LocalAccount"]);
+        Assert.IsTrue(validationReport.SourceTargetComparisons.All(c => c.Matches));
+        Assert.IsTrue(validationReport.SourceTargetComparisons.Any(c => c.SourceName == "LocalAccount" && c.TargetName == "User"));
         Assert.AreEqual(1, validationReport.TableRows["Post"]);
         Assert.AreEqual(1, validationReport.TableRows["PostContent"]);
         Assert.AreEqual(1, validationReport.TableRows["PostRoute"]);
@@ -115,6 +117,7 @@ public class MigrationToolTests
         var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
 
         Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "SourceTargetCountMismatch"));
+        Assert.IsTrue(validationReport.SourceTargetComparisons.Any(c => c.TargetName == "PostRoute" && !c.Matches));
     }
 
     private sealed class LegacyDatabaseFixture : IDisposable
