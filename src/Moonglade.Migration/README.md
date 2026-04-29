@@ -59,6 +59,36 @@ Overwrite an existing target database:
 dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source old.db --target new.db --overwrite
 ```
 
+## Validation
+
+The current migration path has been tested with a real legacy SQLite database whose latest EF migration was:
+
+```text
+20260115212706_AddUserProfileTable
+```
+
+That validation produced a clean preflight report:
+
+```text
+Warnings: 0
+Errors: 0
+```
+
+The migration also completed without errors, and the migrated database was manually verified through the web application. The verification covered home page loading, post list loading, old post slug routing, category and tag pages, admin sign-in, existing settings, menus, pages, friend links, comments, and creating and editing posts.
+
+Useful post-migration SQLite checks:
+
+```bash
+sqlite3 new.db "select count(*) from Post;"
+sqlite3 new.db "select count(*) from PostContent;"
+sqlite3 new.db "select count(*) from PostRoute;"
+sqlite3 new.db "select count(*) from User;"
+sqlite3 new.db "select count(*) from SiteMembership;"
+sqlite3 new.db "pragma foreign_key_check;"
+```
+
+`Migrated rows` in the report use legacy source names, such as `LocalAccount` and `CustomPage`. `Target rows` use the actual new SQLite table names, such as `User`, `Page`, `SiteSetting`, `Theme`, and `SiteBinaryAsset`.
+
 ## Current Scope
 
 The first migration version supports the core blog data path:

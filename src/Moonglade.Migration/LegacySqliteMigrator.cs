@@ -662,7 +662,7 @@ internal static class LegacySqliteMigrator
         {
             ["Tenant"] = target.Tenant.Count(),
             ["Site"] = target.Site.Count(),
-            ["LocalAccount"] = target.LocalAccount.Count(),
+            ["User"] = target.LocalAccount.Count(),
             ["Category"] = target.Category.Count(),
             ["Tag"] = target.Tag.Count(),
             ["Post"] = target.Post.Count(),
@@ -672,13 +672,13 @@ internal static class LegacySqliteMigrator
             ["PostTag"] = target.PostTag.Count(),
             ["Comment"] = target.Comment.Count(),
             ["CommentReply"] = target.CommentReply.Count(),
-            ["CustomPage"] = target.CustomPage.Count(),
+            ["Page"] = target.CustomPage.Count(),
             ["Menu"] = target.Menu.Count(),
             ["SubMenu"] = target.SubMenu.Count(),
             ["FriendLink"] = target.FriendLink.Count(),
-            ["BlogConfiguration"] = target.BlogConfiguration.Count(),
-            ["BlogTheme"] = target.BlogTheme.Count(),
-            ["BlogAsset"] = target.BlogAsset.Count()
+            ["SiteSetting"] = target.BlogConfiguration.Count(),
+            ["Theme"] = target.BlogTheme.Count(),
+            ["SiteBinaryAsset"] = target.BlogAsset.Count()
         };
     }
 
