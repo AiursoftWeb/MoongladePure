@@ -671,6 +671,7 @@ internal static class TargetSqliteValidator
         AddForeignKeyErrors(connection, errors);
         AddRelationshipErrors(connection, tableSet, errors);
         AddPostShapeErrors(connection, tableSet, errors);
+        AddLegacyPostRouteErrors(connection, tableSet, sourcePath, errors);
         AddSourceTargetCountErrors(comparisons, errors);
 
         return new TargetSqliteValidationReport(
@@ -852,6 +853,70 @@ internal static class TargetSqliteValidator
             "PublishedPostWithoutRoute",
             "Published post is missing a route",
             "SELECT COUNT(*) FROM \"Post\" p LEFT JOIN \"PostRoute\" pr ON p.\"Id\" = pr.\"PostId\" WHERE p.\"PubDateUtc\" IS NOT NULL AND pr.\"PostId\" IS NULL;");
+    }
+
+    private static void AddLegacyPostRouteErrors(SqliteConnection targetConnection, HashSet<string> targetTableSet, string? sourcePath, List<LegacyIssue> errors)
+    {
+        if (string.IsNullOrWhiteSpace(sourcePath) || !HasColumns(targetConnection, targetTableSet, "PostRoute", ["RouteDate", "Slug"]))
+        {
+            return;
+        }
+
+        using var sourceConnection = OpenReadOnlyConnection(sourcePath);
+        var sourceTableSet = LoadTables(sourceConnection).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (!HasColumns(sourceConnection, sourceTableSet, "Post", ["PubDateUtc", "Slug"]))
+        {
+            return;
+        }
+
+        var targetRoutes = LoadRoutes(targetConnection, "PostRoute", "RouteDate", "Slug");
+        foreach (var legacyRoute in LoadRoutes(sourceConnection, "Post", "PubDateUtc", "Slug"))
+        {
+            if (!targetRoutes.Contains(legacyRoute))
+            {
+                errors.Add(new LegacyIssue(
+                    "LegacyPostRouteMissing",
+                    $"Legacy post route is missing in target: {legacyRoute.RouteDate}/{legacyRoute.Slug}",
+                    "Error"));
+            }
+        }
+    }
+
+    private static HashSet<PostRouteKey> LoadRoutes(SqliteConnection connection, string tableName, string routeDateColumn, string slugColumn)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText =
+            $"SELECT {QuoteIdentifier(routeDateColumn)}, {QuoteIdentifier(slugColumn)} " +
+            $"FROM {QuoteIdentifier(tableName)} " +
+            $"WHERE {QuoteIdentifier(routeDateColumn)} IS NOT NULL " +
+            $"AND {QuoteIdentifier(slugColumn)} IS NOT NULL " +
+            $"AND TRIM(CAST({QuoteIdentifier(slugColumn)} AS TEXT)) <> '';";
+        using var reader = command.ExecuteReader();
+        var routes = new HashSet<PostRouteKey>();
+
+        while (reader.Read())
+        {
+            var routeDateText = Convert.ToString(reader.GetValue(0));
+            var slug = Convert.ToString(reader.GetValue(1));
+            if (TryNormalizeDate(routeDateText, out var routeDate) && !string.IsNullOrWhiteSpace(slug))
+            {
+                routes.Add(new PostRouteKey(routeDate, slug));
+            }
+        }
+
+        return routes;
+    }
+
+    private static bool TryNormalizeDate(string? value, out string routeDate)
+    {
+        routeDate = string.Empty;
+        if (!DateTime.TryParse(value, out var parsed))
+        {
+            return false;
+        }
+
+        routeDate = parsed.Date.ToString("yyyy-MM-dd");
+        return true;
     }
 
     private static IReadOnlyList<TargetRowComparison> BuildSourceTargetComparisons(Dictionary<string, long>? sourceRows, Dictionary<string, long> targetRows)
@@ -1095,6 +1160,8 @@ internal sealed record TargetRowComparison(
     long SourceCount,
     long TargetCount,
     bool Matches);
+
+internal sealed record PostRouteKey(string RouteDate, string Slug);
 
 internal static class LegacySqliteReportWriter
 {

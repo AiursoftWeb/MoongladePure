@@ -77,7 +77,7 @@ Validate a migrated target database against its legacy source row counts:
 dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- validate --source old.db --target new.db
 ```
 
-When `--source` is provided, the validation report includes source rows and source-to-target comparisons, such as `LocalAccount -> User`, `CustomPage -> Page`, `PostExtension -> PostMetric`, and published legacy posts with `PubDateUtc -> PostRoute`.
+When `--source` is provided, the validation report includes source rows, source-to-target comparisons, such as `LocalAccount -> User`, `CustomPage -> Page`, `PostExtension -> PostMetric`, and a legacy post route check that verifies each old `PubDateUtc + Slug` route exists in `PostRoute`.
 
 Write a JSON validation report:
 

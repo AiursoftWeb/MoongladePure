@@ -120,6 +120,26 @@ public class MigrationToolTests
         Assert.IsTrue(validationReport.SourceTargetComparisons.Any(c => c.TargetName == "PostRoute" && !c.Matches));
     }
 
+    [TestMethod]
+    public void ValidateTargetDatabaseWithSourceReportsMissingLegacyRoute()
+    {
+        using var fixture = LegacyDatabaseFixture.Create();
+        var migrateOptions = new MigrationOptions(
+            MigrationCommand.Migrate,
+            fixture.SourcePath,
+            fixture.TargetPath,
+            null,
+            false,
+            false);
+        LegacySqliteMigrator.Migrate(migrateOptions);
+        fixture.ExecuteTarget("UPDATE \"PostRoute\" SET \"Slug\" = 'changed';");
+
+        var validationReport = TargetSqliteValidator.Validate(fixture.TargetPath, fixture.SourcePath);
+
+        Assert.IsTrue(validationReport.Errors.Any(e => e.Code == "LegacyPostRouteMissing"));
+        Assert.IsFalse(validationReport.Errors.Any(e => e.Code == "SourceTargetCountMismatch"));
+    }
+
     private sealed class LegacyDatabaseFixture : IDisposable
     {
         private readonly string _directory;
