@@ -42,7 +42,7 @@ internal static class LegacySqliteAnalyzer
         var tableSet = tables.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var knownTableReports = BuildKnownTableReports(connection, tableSet);
         var warnings = new List<LegacyIssue>();
-        var errors = new List<LegacyIssue>();
+        IReadOnlyList<LegacyIssue> errors = [];
 
         warnings.AddRange(DetectMissingKnownTables(tableSet));
         warnings.AddRange(DetectDuplicateValues(connection, tableSet));
@@ -477,6 +477,8 @@ internal static class LegacySqliteReportWriter
     }
 }
 
+// ReSharper disable NotAccessedPositionalProperty.Global
+
 internal sealed record LegacySqliteReport(
     string SourcePath,
     DateTimeOffset GeneratedAtUtc,
@@ -502,3 +504,5 @@ internal sealed record LegacyIssue(
     string Code,
     string Message,
     string Severity);
+
+// ReSharper restore NotAccessedPositionalProperty.Global

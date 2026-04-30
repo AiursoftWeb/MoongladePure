@@ -753,7 +753,7 @@ internal sealed class LegacySqliteMigrationResult(string sourcePath, string targ
     public IReadOnlyDictionary<string, int> MigratedRows => _migratedRows;
     public IReadOnlyDictionary<string, int> SkippedRows => _skippedRows;
     public IReadOnlyDictionary<string, object> Info => _info;
-    public List<LegacyIssue> Errors { get; } = [];
+    public IReadOnlyList<LegacyIssue> Errors { get; } = [];
 
     public void Increment(string tableName)
     {

@@ -8,9 +8,4 @@ public class SqliteContext(DbContextOptions<SqliteContext> options) : BlogDbCont
     {
         return Task.FromResult(true);
     }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-    }
 }

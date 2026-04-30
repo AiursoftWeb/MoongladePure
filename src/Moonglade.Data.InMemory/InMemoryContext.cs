@@ -14,9 +14,4 @@ public class InMemoryContext(DbContextOptions<InMemoryContext> options) : BlogDb
     {
         return Task.FromResult(true);
     }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-    }
 }

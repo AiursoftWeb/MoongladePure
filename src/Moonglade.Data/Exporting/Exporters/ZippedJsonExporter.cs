@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MoongladePure.Data.Infrastructure;
+﻿using MoongladePure.Data.Infrastructure;
 using System.IO.Compression;
 using System.Linq.Expressions;
 using System.Text;

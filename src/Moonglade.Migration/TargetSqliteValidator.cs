@@ -49,7 +49,7 @@ internal static class TargetSqliteValidator
         var tableRows = CountExpectedRows(connection, tableSet);
         var sourceRows = string.IsNullOrWhiteSpace(sourcePath) ? null : CountLegacyRows(sourcePath);
         var comparisons = BuildSourceTargetComparisons(sourceRows, tableRows);
-        var warnings = new List<LegacyIssue>();
+        IReadOnlyList<LegacyIssue> warnings = [];
         var errors = new List<LegacyIssue>();
 
         AddMissingTableErrors(tableSet, errors);
