@@ -138,5 +138,6 @@ The first migration version supports the core blog data path:
 - Post-category and post-tag relationships
 - Comments and replies
 - Pages, menus, submenus, and friend links
+- Legacy post summaries and translations as AI artifacts
 
 The migration is designed to be run before switching traffic to the new instance. It does not aim for zero-downtime migration.

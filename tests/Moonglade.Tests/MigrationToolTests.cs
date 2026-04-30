@@ -62,6 +62,7 @@ public class MigrationToolTests
         Assert.AreEqual(1, validationReport.TableRows["PostRoute"]);
         Assert.AreEqual(1, validationReport.TableRows["User"]);
         Assert.AreEqual(1, validationReport.TableRows["SiteMembership"]);
+        Assert.AreEqual(2, validationReport.TableRows["AiArtifact"]);
     }
 
     [TestMethod]

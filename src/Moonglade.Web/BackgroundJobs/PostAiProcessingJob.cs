@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Core.TagFeature;
 using MoongladePure.Data.Entities;
+using System.Text.Json;
 
 namespace MoongladePure.Web.BackgroundJobs
 {
@@ -77,6 +78,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         // Generate Chinese abstract
                         if (autoGenerateSummary && (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractZh) || !trackedPost.ContentAbstractZh.EndsWith("--AI Generated")))
                         {
+                            var aiJob = await StartAiJob(context, trackedPost, AiJobType.Summary);
                             try
                             {
                                 logger.LogInformation("Generating OpenAi Chinese abstract for post with slug: {PostSlug}...",
@@ -97,10 +99,12 @@ namespace MoongladePure.Web.BackgroundJobs
                                     trackedPost.Slug, abstractForPost.SafeSubstring(100));
                                 trackedPost.ContentAbstractZh = abstractForPost + "--AI Generated";
                                 context.Post.Update(trackedPost);
+                                CompleteAiJob(aiJob, AiArtifactType.Summary, "zh-CN", abstractForPost, "ContentAbstractZh");
                                 await context.SaveChangesAsync();
                             }
                             catch (Exception e)
                             {
+                                await FailAiJob(context, aiJob, e);
                                 logger.LogCritical(e, "Failed to generate OpenAi Chinese abstract!");
                             }
                             finally
@@ -115,6 +119,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         // Generate English abstract
                         if (autoGenerateSummary && (string.IsNullOrWhiteSpace(trackedPost.ContentAbstractEn) || !trackedPost.ContentAbstractEn.EndsWith("--AI Generated")))
                         {
+                            var aiJob = await StartAiJob(context, trackedPost, AiJobType.Summary);
                             try
                             {
                                 logger.LogInformation("Generating OpenAi English abstract for post with slug: {PostSlug}...",
@@ -135,10 +140,12 @@ namespace MoongladePure.Web.BackgroundJobs
                                     trackedPost.Slug, abstractForPost.SafeSubstring(100));
                                 trackedPost.ContentAbstractEn = abstractForPost + "--AI Generated";
                                 context.Post.Update(trackedPost);
+                                CompleteAiJob(aiJob, AiArtifactType.Summary, "en-US", abstractForPost, "ContentAbstractEn");
                                 await context.SaveChangesAsync();
                             }
                             catch (Exception e)
                             {
+                                await FailAiJob(context, aiJob, e);
                                 logger.LogCritical(e, "Failed to generate OpenAi English abstract!");
                             }
                             finally
@@ -182,6 +189,7 @@ namespace MoongladePure.Web.BackgroundJobs
                         // ReSharper disable once InvertIf
                         if (autoGenerateComment && !aiComments.Any())
                         {
+                            var aiJob = await StartAiJob(context, trackedPost, AiJobType.Comment);
                             try
                             {
                                 logger.LogInformation("Generating OpenAi comment for post with slug: {PostSlug}...",
@@ -205,10 +213,12 @@ namespace MoongladePure.Web.BackgroundJobs
                                     CreateTimeUtc = DateTime.UtcNow,
                                     Username = "Qwen3"
                                 });
+                                CompleteAiJob(aiJob, AiArtifactType.Comment, null, newComment, "Comment");
                                 await context.SaveChangesAsync();
                             }
                             catch (Exception e)
                             {
+                                await FailAiJob(context, aiJob, e);
                                 logger.LogCritical(e, "Failed to generate OpenAi comment!");
                             }
                             finally
@@ -225,68 +235,81 @@ namespace MoongladePure.Web.BackgroundJobs
                             .CountAsync();
                         if (existingTagsCount < 6)
                         {
-                            logger.LogInformation("Generating OpenAi tags for post with slug: {PostSlug}...",
-                                trackedPost.Slug);
-                            var existingTags = await context.PostTag
-                                .Where(pt => pt.SiteId == trackedPost.SiteId)
-                                .Where(pt => pt.PostId == postId)
-                                .Select(pt => pt.Tag)
-                                .ToListAsync();
-
-                            var newTags = await openAi.GenerateTags(trackedPost.RawContent);
-                            var newTagsToAdd = new List<string>();
-                            foreach (var newTag in newTags
-                                         .Select(t => t.Replace('-', ' ')))
+                            var aiJob = await StartAiJob(context, trackedPost, AiJobType.Tags);
+                            try
                             {
-                                logger.LogInformation("Generated OpenAi tag for post with slug: {PostSlug}. New tag: '{Tag}'",
-                                    trackedPost.Slug, newTag.SafeSubstring(100));
-                                if (existingTags.Any(t =>
-                                        string.Equals(t.DisplayName, newTag, StringComparison.OrdinalIgnoreCase) ||
-                                        string.Equals(t.NormalizedName, Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary), StringComparison.OrdinalIgnoreCase)
-                                    ))
+                                logger.LogInformation("Generating OpenAi tags for post with slug: {PostSlug}...",
+                                    trackedPost.Slug);
+                                var existingTags = await context.PostTag
+                                    .Where(pt => pt.SiteId == trackedPost.SiteId)
+                                    .Where(pt => pt.PostId == postId)
+                                    .Select(pt => pt.Tag)
+                                    .ToListAsync();
+
+                                var newTags = await openAi.GenerateTags(trackedPost.RawContent);
+                                CompleteAiJob(aiJob, AiArtifactType.Tags, null, JsonSerializer.Serialize(newTags), "PostTag");
+                                var newTagsToAdd = new List<string>();
+                                foreach (var newTag in newTags
+                                             .Select(t => t.Replace('-', ' ')))
                                 {
-                                    // Not a new tag. Ignore.
-                                    logger.LogInformation("Tag already exists. Skipping...");
-                                    continue;
+                                    logger.LogInformation("Generated OpenAi tag for post with slug: {PostSlug}. New tag: '{Tag}'",
+                                        trackedPost.Slug, newTag.SafeSubstring(100));
+                                    if (existingTags.Any(t =>
+                                            string.Equals(t.DisplayName, newTag, StringComparison.OrdinalIgnoreCase) ||
+                                            string.Equals(t.NormalizedName, Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary), StringComparison.OrdinalIgnoreCase)
+                                        ))
+                                    {
+                                        // Not a new tag. Ignore.
+                                        logger.LogInformation("Tag already exists. Skipping...");
+                                        continue;
+                                    }
+
+                                    newTagsToAdd.Add(newTag);
                                 }
 
-                                newTagsToAdd.Add(newTag);
-                            }
-
-                            foreach (var newTag in newTagsToAdd.Take(6 - existingTagsCount))
-                            {
-                                var newTagNormalized = Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary);
-
-                                // Create new tag if not exists.
-                                var tag = await context.Tag
-                                    .FirstOrDefaultAsync(t => t.SiteId == trackedPost.SiteId && t.NormalizedName == newTagNormalized);
-                                if (tag == null)
+                                foreach (var newTag in newTagsToAdd.Take(6 - existingTagsCount))
                                 {
-                                    logger.LogInformation("Creating new tag: '{Tag}' in db...", newTag);
-                                    tag = new TagEntity
+                                    var newTagNormalized = Tag.NormalizeName(newTag, Helper.TagNormalizationDictionary);
+
+                                    // Create new tag if not exists.
+                                    var tag = await context.Tag
+                                        .FirstOrDefaultAsync(t => t.SiteId == trackedPost.SiteId && t.NormalizedName == newTagNormalized);
+                                    if (tag == null)
+                                    {
+                                        logger.LogInformation("Creating new tag: '{Tag}' in db...", newTag);
+                                        tag = new TagEntity
+                                        {
+                                            SiteId = trackedPost.SiteId,
+                                            DisplayName = newTag,
+                                            NormalizedName = newTagNormalized
+                                        };
+                                        await context.Tag.AddAsync(tag);
+                                        await context.SaveChangesAsync();
+                                    }
+
+                                    // Add the relation.
+                                    logger.LogInformation("Adding tag {Tag} to post {PostSlug}...", newTag, trackedPost.Slug);
+                                    await context.PostTag.AddAsync(new PostTagEntity
                                     {
                                         SiteId = trackedPost.SiteId,
-                                        DisplayName = newTag,
-                                        NormalizedName = newTagNormalized
-                                    };
-                                    await context.Tag.AddAsync(tag);
+                                        PostId = postId,
+                                        TagId = tag.Id
+                                    });
                                     await context.SaveChangesAsync();
                                 }
-
-                                // Add the relation.
-                                logger.LogInformation("Adding tag {Tag} to post {PostSlug}...", newTag, trackedPost.Slug);
-                                await context.PostTag.AddAsync(new PostTagEntity
-                                {
-                                    SiteId = trackedPost.SiteId,
-                                    PostId = postId,
-                                    TagId = tag.Id
-                                });
                                 await context.SaveChangesAsync();
                             }
-
-                            var minutesToSleep = new Random().Next(0, 15);
-                            logger.LogInformation("Sleeping for {Minutes} minutes...", minutesToSleep);
-                            await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
+                            catch (Exception e)
+                            {
+                                await FailAiJob(context, aiJob, e);
+                                logger.LogCritical(e, "Failed to generate OpenAi tags!");
+                            }
+                            finally
+                            {
+                                var minutesToSleep = new Random().Next(0, 15);
+                                logger.LogInformation("Sleeping for {Minutes} minutes...", minutesToSleep);
+                                await Task.Delay(TimeSpan.FromMinutes(minutesToSleep));
+                            }
                         }
                     }
                 }
@@ -297,6 +320,53 @@ namespace MoongladePure.Web.BackgroundJobs
             {
                 _logger.LogError(ex, "Post AI Processing job crashed!");
             }
+        }
+
+        private static async Task<AiJobEntity> StartAiJob(BlogDbContext context, PostEntity post, AiJobType jobType)
+        {
+            var job = new AiJobEntity
+            {
+                SiteId = post.SiteId,
+                JobType = jobType,
+                TargetEntityType = nameof(PostEntity),
+                TargetEntityId = post.Id,
+                Provider = "OpenAI",
+                Status = AiJobStatus.Running,
+                StartedAtUtc = DateTime.UtcNow
+            };
+
+            await context.AiJob.AddAsync(job);
+            await context.SaveChangesAsync();
+            return job;
+        }
+
+        private static void CompleteAiJob(AiJobEntity job, AiArtifactType artifactType, string cultureCode, string content, string legacyTarget)
+        {
+            job.Status = AiJobStatus.Succeeded;
+            job.FinishedAtUtc = DateTime.UtcNow;
+            job.Artifacts.Add(new AiArtifactEntity
+            {
+                SiteId = job.SiteId,
+                JobId = job.Id,
+                TargetEntityType = job.TargetEntityType,
+                TargetEntityId = job.TargetEntityId,
+                ArtifactType = artifactType,
+                CultureCode = cultureCode,
+                Content = content,
+                MetadataJson = JsonSerializer.Serialize(new
+                {
+                    source = nameof(PostAiProcessingJob),
+                    legacyTarget
+                })
+            });
+        }
+
+        private static async Task FailAiJob(BlogDbContext context, AiJobEntity job, Exception exception)
+        {
+            job.Status = AiJobStatus.Failed;
+            job.FinishedAtUtc = DateTime.UtcNow;
+            job.ErrorMessage = exception.Message.SafeSubstring(2048);
+            await context.SaveChangesAsync();
         }
     }
 }

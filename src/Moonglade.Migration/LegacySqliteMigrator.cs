@@ -464,6 +464,7 @@ internal static class LegacySqliteMigrator
                 CreatedAtUtc = row.GetDateTime("CreateTimeUtc", "CreatedTimeUtc") ?? now,
                 UpdatedAtUtc = row.GetDateTime("LastModifiedUtc", "UpdateTimeUtc")
             });
+            AddLegacyAiArtifacts(target, row, id, now);
 
             if (pubDateUtc.HasValue)
             {
@@ -485,6 +486,46 @@ internal static class LegacySqliteMigrator
 
         MigratePostMetrics(target, source, map, result);
         return map;
+    }
+
+    private static void AddLegacyAiArtifacts(SqliteContext target, LegacyRow row, Guid postId, DateTime now)
+    {
+        AddLegacyAiArtifact(target, row, postId, AiArtifactType.Summary, "zh-CN", row.GetString("ContentAbstractZh"), "ContentAbstractZh", now);
+        AddLegacyAiArtifact(target, row, postId, AiArtifactType.Summary, "en-US", row.GetString("ContentAbstractEn"), "ContentAbstractEn", now);
+        AddLegacyAiArtifact(target, row, postId, AiArtifactType.Translation, "zh-CN", row.GetString("LocalizedChineseContent"), "LocalizedChineseContent", now);
+        AddLegacyAiArtifact(target, row, postId, AiArtifactType.Translation, "en-US", row.GetString("LocalizedEnglishContent"), "LocalizedEnglishContent", now);
+    }
+
+    private static void AddLegacyAiArtifact(
+        SqliteContext target,
+        LegacyRow row,
+        Guid postId,
+        AiArtifactType artifactType,
+        string cultureCode,
+        string? content,
+        string legacyColumn,
+        DateTime now)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return;
+        }
+
+        target.AiArtifact.Add(new AiArtifactEntity
+        {
+            SiteId = SystemIds.DefaultSiteId,
+            TargetEntityType = nameof(PostEntity),
+            TargetEntityId = postId,
+            ArtifactType = artifactType,
+            CultureCode = cultureCode,
+            Content = content,
+            MetadataJson = JsonSerializer.Serialize(new
+            {
+                source = "LegacySqliteMigrator",
+                legacyColumn
+            }),
+            CreatedAtUtc = row.GetDateTime("LocalizeJobRunAt") ?? row.GetDateTime("LastModifiedUtc", "UpdateTimeUtc") ?? now
+        });
     }
 
     private static void MigratePostMetrics(SqliteContext target, LegacySqliteDatabase source, Dictionary<Guid, Guid> postIds, LegacySqliteMigrationResult result)
@@ -663,6 +704,8 @@ internal static class LegacySqliteMigrator
             ["Tenant"] = target.Tenant.Count(),
             ["Site"] = target.Site.Count(),
             ["User"] = target.LocalAccount.Count(),
+            ["AiArtifact"] = target.AiArtifact.Count(),
+            ["AiJob"] = target.AiJob.Count(),
             ["Category"] = target.Category.Count(),
             ["Tag"] = target.Tag.Count(),
             ["Post"] = target.Post.Count(),
