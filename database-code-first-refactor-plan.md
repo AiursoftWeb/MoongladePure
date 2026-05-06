@@ -622,6 +622,14 @@ moonglade-migrate
 - Repository 查询全部增加站点边界。
 - 保留旧 URL 解析行为。
 
+当前进展（2026-05-06）：
+
+- 已新增 request-scoped `ISiteContext` 和 `DefaultSiteContext`，默认实现回落到 `SystemIds.DefaultSiteId`。
+- 文章、分类、标签、页面、评论、配置、菜单、友链、主题、RSS、导出、资产、统计和 AI 后台任务的主要读写路径已经切到 `ISiteContext.SiteId`。
+- Data specs 支持显式传入 `siteId`，不传时仍使用默认站点 fallback，保持旧调用兼容。
+- 已增加双站点隔离测试，验证文章列表和页面 slug 查询不会读取其他站点数据。
+- 尚未实现基于 request host/domain 的动态站点解析。
+
 ### 阶段 4：AI 数据模型迁移
 
 - 把摘要、翻译和 AI 评论从核心宽表迁到 `PostContent` / `AiArtifact`。
@@ -722,9 +730,14 @@ moonglade-migrate
 10. 实现迁移校验报告。
 11. 将现有查询逐步加上 `SiteId` 边界。
 12. 将 AI 后台任务改为 `AiJob` 和 `AiArtifact`。
+13. 实现 host/domain 到 `ISiteContext` 的动态解析。
+14. 增加 host/domain 解析测试，覆盖已绑定域名、未知域名 fallback 和 host 归一化。
+15. 将前台读取路径逐步切到 `PostContent` / `AiArtifact` 投影。
 
 ## 13. 当前阶段结论
 
 MoongladePure 现在不是缺少一个迁移文件，而是缺少一个明确的数据边界：哪些数据属于平台、哪些属于租户、哪些属于站点、哪些属于内容本身、哪些只是 AI 派生产物。新的数据库设计应先建立这些边界，然后再考虑 provider 兼容和具体 EF Core 迁移。
 
 建议第一版重构以“默认租户 + 默认站点 + 旧 UI 完全兼容”为交付目标。这样既能让现有用户无感迁移，也能在不大幅扰动上层交互的前提下，把数据库结构推进到可以承载 SaaS 和 AI 功能的状态。
+
+截至 2026-05-06，第一版重构已经完成默认租户/默认站点、新 schema、legacy SQLite 迁移工具、迁移校验、AI job/artifact 落库、主要业务路径站点边界和默认 `ISiteContext`。下一步应从“默认站点 fallback”推进到“request host/domain 动态解析当前站点”。
