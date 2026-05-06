@@ -20,7 +20,8 @@ public class CreateCommentCommandHandler(
     IBlogConfig blogConfig,
     IRepository<PostEntity> postRepo,
     ICommentModerator moderator,
-    IRepository<CommentEntity> commentRepo)
+    IRepository<CommentEntity> commentRepo,
+    ISiteContext siteContext)
     : IRequestHandler<CreateCommentCommand, CommentDetailedItem>
 {
     public async Task<CommentDetailedItem> Handle(CreateCommentCommand request, CancellationToken ct)
@@ -46,7 +47,7 @@ public class CreateCommentCommandHandler(
         var model = new CommentEntity
         {
             Id = Guid.NewGuid(),
-            SiteId = SystemIds.DefaultSiteId,
+            SiteId = siteContext.SiteId,
             Username = request.Payload.Username,
             CommentContent = request.Payload.Content,
             PostId = request.PostId,
@@ -58,7 +59,7 @@ public class CreateCommentCommandHandler(
 
         await commentRepo.AddAsync(model, ct);
 
-        var spec = new PostSpec(request.PostId, false);
+        var spec = new PostSpec(request.PostId, false, siteContext.SiteId);
         var postTitle = await postRepo.FirstOrDefaultAsync(spec, p => p.Title);
 
         var item = new CommentDetailedItem

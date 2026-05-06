@@ -7,12 +7,12 @@ namespace MoongladePure.Data.Exporting;
 
 public record ExportLinkDataCommand : IRequest<ExportResult>;
 
-public class ExportLinkDataCommandHandler(IRepository<FriendLinkEntity> repo)
+public class ExportLinkDataCommandHandler(IRepository<FriendLinkEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ExportLinkDataCommand, ExportResult>
 {
     public Task<ExportResult> Handle(ExportLinkDataCommand request, CancellationToken ct)
     {
         var fdExp = new CSVExporter<FriendLinkEntity>(repo, "moonglade-friendlinks", ExportManager.DataDir);
-        return fdExp.ExportData(p => p, ct, p => p.SiteId == SystemIds.DefaultSiteId);
+        return fdExp.ExportData(p => p, ct, p => p.SiteId == siteContext.SiteId);
     }
 }

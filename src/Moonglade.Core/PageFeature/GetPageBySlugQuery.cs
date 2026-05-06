@@ -2,12 +2,12 @@
 
 public record GetPageBySlugQuery(string Slug) : IRequest<BlogPage>;
 
-public class GetPageBySlugQueryHandler(IRepository<PageEntity> repo) : IRequestHandler<GetPageBySlugQuery, BlogPage>
+public class GetPageBySlugQueryHandler(IRepository<PageEntity> repo, ISiteContext siteContext) : IRequestHandler<GetPageBySlugQuery, BlogPage>
 {
     public async Task<BlogPage> Handle(GetPageBySlugQuery request, CancellationToken ct)
     {
         var lower = request.Slug.ToLower();
-        var entity = await repo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Slug == lower);
+        var entity = await repo.GetAsync(p => p.SiteId == siteContext.SiteId && p.Slug == lower);
         if (entity == null) return null;
 
         var item = new BlogPage(entity);

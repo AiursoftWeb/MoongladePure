@@ -4,12 +4,12 @@ namespace MoongladePure.Core.TagFeature;
 
 public record GetTagCountListQuery : IRequest<IReadOnlyList<KeyValuePair<Tag, int>>>;
 
-public class GetTagCountListQueryHandler(IRepository<TagEntity> repo)
+public class GetTagCountListQueryHandler(IRepository<TagEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetTagCountListQuery, IReadOnlyList<KeyValuePair<Tag, int>>>
 {
     public async Task<IReadOnlyList<KeyValuePair<Tag, int>>> Handle(GetTagCountListQuery request, CancellationToken ct) =>
         await repo.AsQueryable()
-            .Where(t => t.SiteId == SystemIds.DefaultSiteId)
+            .Where(t => t.SiteId == siteContext.SiteId)
             .Select(t => new KeyValuePair<Tag, int>(new()
             {
                 Id = t.Id,

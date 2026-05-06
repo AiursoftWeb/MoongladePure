@@ -6,7 +6,7 @@ namespace MoongladePure.Menus;
 
 public record CreateMenuCommand(EditMenuRequest Payload) : IRequest<Guid>;
 
-public class CreateMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHandler<CreateMenuCommand, Guid>
+public class CreateMenuCommandHandler(IRepository<MenuEntity> repo, ISiteContext siteContext) : IRequestHandler<CreateMenuCommand, Guid>
 {
     public async Task<Guid> Handle(CreateMenuCommand request, CancellationToken ct)
     {
@@ -14,6 +14,7 @@ public class CreateMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHa
         var menu = new MenuEntity
         {
             Id = uid,
+            SiteId = siteContext.SiteId,
             Title = request.Payload.Title.Trim(),
             DisplayOrder = request.Payload.DisplayOrder.GetValueOrDefault(),
             Icon = request.Payload.Icon,

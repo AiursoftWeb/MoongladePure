@@ -5,8 +5,8 @@ namespace MoongladePure.Data.Spec;
 
 public sealed class PostInsightsSpec : BaseSpecification<PostEntity>
 {
-    public PostInsightsSpec(PostInsightsType insightsType, int top) :
-        base(p => p.SiteId == SystemIds.DefaultSiteId
+    public PostInsightsSpec(PostInsightsType insightsType, int top, Guid? siteId = null) :
+        base(p => p.SiteId == (siteId ?? SystemIds.DefaultSiteId)
                   && !p.IsDeleted
                   && p.IsPublished
                   && p.PubDateUtc >= DateTime.UtcNow.AddYears(-1))

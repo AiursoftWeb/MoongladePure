@@ -4,12 +4,12 @@ namespace MoongladePure.Core.PostFeature;
 
 public record ListPostSegmentByStatusQuery(PostStatus Status) : IRequest<IReadOnlyList<PostSegment>>;
 
-public class ListPostSegmentByStatusQueryHandler(IRepository<PostEntity> repo)
+public class ListPostSegmentByStatusQueryHandler(IRepository<PostEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ListPostSegmentByStatusQuery, IReadOnlyList<PostSegment>>
 {
     public Task<IReadOnlyList<PostSegment>> Handle(ListPostSegmentByStatusQuery request, CancellationToken ct)
     {
-        var spec = new PostSpec(request.Status);
+        var spec = new PostSpec(request.Status, siteContext.SiteId);
         return repo.SelectAsync(spec, PostSegment.EntitySelector);
     }
 }

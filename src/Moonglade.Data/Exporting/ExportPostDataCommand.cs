@@ -7,7 +7,7 @@ namespace MoongladePure.Data.Exporting;
 
 public record ExportPostDataCommand : IRequest<ExportResult>;
 
-public class ExportPostDataCommandHandler(IRepository<PostEntity> repo)
+public class ExportPostDataCommandHandler(IRepository<PostEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ExportPostDataCommand, ExportResult>
 {
     public Task<ExportResult> Handle(ExportPostDataCommand request, CancellationToken ct)
@@ -31,7 +31,7 @@ public class ExportPostDataCommandHandler(IRepository<PostEntity> repo)
             p.IsPublished,
             Categories = p.PostCategory.Select(pc => pc.Category.DisplayName),
             Tags = p.Tags.Select(pt => pt.DisplayName)
-        }, ct, p => p.SiteId == SystemIds.DefaultSiteId);
+        }, ct, p => p.SiteId == siteContext.SiteId);
 
         return poExportData;
     }

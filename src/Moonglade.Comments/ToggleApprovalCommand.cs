@@ -7,11 +7,11 @@ namespace MoongladePure.Comments;
 
 public record ToggleApprovalCommand(Guid[] CommentIds) : IRequest;
 
-public class ToggleApprovalCommandHandler(IRepository<CommentEntity> repo) : IRequestHandler<ToggleApprovalCommand>
+public class ToggleApprovalCommandHandler(IRepository<CommentEntity> repo, ISiteContext siteContext) : IRequestHandler<ToggleApprovalCommand>
 {
     public async Task Handle(ToggleApprovalCommand request, CancellationToken ct)
     {
-        var spec = new CommentSpec(request.CommentIds);
+        var spec = new CommentSpec(request.CommentIds, siteContext.SiteId);
         var comments = await repo.ListAsync(spec);
         foreach (var cmt in comments)
         {

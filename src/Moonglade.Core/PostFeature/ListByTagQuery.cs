@@ -5,7 +5,7 @@ namespace MoongladePure.Core.PostFeature;
 
 public record ListByTagQuery(int TagId, int PageSize, int PageIndex) : IRequest<IReadOnlyList<PostDigest>>;
 
-public class ListByTagQueryHandler(IRepository<PostTagEntity> repo)
+public class ListByTagQueryHandler(IRepository<PostTagEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ListByTagQuery, IReadOnlyList<PostDigest>>
 {
     public Task<IReadOnlyList<PostDigest>> Handle(ListByTagQuery request, CancellationToken ct)
@@ -13,7 +13,7 @@ public class ListByTagQueryHandler(IRepository<PostTagEntity> repo)
         if (request.TagId <= 0) throw new ArgumentOutOfRangeException(nameof(request.TagId));
         Helper.ValidatePagingParameters(request.PageSize, request.PageIndex);
 
-        var posts = repo.SelectAsync(new PostTagSpec(request.TagId, request.PageSize, request.PageIndex), PostDigest.EntitySelectorByTag);
+        var posts = repo.SelectAsync(new PostTagSpec(request.TagId, request.PageSize, request.PageIndex, siteContext.SiteId), PostDigest.EntitySelectorByTag);
         return posts;
     }
 }

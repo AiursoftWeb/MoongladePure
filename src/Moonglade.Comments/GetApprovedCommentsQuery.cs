@@ -7,12 +7,12 @@ namespace MoongladePure.Comments;
 
 public record GetApprovedCommentsQuery(Guid PostId) : IRequest<IReadOnlyList<Comment>>;
 
-public class GetApprovedCommentsQueryHandler(IRepository<CommentEntity> repo)
+public class GetApprovedCommentsQueryHandler(IRepository<CommentEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetApprovedCommentsQuery, IReadOnlyList<Comment>>
 {
     public Task<IReadOnlyList<Comment>> Handle(GetApprovedCommentsQuery request, CancellationToken ct)
     {
-        return repo.SelectAsync(new CommentSpec(request.PostId), c => new Comment
+        return repo.SelectAsync(new CommentSpec(request.PostId, siteContext.SiteId), c => new Comment
         {
             CommentContent = c.CommentContent,
             CreateTimeUtc = c.CreateTimeUtc,

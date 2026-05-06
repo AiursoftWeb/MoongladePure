@@ -3,4 +3,5 @@ using MoongladePure.Data.Infrastructure;
 
 namespace MoongladePure.Data.Spec;
 
-public class CommentReplySpec(Guid commentId) : BaseSpecification<CommentReplyEntity>(cr => cr.SiteId == SystemIds.DefaultSiteId && cr.CommentId == commentId);
+public class CommentReplySpec(Guid commentId, Guid? siteId = null)
+    : BaseSpecification<CommentReplyEntity>(cr => cr.SiteId == (siteId ?? SystemIds.DefaultSiteId) && cr.CommentId == commentId);

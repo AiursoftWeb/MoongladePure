@@ -4,14 +4,14 @@ namespace MoongladePure.Core.TagFeature;
 
 public record GetHotTagsQuery(int Top) : IRequest<IReadOnlyList<KeyValuePair<Tag, int>>>;
 
-public class GetHotTagsQueryHandler(IRepository<TagEntity> repo)
+public class GetHotTagsQueryHandler(IRepository<TagEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetHotTagsQuery, IReadOnlyList<KeyValuePair<Tag, int>>>
 {
     public async Task<IReadOnlyList<KeyValuePair<Tag, int>>> Handle(GetHotTagsQuery request, CancellationToken ct)
     {
-        if (!await repo.AnyAsync(t => t.SiteId == SystemIds.DefaultSiteId, ct)) return new List<KeyValuePair<Tag, int>>();
+        if (!await repo.AnyAsync(t => t.SiteId == siteContext.SiteId, ct)) return new List<KeyValuePair<Tag, int>>();
 
-        var spec = new TagSpec(request.Top);
+        var spec = new TagSpec(request.Top, siteContext.SiteId);
         var tags = await repo.SelectAsync(spec, t =>
             new KeyValuePair<Tag, int>(new()
             {

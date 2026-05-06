@@ -7,13 +7,13 @@ namespace MoongladePure.Configuration;
 
 public record UpdateConfigurationCommand(string Name, string Json) : IRequest<OperationCode>;
 
-public class UpdateConfigurationCommandHandler(IRepository<BlogConfigurationEntity> repository)
+public class UpdateConfigurationCommandHandler(IRepository<BlogConfigurationEntity> repository, ISiteContext siteContext)
     : IRequestHandler<UpdateConfigurationCommand, OperationCode>
 {
     public async Task<OperationCode> Handle(UpdateConfigurationCommand request, CancellationToken ct)
     {
         var (name, json) = request;
-        var entity = await repository.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.CfgKey == name);
+        var entity = await repository.GetAsync(p => p.SiteId == siteContext.SiteId && p.CfgKey == name);
         if (entity == null) return OperationCode.ObjectNotFound;
 
         entity.CfgValue = json;

@@ -7,7 +7,7 @@ namespace MoongladePure.Core.PostFeature;
 
 public record GetPostBySlugQuery(PostSlug Slug) : IRequest<Post>;
 
-public class GetPostBySlugQueryHandler(IRepository<PostEntity> repo, IBlogCache cache, IConfiguration configuration)
+public class GetPostBySlugQueryHandler(IRepository<PostEntity> repo, IBlogCache cache, IConfiguration configuration, ISiteContext siteContext)
     : IRequestHandler<GetPostBySlugQuery, Post>
 {
     public async Task<Post> Handle(GetPostBySlugQuery request, CancellationToken ct)
@@ -16,25 +16,25 @@ public class GetPostBySlugQueryHandler(IRepository<PostEntity> repo, IBlogCache 
 
         // Try to find by checksum
         var slugCheckSum = Helper.ComputeCheckSum($"{request.Slug.Slug}#{date:yyyyMMdd}");
-        ISpecification<PostEntity> spec = new PostSpec(slugCheckSum);
+        ISpecification<PostEntity> spec = new PostSpec(slugCheckSum, siteContext.SiteId);
 
         var pid = await repo.FirstOrDefaultAsync(spec, p => p.Id);
         if (pid == Guid.Empty)
         {
             // Post does not have a checksum, fall back to old method
-            spec = new PostSpec(date, request.Slug.Slug);
+            spec = new PostSpec(date, request.Slug.Slug, siteContext.SiteId);
             pid = await repo.FirstOrDefaultAsync(spec, x => x.Id);
 
             if (pid == Guid.Empty) return null;
 
             // Post is found, fill it's checksum so that next time the query can be run against checksum
-            var p = await repo.GetAsync(post => post.SiteId == SystemIds.DefaultSiteId && post.Id == pid);
+            var p = await repo.GetAsync(post => post.SiteId == siteContext.SiteId && post.Id == pid);
             p.HashCheckSum = slugCheckSum;
 
             await repo.UpdateAsync(p, ct);
         }
 
-        var psm = await cache.GetOrCreateAsync(CacheDivision.Post, $"{pid}", async entry =>
+        var psm = await cache.GetOrCreateAsync(CacheDivision.Post, $"{siteContext.SiteId}:{pid}", async entry =>
         {
             entry.SlidingExpiration = TimeSpan.FromMinutes(int.Parse(configuration["CacheSlidingExpirationMinutes:Post"] ?? "0"));
 

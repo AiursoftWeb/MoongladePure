@@ -47,6 +47,7 @@ namespace MoongladePure.Web
             services.AddOptions()
                 .AddHttpContextAccessor()
                 .AddRateLimit(configuration.GetSection("IpRateLimiting"));
+            services.AddScoped<ISiteContext, DefaultSiteContext>();
 
             services.AddSession(options =>
             {

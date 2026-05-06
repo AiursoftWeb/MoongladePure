@@ -18,16 +18,19 @@ public class SyndicationDataSource : ISyndicationDataSource
     private readonly IBlogConfig _blogConfig;
     private readonly IRepository<CategoryEntity> _catRepo;
     private readonly IRepository<PostEntity> _postRepo;
+    private readonly ISiteContext _siteContext;
 
     public SyndicationDataSource(
         IBlogConfig blogConfig,
         IHttpContextAccessor httpContextAccessor,
         IRepository<CategoryEntity> catRepo,
-        IRepository<PostEntity> postRepo)
+        IRepository<PostEntity> postRepo,
+        ISiteContext siteContext)
     {
         _blogConfig = blogConfig;
         _catRepo = catRepo;
         _postRepo = postRepo;
+        _siteContext = siteContext;
 
         var acc = httpContextAccessor;
         _baseUrl = $"{acc.HttpContext?.Request.Scheme}://{acc.HttpContext?.Request.Host}";
@@ -38,7 +41,7 @@ public class SyndicationDataSource : ISyndicationDataSource
         IReadOnlyList<FeedEntry> itemCollection;
         if (!string.IsNullOrWhiteSpace(catRoute))
         {
-            var cat = await _catRepo.GetAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.RouteName == catRoute);
+            var cat = await _catRepo.GetAsync(c => c.SiteId == _siteContext.SiteId && c.RouteName == catRoute);
             if (cat is null) return null;
 
             itemCollection = await GetFeedEntriesAsync(cat.Id);
@@ -59,7 +62,7 @@ public class SyndicationDataSource : ISyndicationDataSource
             top = _blogConfig.FeedSettings.RssItemCount;
         }
 
-        var postSpec = new PostSpec(catId, top);
+        var postSpec = new PostSpec(catId, top, _siteContext.SiteId);
         var posts = await _postRepo.SelectAsync(postSpec, p => new
         {
             p.Id,

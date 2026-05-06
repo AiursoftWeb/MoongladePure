@@ -5,21 +5,21 @@ namespace MoongladePure.Core.TagFeature;
 
 public record CreateTagCommand(string Name) : IRequest<Tag>;
 
-public class CreateTagCommandHandler(IRepository<TagEntity> repo) : IRequestHandler<CreateTagCommand, Tag>
+public class CreateTagCommandHandler(IRepository<TagEntity> repo, ISiteContext siteContext) : IRequestHandler<CreateTagCommand, Tag>
 {
     public async Task<Tag> Handle(CreateTagCommand request, CancellationToken ct)
     {
         if (!Tag.ValidateName(request.Name)) return null;
 
         var normalizedName = Tag.NormalizeName(request.Name, Helper.TagNormalizationDictionary);
-        if (await repo.AnyAsync(t => t.SiteId == SystemIds.DefaultSiteId && t.NormalizedName == normalizedName, ct))
+        if (await repo.AnyAsync(t => t.SiteId == siteContext.SiteId && t.NormalizedName == normalizedName, ct))
         {
-            return await repo.FirstOrDefaultAsync(new TagSpec(normalizedName), Tag.EntitySelector);
+            return await repo.FirstOrDefaultAsync(new TagSpec(normalizedName, siteContext.SiteId), Tag.EntitySelector);
         }
 
         var newTag = new TagEntity
         {
-            SiteId = SystemIds.DefaultSiteId,
+            SiteId = siteContext.SiteId,
             DisplayName = request.Name,
             NormalizedName = normalizedName
         };

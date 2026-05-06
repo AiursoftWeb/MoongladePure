@@ -7,7 +7,7 @@ namespace MoongladePure.Data.Exporting;
 
 public record ExportPageDataCommand : IRequest<ExportResult>;
 
-public class ExportPageDataCommandHandler(IRepository<PageEntity> repo)
+public class ExportPageDataCommandHandler(IRepository<PageEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ExportPageDataCommand, ExportResult>
 {
     public Task<ExportResult> Handle(ExportPageDataCommand request, CancellationToken ct)
@@ -25,6 +25,6 @@ public class ExportPageDataCommandHandler(IRepository<PageEntity> repo)
             p.IsPublished,
             p.CreateTimeUtc,
             p.UpdateTimeUtc
-        }, ct, p => p.SiteId == SystemIds.DefaultSiteId);
+        }, ct, p => p.SiteId == siteContext.SiteId);
     }
 }

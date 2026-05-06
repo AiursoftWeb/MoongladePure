@@ -2,20 +2,21 @@
 
 public record SaveAssetCommand(Guid AssetId, string AssetBase64) : INotification;
 
-public class SaveAssetCommandHandler(IRepository<BlogAssetEntity> repo) : INotificationHandler<SaveAssetCommand>
+public class SaveAssetCommandHandler(IRepository<BlogAssetEntity> repo, ISiteContext siteContext) : INotificationHandler<SaveAssetCommand>
 {
     public async Task Handle(SaveAssetCommand request, CancellationToken ct)
     {
         if (request.AssetId == Guid.Empty) throw new ArgumentOutOfRangeException(nameof(request.AssetId));
         if (string.IsNullOrWhiteSpace(request.AssetBase64)) throw new ArgumentNullException(nameof(request.AssetBase64));
 
-        var entity = await repo.GetAsync(a => a.SiteId == SystemIds.DefaultSiteId && a.Id == request.AssetId);
+        var entity = await repo.GetAsync(a => a.SiteId == siteContext.SiteId && a.Id == request.AssetId);
 
         if (null == entity)
         {
             await repo.AddAsync(new()
             {
                 Id = request.AssetId,
+                SiteId = siteContext.SiteId,
                 Base64Data = request.AssetBase64,
                 LastModifiedTimeUtc = DateTime.UtcNow
             }, ct);

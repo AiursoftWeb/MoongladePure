@@ -7,12 +7,12 @@ namespace MoongladePure.Comments;
 
 public record GetCommentsQuery(int PageSize, int PageIndex) : IRequest<IReadOnlyList<CommentDetailedItem>>;
 
-public class GetCommentsQueryHandler(IRepository<CommentEntity> repo)
+public class GetCommentsQueryHandler(IRepository<CommentEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetCommentsQuery, IReadOnlyList<CommentDetailedItem>>
 {
     public Task<IReadOnlyList<CommentDetailedItem>> Handle(GetCommentsQuery request, CancellationToken ct)
     {
-        var spec = new CommentSpec(request.PageSize, request.PageIndex);
+        var spec = new CommentSpec(request.PageSize, request.PageIndex, siteContext.SiteId);
         var comments = repo.SelectAsync(spec, CommentDetailedItem.EntitySelector);
 
         return comments;

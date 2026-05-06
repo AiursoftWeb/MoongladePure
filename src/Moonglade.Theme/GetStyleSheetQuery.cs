@@ -7,11 +7,11 @@ using System.Text.Json;
 namespace MoongladePure.Theme;
 
 public record GetStyleSheetQuery(int Id) : IRequest<string>;
-public class GetStyleSheetQueryHandler(IRepository<BlogThemeEntity> repo) : IRequestHandler<GetStyleSheetQuery, string>
+public class GetStyleSheetQueryHandler(IRepository<BlogThemeEntity> repo, ISiteContext siteContext) : IRequestHandler<GetStyleSheetQuery, string>
 {
     public async Task<string> Handle(GetStyleSheetQuery request, CancellationToken ct)
     {
-        var theme = await repo.GetAsync(t => (t.SiteId == null || t.SiteId == SystemIds.DefaultSiteId) && t.Id == request.Id);
+        var theme = await repo.GetAsync(t => (t.SiteId == null || t.SiteId == siteContext.SiteId) && t.Id == request.Id);
         if (null == theme) return null;
 
         if (string.IsNullOrWhiteSpace(theme.CssRules))

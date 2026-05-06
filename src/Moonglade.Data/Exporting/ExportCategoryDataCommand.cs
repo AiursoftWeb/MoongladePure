@@ -7,7 +7,7 @@ namespace MoongladePure.Data.Exporting;
 
 public record ExportCategoryDataCommand : IRequest<ExportResult>;
 
-public class ExportCategoryDataCommandHandler(IRepository<CategoryEntity> repo)
+public class ExportCategoryDataCommandHandler(IRepository<CategoryEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ExportCategoryDataCommand, ExportResult>
 {
     public Task<ExportResult> Handle(ExportCategoryDataCommand request, CancellationToken ct)
@@ -19,6 +19,6 @@ public class ExportCategoryDataCommandHandler(IRepository<CategoryEntity> repo)
             p.DisplayName,
             p.RouteName,
             p.Note
-        }, ct, p => p.SiteId == SystemIds.DefaultSiteId);
+        }, ct, p => p.SiteId == siteContext.SiteId);
     }
 }

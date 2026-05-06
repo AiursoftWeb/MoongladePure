@@ -7,7 +7,7 @@ namespace MoongladePure.Data.Exporting;
 
 public record ExportTagsDataCommand : IRequest<ExportResult>;
 
-public class ExportTagsDataCommandHandler(IRepository<TagEntity> repo)
+public class ExportTagsDataCommandHandler(IRepository<TagEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ExportTagsDataCommand, ExportResult>
 {
     public Task<ExportResult> Handle(ExportTagsDataCommand request, CancellationToken ct)
@@ -18,6 +18,6 @@ public class ExportTagsDataCommandHandler(IRepository<TagEntity> repo)
             p.Id,
             p.NormalizedName,
             p.DisplayName
-        }, ct, p => p.SiteId == SystemIds.DefaultSiteId);
+        }, ct, p => p.SiteId == siteContext.SiteId);
     }
 }

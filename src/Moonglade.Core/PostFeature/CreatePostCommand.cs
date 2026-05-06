@@ -9,13 +9,15 @@ public record CreatePostCommand(PostEditModel Payload) : IRequest<PostEntity>;
 public class CreatePostCommandHandler(
     IRepository<PostEntity> postRepo,
     ILogger<CreatePostCommandHandler> logger,
-    IRepository<TagEntity> tagRepo)
+    IRepository<TagEntity> tagRepo,
+    ISiteContext siteContext)
     : IRequestHandler<CreatePostCommand, PostEntity>
 {
     public async Task<PostEntity> Handle(CreatePostCommand request, CancellationToken ct)
     {
         var post = new PostEntity
         {
+            SiteId = siteContext.SiteId,
             CommentEnabled = request.Payload.EnableComment,
             Id = Guid.NewGuid(),
             RawContent = request.Payload.EditorContent,

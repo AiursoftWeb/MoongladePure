@@ -2,7 +2,7 @@
 
 public record CreatePageCommand(EditPageRequest Payload) : IRequest<Guid>;
 
-public class CreatePageCommandHandler(IRepository<PageEntity> repo) : IRequestHandler<CreatePageCommand, Guid>
+public class CreatePageCommandHandler(IRepository<PageEntity> repo, ISiteContext siteContext) : IRequestHandler<CreatePageCommand, Guid>
 {
     public async Task<Guid> Handle(CreatePageCommand request, CancellationToken ct)
     {
@@ -10,6 +10,7 @@ public class CreatePageCommandHandler(IRepository<PageEntity> repo) : IRequestHa
         var page = new PageEntity
         {
             Id = uid,
+            SiteId = siteContext.SiteId,
             Title = request.Payload.Title.Trim(),
             Slug = request.Payload.Slug.ToLower().Trim(),
             MetaDescription = request.Payload.MetaDescription,

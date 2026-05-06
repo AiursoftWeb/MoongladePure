@@ -7,13 +7,13 @@ namespace MoongladePure.Theme;
 
 public record GetAllThemeSegmentQuery : IRequest<IReadOnlyList<ThemeSegment>>;
 
-public class GetAllThemeSegmentQueryHandler(IRepository<BlogThemeEntity> repo)
+public class GetAllThemeSegmentQueryHandler(IRepository<BlogThemeEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetAllThemeSegmentQuery, IReadOnlyList<ThemeSegment>>
 {
     public async Task<IReadOnlyList<ThemeSegment>> Handle(GetAllThemeSegmentQuery request, CancellationToken ct)
     {
         return await repo.AsQueryable()
-            .Where(p => p.SiteId == null || p.SiteId == SystemIds.DefaultSiteId)
+            .Where(p => p.SiteId == null || p.SiteId == siteContext.SiteId)
             .Select(p => new ThemeSegment
             {
                 Id = p.Id,

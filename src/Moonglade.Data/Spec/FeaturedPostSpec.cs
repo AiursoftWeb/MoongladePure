@@ -5,14 +5,14 @@ namespace MoongladePure.Data.Spec;
 
 public sealed class FeaturedPostSpec : BaseSpecification<PostEntity>
 {
-    public FeaturedPostSpec() : base(p => p.SiteId == SystemIds.DefaultSiteId && p.IsFeatured)
+    public FeaturedPostSpec(Guid? siteId = null) : base(p => p.SiteId == (siteId ?? SystemIds.DefaultSiteId) && p.IsFeatured)
     {
     }
 
-    public FeaturedPostSpec(int pageSize, int pageIndex)
+    public FeaturedPostSpec(int pageSize, int pageIndex, Guid? siteId = null)
         : base(p =>
             p.IsFeatured
-            && p.SiteId == SystemIds.DefaultSiteId
+            && p.SiteId == (siteId ?? SystemIds.DefaultSiteId)
             && !p.IsDeleted
             && p.IsPublished)
     {

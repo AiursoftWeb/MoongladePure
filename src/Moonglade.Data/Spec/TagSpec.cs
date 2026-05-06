@@ -5,13 +5,14 @@ namespace MoongladePure.Data.Spec;
 
 public sealed class TagSpec : BaseSpecification<TagEntity>
 {
-    public TagSpec(int top) : base(t => t.SiteId == SystemIds.DefaultSiteId)
+    public TagSpec(int top, Guid? siteId = null) : base(t => t.SiteId == (siteId ?? SystemIds.DefaultSiteId))
     {
         ApplyPaging(0, top);
         ApplyOrderByDescending(p => p.Posts.Count);
     }
 
-    public TagSpec(string normalizedName) : base(t => t.SiteId == SystemIds.DefaultSiteId && t.NormalizedName == normalizedName)
+    public TagSpec(string normalizedName, Guid? siteId = null)
+        : base(t => t.SiteId == (siteId ?? SystemIds.DefaultSiteId) && t.NormalizedName == normalizedName)
     {
 
     }

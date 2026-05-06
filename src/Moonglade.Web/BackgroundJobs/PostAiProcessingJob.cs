@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MoongladePure.Core.AiFeature;
 using MoongladePure.Core.TagFeature;
 using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
 using System.Text.Json;
 
 namespace MoongladePure.Web.BackgroundJobs
@@ -56,9 +57,10 @@ namespace MoongladePure.Web.BackgroundJobs
                     var openAi = services.GetRequiredService<OpenAiService>();
                     var logger = services.GetRequiredService<ILogger<PostAiProcessingJob>>();
                     var context = services.GetRequiredService<BlogDbContext>();
+                    var siteContext = services.GetRequiredService<ISiteContext>();
                     var posts = await context.Post
                         .AsNoTracking()
-                        .Where(p => p.SiteId == SystemIds.DefaultSiteId)
+                        .Where(p => p.SiteId == siteContext.SiteId)
                         .Where(p => p.IsPublished)
                         .Where(p => !p.IsDeleted)
                         .Where(p => p.PubDateUtc >= new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc))
@@ -68,7 +70,7 @@ namespace MoongladePure.Web.BackgroundJobs
                     foreach (var postId in posts.Select(p => p.Id))
                     {
                         // Fetch again. Because this job may run in a long time.
-                        var trackedPost = await context.Post.FirstOrDefaultAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Id == postId) ??
+                        var trackedPost = await context.Post.FirstOrDefaultAsync(p => p.SiteId == siteContext.SiteId && p.Id == postId) ??
                                           throw new InvalidOperationException("Failed to locate post with ID: " + postId);
 
                         // Log.

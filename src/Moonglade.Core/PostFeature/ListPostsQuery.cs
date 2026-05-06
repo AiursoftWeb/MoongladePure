@@ -15,14 +15,14 @@ public class ListPostsQuery(int pageSize, int pageIndex, Guid? catId = null, Pos
     public PostsSortBy SortBy { get; set; } = sortBy;
 }
 
-public class ListPostsQueryHandler(IRepository<PostEntity> repo)
+public class ListPostsQueryHandler(IRepository<PostEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ListPostsQuery, IReadOnlyList<PostDigest>>
 {
     public Task<IReadOnlyList<PostDigest>> Handle(ListPostsQuery request, CancellationToken ct)
     {
         Helper.ValidatePagingParameters(request.PageSize, request.PageIndex);
 
-        var spec = new PostPagingSpec(request.PageSize, request.PageIndex, request.CatId, request.SortBy);
+        var spec = new PostPagingSpec(request.PageSize, request.PageIndex, request.CatId, request.SortBy, siteContext.SiteId);
         return repo.SelectAsync(spec, PostDigest.EntitySelector);
     }
 }

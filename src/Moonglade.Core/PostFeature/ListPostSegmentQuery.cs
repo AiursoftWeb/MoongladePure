@@ -15,7 +15,7 @@ public class ListPostSegmentQuery(PostStatus postStatus, int offset, int pageSiz
     public string Keyword { get; set; } = keyword;
 }
 
-public class ListPostSegmentQueryHandler(IRepository<PostEntity> repo)
+public class ListPostSegmentQueryHandler(IRepository<PostEntity> repo, ISiteContext siteContext)
     : IRequestHandler<ListPostSegmentQuery, (IReadOnlyList<PostSegment> Posts, int TotalRows)>
 {
     public async Task<(IReadOnlyList<PostSegment> Posts, int TotalRows)> Handle(ListPostSegmentQuery request, CancellationToken ct)
@@ -31,10 +31,10 @@ public class ListPostSegmentQueryHandler(IRepository<PostEntity> repo)
                 $"{nameof(request.Offset)} can not be less than 0, current value: {request.Offset}.");
         }
 
-        var spec = new PostPagingSpec(request.PostStatus, request.Keyword, request.PageSize, request.Offset);
+        var spec = new PostPagingSpec(request.PostStatus, request.Keyword, request.PageSize, request.Offset, siteContext.SiteId);
         var posts = await repo.SelectAsync(spec, PostSegment.EntitySelector);
 
-        Expression<Func<PostEntity, bool>> countExp = p => p.SiteId == SystemIds.DefaultSiteId && (null == request.Keyword || p.Title.Contains(request.Keyword));
+        Expression<Func<PostEntity, bool>> countExp = p => p.SiteId == siteContext.SiteId && (null == request.Keyword || p.Title.Contains(request.Keyword));
 
         countExp = request.PostStatus switch
         {

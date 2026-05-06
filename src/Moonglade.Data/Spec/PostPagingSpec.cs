@@ -12,8 +12,8 @@ public enum PostsSortBy
 
 public sealed class PostPagingSpec : BaseSpecification<PostEntity>
 {
-    public PostPagingSpec(int pageSize, int pageIndex, Guid? categoryId = null, PostsSortBy postsSortBy = PostsSortBy.Recent)
-        : base(p => p.SiteId == SystemIds.DefaultSiteId &&
+    public PostPagingSpec(int pageSize, int pageIndex, Guid? categoryId = null, PostsSortBy postsSortBy = PostsSortBy.Recent, Guid? siteId = null)
+        : base(p => p.SiteId == (siteId ?? SystemIds.DefaultSiteId) &&
                     !p.IsDeleted && p.IsPublished &&
                     (categoryId == null || p.PostCategory.Select(c => c.CategoryId).Contains(categoryId.Value)))
     {
@@ -34,8 +34,8 @@ public sealed class PostPagingSpec : BaseSpecification<PostEntity>
         ApplyPaging(startRow, pageSize);
     }
 
-    public PostPagingSpec(PostStatus postStatus, string keyword, int pageSize, int offset)
-        : base(p => p.SiteId == SystemIds.DefaultSiteId && (null == keyword || p.Title.Contains(keyword)))
+    public PostPagingSpec(PostStatus postStatus, string keyword, int pageSize, int offset, Guid? siteId = null)
+        : base(p => p.SiteId == (siteId ?? SystemIds.DefaultSiteId) && (null == keyword || p.Title.Contains(keyword)))
     {
         switch (postStatus)
         {

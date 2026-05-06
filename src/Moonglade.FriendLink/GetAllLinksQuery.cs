@@ -7,13 +7,13 @@ namespace MoongladePure.FriendLink;
 
 public record GetAllLinksQuery : IRequest<IReadOnlyList<Link>>;
 
-public class GetAllLinksQueryHandler(IRepository<FriendLinkEntity> repo)
+public class GetAllLinksQueryHandler(IRepository<FriendLinkEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetAllLinksQuery, IReadOnlyList<Link>>
 {
     public async Task<IReadOnlyList<Link>> Handle(GetAllLinksQuery request, CancellationToken ct)
     {
         return await repo.AsQueryable()
-            .Where(f => f.SiteId == SystemIds.DefaultSiteId)
+            .Where(f => f.SiteId == siteContext.SiteId)
             .Select(f => new Link
             {
                 Id = f.Id,

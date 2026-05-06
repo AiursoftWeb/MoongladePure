@@ -5,17 +5,17 @@ namespace MoongladePure.Core.PostFeature;
 public record struct Archive(int Year, int Month, int Count);
 public record GetArchiveQuery : IRequest<IReadOnlyList<Archive>>;
 
-public class GetArchiveQueryHandler(IRepository<PostEntity> repo)
+public class GetArchiveQueryHandler(IRepository<PostEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetArchiveQuery, IReadOnlyList<Archive>>
 {
     public async Task<IReadOnlyList<Archive>> Handle(GetArchiveQuery request, CancellationToken ct)
     {
-        if (!await repo.AnyAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.IsPublished && !p.IsDeleted, ct))
+        if (!await repo.AnyAsync(p => p.SiteId == siteContext.SiteId && p.IsPublished && !p.IsDeleted, ct))
         {
             return new List<Archive>();
         }
 
-        var spec = new PostSpec(PostStatus.Published);
+        var spec = new PostSpec(PostStatus.Published, siteContext.SiteId);
         var dates = await repo.SelectAsync(spec, p => p.PubDateUtc);
 
         var list = dates

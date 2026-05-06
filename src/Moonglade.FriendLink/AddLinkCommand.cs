@@ -28,13 +28,14 @@ public class AddLinkCommand : IRequest, IValidatableObject
     }
 }
 
-public class AddLinkCommandHandler(IRepository<FriendLinkEntity> repo) : IRequestHandler<AddLinkCommand>
+public class AddLinkCommandHandler(IRepository<FriendLinkEntity> repo, ISiteContext siteContext) : IRequestHandler<AddLinkCommand>
 {
     public async Task Handle(AddLinkCommand request, CancellationToken ct)
     {
         var link = new FriendLinkEntity
         {
             Id = Guid.NewGuid(),
+            SiteId = siteContext.SiteId,
             LinkUrl = Helper.SterilizeLink(request.LinkUrl),
             Title = request.Title
         };

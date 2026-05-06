@@ -2,12 +2,12 @@
 
 public record GetStatisticQuery(Guid PostId) : IRequest<(int Hits, int Likes)>;
 
-public class GetStatisticQueryHandler(IRepository<PostExtensionEntity> repo)
+public class GetStatisticQueryHandler(IRepository<PostExtensionEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetStatisticQuery, (int Hits, int Likes)>
 {
     public async Task<(int Hits, int Likes)> Handle(GetStatisticQuery request, CancellationToken ct)
     {
-        var pp = await repo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.PostId == request.PostId);
+        var pp = await repo.GetAsync(p => p.SiteId == siteContext.SiteId && p.PostId == request.PostId);
         return (pp.Hits, pp.Likes);
     }
 }

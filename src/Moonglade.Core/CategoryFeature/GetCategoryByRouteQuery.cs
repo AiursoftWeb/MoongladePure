@@ -4,9 +4,9 @@ namespace MoongladePure.Core.CategoryFeature;
 
 public record GetCategoryByRouteQuery(string RouteName) : IRequest<Category>;
 
-public class GetCategoryByRouteQueryHandler(IRepository<CategoryEntity> repo)
+public class GetCategoryByRouteQueryHandler(IRepository<CategoryEntity> repo, ISiteContext siteContext)
     : IRequestHandler<GetCategoryByRouteQuery, Category>
 {
     public Task<Category> Handle(GetCategoryByRouteQuery request, CancellationToken ct) =>
-        repo.FirstOrDefaultAsync(new CategorySpec(request.RouteName), Category.EntitySelector);
+        repo.FirstOrDefaultAsync(new CategorySpec(request.RouteName, siteContext.SiteId), Category.EntitySelector);
 }

@@ -7,11 +7,11 @@ namespace MoongladePure.Menus;
 
 public record UpdateMenuCommand(EditMenuRequest Payload) : IRequest;
 
-public class UpdateMenuCommandHandler(IRepository<MenuEntity> repo) : IRequestHandler<UpdateMenuCommand>
+public class UpdateMenuCommandHandler(IRepository<MenuEntity> repo, ISiteContext siteContext) : IRequestHandler<UpdateMenuCommand>
 {
     public async Task Handle(UpdateMenuCommand request, CancellationToken ct)
     {
-        var menu = await repo.GetAsync(m => m.SiteId == SystemIds.DefaultSiteId && m.Id == request.Payload.Id);
+        var menu = await repo.GetAsync(m => m.SiteId == siteContext.SiteId && m.Id == request.Payload.Id);
         if (menu is null)
         {
             throw new InvalidOperationException($"MenuEntity with Id '{request.Payload.Id}' not found.");

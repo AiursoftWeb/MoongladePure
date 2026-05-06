@@ -10,7 +10,7 @@ public class UpdateLinkCommand : AddLinkCommand
     public Guid Id { get; set; }
 }
 
-public class UpdateLinkCommandHandler(IRepository<FriendLinkEntity> repo) : IRequestHandler<UpdateLinkCommand>
+public class UpdateLinkCommandHandler(IRepository<FriendLinkEntity> repo, ISiteContext siteContext) : IRequestHandler<UpdateLinkCommand>
 {
     public async Task Handle(UpdateLinkCommand request, CancellationToken ct)
     {
@@ -19,7 +19,7 @@ public class UpdateLinkCommandHandler(IRepository<FriendLinkEntity> repo) : IReq
             throw new InvalidOperationException($"{nameof(request.LinkUrl)} is not a valid url.");
         }
 
-        var link = await repo.GetAsync(l => l.SiteId == SystemIds.DefaultSiteId && l.Id == request.Id);
+        var link = await repo.GetAsync(l => l.SiteId == siteContext.SiteId && l.Id == request.Id);
         if (link is not null)
         {
             link.Title = request.Title;

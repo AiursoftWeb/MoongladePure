@@ -1,4 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using MoongladePure.Core.PageFeature;
+using MoongladePure.Core.PostFeature;
+using MoongladePure.Data;
 using MoongladePure.Data.Entities;
+using MoongladePure.Data.Infrastructure;
+using MoongladePure.Data.InMemory;
 using MoongladePure.Data.Spec;
 
 namespace MoongladePure.Tests;
@@ -56,5 +62,78 @@ public class SiteScopedSpecTests
         Assert.IsFalse(pageCriteria(new PageEntity { SiteId = OtherSiteId, IsPublished = true }));
         Assert.IsTrue(commentCriteria(new CommentEntity { SiteId = SystemIds.DefaultSiteId, PostId = postId, IsApproved = true }));
         Assert.IsFalse(commentCriteria(new CommentEntity { SiteId = OtherSiteId, PostId = postId, IsApproved = true }));
+    }
+
+    [TestMethod]
+    public async Task ListPostsQueryUsesCurrentSiteBoundary()
+    {
+        await using var context = CreateContext();
+        await context.Post.AddRangeAsync(
+            CreatePost(SystemIds.DefaultSiteId, "Default Site Post"),
+            CreatePost(OtherSiteId, "Other Site Post"));
+        await context.SaveChangesAsync();
+        var repo = new BlogDbContextRepository<PostEntity>(context);
+        var handler = new ListPostsQueryHandler(repo, new FixedSiteContext(OtherSiteId));
+
+        var posts = await handler.Handle(new ListPostsQuery(10, 1), CancellationToken.None);
+
+        Assert.AreEqual(1, posts.Count);
+        Assert.AreEqual("Other Site Post", posts[0].Title);
+    }
+
+    [TestMethod]
+    public async Task GetPageBySlugQueryUsesCurrentSiteBoundary()
+    {
+        await using var context = CreateContext();
+        await context.CustomPage.AddRangeAsync(
+            CreatePage(SystemIds.DefaultSiteId, "about", "Default About"),
+            CreatePage(OtherSiteId, "about", "Other About"));
+        await context.SaveChangesAsync();
+        var repo = new BlogDbContextRepository<PageEntity>(context);
+        var handler = new GetPageBySlugQueryHandler(repo, new FixedSiteContext(OtherSiteId));
+
+        var page = await handler.Handle(new GetPageBySlugQuery("about"), CancellationToken.None);
+
+        Assert.IsNotNull(page);
+        Assert.AreEqual("Other About", page.Title);
+    }
+
+    private static InMemoryContext CreateContext()
+    {
+        var options = new DbContextOptionsBuilder<InMemoryContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        return new InMemoryContext(options);
+    }
+
+    private static PostEntity CreatePost(Guid siteId, string title) => new()
+    {
+        Id = Guid.NewGuid(),
+        SiteId = siteId,
+        Title = title,
+        Slug = title.ToLowerInvariant().Replace(' ', '-'),
+        RawContent = "content",
+        IsPublished = true,
+        IsDeleted = false,
+        IsFeedIncluded = true,
+        PubDateUtc = DateTime.UtcNow,
+        ContentLanguageCode = "en-US"
+    };
+
+    private static PageEntity CreatePage(Guid siteId, string slug, string title) => new()
+    {
+        Id = Guid.NewGuid(),
+        SiteId = siteId,
+        Title = title,
+        Slug = slug,
+        HtmlContent = "content",
+        CreateTimeUtc = DateTime.UtcNow,
+        IsPublished = true
+    };
+
+    private sealed class FixedSiteContext(Guid siteId) : ISiteContext
+    {
+        public Guid SiteId { get; } = siteId;
     }
 }

@@ -10,12 +10,13 @@ public record ReplyCommentCommand(Guid CommentId, string ReplyContent) : IReques
 public class ReplyCommentCommandHandler(
     IRepository<PostEntity> postRepo,
     IRepository<CommentEntity> commentRepo,
-    IRepository<CommentReplyEntity> commentReplyRepo)
+    IRepository<CommentReplyEntity> commentReplyRepo,
+    ISiteContext siteContext)
     : IRequestHandler<ReplyCommentCommand, CommentReply>
 {
     public async Task<CommentReply> Handle(ReplyCommentCommand request, CancellationToken ct)
     {
-        var cmt = await commentRepo.GetAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.Id == request.CommentId);
+        var cmt = await commentRepo.GetAsync(c => c.SiteId == siteContext.SiteId && c.Id == request.CommentId);
         if (cmt is null) throw new InvalidOperationException($"Comment {request.CommentId} is not found.");
 
         var id = Guid.NewGuid();

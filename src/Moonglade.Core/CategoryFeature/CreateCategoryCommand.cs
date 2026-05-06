@@ -22,23 +22,24 @@ public class CreateCategoryCommand : IRequest
     public string Note { get; set; }
 }
 
-public class CreateCategoryCommandHandler(IRepository<CategoryEntity> catRepo, IBlogCache cache)
+public class CreateCategoryCommandHandler(IRepository<CategoryEntity> catRepo, IBlogCache cache, ISiteContext siteContext)
     : IRequestHandler<CreateCategoryCommand>
 {
     public async Task Handle(CreateCategoryCommand request, CancellationToken ct)
     {
-        var exists = await catRepo.AnyAsync(c => c.SiteId == SystemIds.DefaultSiteId && c.RouteName == request.RouteName, ct);
+        var exists = await catRepo.AnyAsync(c => c.SiteId == siteContext.SiteId && c.RouteName == request.RouteName, ct);
         if (exists) return;
 
         var category = new CategoryEntity
         {
             Id = Guid.NewGuid(),
+            SiteId = siteContext.SiteId,
             RouteName = request.RouteName.Trim(),
             Note = request.Note?.Trim(),
             DisplayName = request.DisplayName.Trim()
         };
 
         await catRepo.AddAsync(category, ct);
-        cache.Remove(CacheDivision.General, "allcats");
+        cache.Remove(CacheDivision.General, $"{siteContext.SiteId}:allcats");
     }
 }

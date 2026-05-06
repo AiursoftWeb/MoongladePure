@@ -13,13 +13,14 @@ public class UpdatePostCommandHandler(
     IRepository<PostEntity> postRepo,
     IRepository<PostContentEntity> postContentRepo,
     IRepository<PostRouteEntity> postRouteRepo,
-    IBlogCache cache)
+    IBlogCache cache,
+    ISiteContext siteContext)
     : IRequestHandler<UpdatePostCommand, PostEntity>
 {
     public async Task<PostEntity> Handle(UpdatePostCommand request, CancellationToken ct)
     {
         var (guid, postEditModel) = request;
-        var post = await postRepo.GetAsync(p => p.SiteId == SystemIds.DefaultSiteId && p.Id == guid);
+        var post = await postRepo.GetAsync(p => p.SiteId == siteContext.SiteId && p.Id == guid);
         if (null == post)
         {
             throw new InvalidOperationException($"Post {guid} is not found.");
@@ -117,7 +118,7 @@ public class UpdatePostCommandHandler(
 
         await postRepo.UpdateAsync(post, ct);
 
-        cache.Remove(CacheDivision.Post, guid.ToString());
+        cache.Remove(CacheDivision.Post, $"{siteContext.SiteId}:{guid}");
         return post;
     }
 
