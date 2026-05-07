@@ -42,12 +42,13 @@ namespace MoongladePure.Web
                 mediatRServiceConfiguration.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
             services.Configure<ForwardedHeadersOptions>(options =>
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto |
+                                           ForwardedHeaders.XForwardedHost);
 
             services.AddOptions()
                 .AddHttpContextAccessor()
                 .AddRateLimit(configuration.GetSection("IpRateLimiting"));
-            services.AddScoped<ISiteContext, DefaultSiteContext>();
+            services.AddScoped<ISiteContext, RequestSiteContext>();
 
             services.AddSession(options =>
             {

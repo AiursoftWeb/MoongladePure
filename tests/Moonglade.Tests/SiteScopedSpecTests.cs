@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using MoongladePure.Core.PageFeature;
 using MoongladePure.Core.PostFeature;
 using MoongladePure.Data;
@@ -98,6 +99,51 @@ public class SiteScopedSpecTests
         Assert.AreEqual("Other About", page.Title);
     }
 
+    [TestMethod]
+    public async Task RequestSiteContextUsesBoundDomain()
+    {
+        await using var context = CreateContext();
+        await context.SiteDomain.AddAsync(new SiteDomainEntity
+        {
+            SiteId = OtherSiteId,
+            Host = "blog.example.com"
+        });
+        await context.SaveChangesAsync();
+        var siteContext = new RequestSiteContext(CreateHttpContextAccessor("blog.example.com"), context);
+
+        Assert.AreEqual(OtherSiteId, siteContext.SiteId);
+    }
+
+    [TestMethod]
+    public async Task RequestSiteContextFallsBackForUnknownDomain()
+    {
+        await using var context = CreateContext();
+        await context.SiteDomain.AddAsync(new SiteDomainEntity
+        {
+            SiteId = OtherSiteId,
+            Host = "blog.example.com"
+        });
+        await context.SaveChangesAsync();
+        var siteContext = new RequestSiteContext(CreateHttpContextAccessor("unknown.example.com"), context);
+
+        Assert.AreEqual(SystemIds.DefaultSiteId, siteContext.SiteId);
+    }
+
+    [TestMethod]
+    public async Task RequestSiteContextNormalizesHostCaseAndPort()
+    {
+        await using var context = CreateContext();
+        await context.SiteDomain.AddAsync(new SiteDomainEntity
+        {
+            SiteId = OtherSiteId,
+            Host = "blog.example.com"
+        });
+        await context.SaveChangesAsync();
+        var siteContext = new RequestSiteContext(CreateHttpContextAccessor("BLOG.EXAMPLE.COM:8443"), context);
+
+        Assert.AreEqual(OtherSiteId, siteContext.SiteId);
+    }
+
     private static InMemoryContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<InMemoryContext>()
@@ -131,6 +177,14 @@ public class SiteScopedSpecTests
         CreateTimeUtc = DateTime.UtcNow,
         IsPublished = true
     };
+
+    private static IHttpContextAccessor CreateHttpContextAccessor(string host)
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Host = HostString.FromUriComponent(host);
+
+        return new HttpContextAccessor { HttpContext = httpContext };
+    }
 
     private sealed class FixedSiteContext(Guid siteId) : ISiteContext
     {
