@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MoongladePure.Core.CategoryFeature;
 using MoongladePure.Core.PostFeature;
+using MoongladePure.Data.Infrastructure;
 using X.PagedList;
 
 namespace MoongladePure.Web.Pages;
@@ -8,7 +9,8 @@ namespace MoongladePure.Web.Pages;
 public class CategoryListModel(
     IBlogConfig blogConfig,
     IMediator mediator,
-    IBlogCache cache)
+    IBlogCache cache,
+    ISiteContext siteContext)
     : PageModel
 {
     [BindProperty(SupportsGet = true)]
@@ -26,7 +28,9 @@ public class CategoryListModel(
 
         if (Cat is null) return NotFound();
 
-        var postCount = await cache.GetOrCreateAsync(CacheDivision.PostCountCategory, Cat.Id.ToString(),
+        var postCount = await cache.GetOrCreateAsync(
+            CacheDivision.PostCountCategory,
+            SiteCacheKey.For(siteContext.SiteId, Cat.Id.ToString()),
             _ => mediator.Send(new CountPostQuery(CountType.Category, Cat.Id)));
 
         var postList = await mediator.Send(new ListPostsQuery(pageSize, P, Cat.Id));

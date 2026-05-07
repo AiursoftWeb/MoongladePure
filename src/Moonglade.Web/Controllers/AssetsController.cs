@@ -1,4 +1,5 @@
 ﻿using MoongladePure.Caching.Filters;
+using MoongladePure.Data.Infrastructure;
 using SixLabors.ImageSharp;
 
 namespace MoongladePure.Web.Controllers;
@@ -7,7 +8,8 @@ namespace MoongladePure.Web.Controllers;
 public class AssetsController(
     ILogger<AssetsController> logger,
     IMediator mediator,
-    IWebHostEnvironment env)
+    IWebHostEnvironment env,
+    ISiteContext siteContext)
     : ControllerBase
 {
     [HttpGet("avatar")]
@@ -18,7 +20,10 @@ public class AssetsController(
 
         try
         {
-            var bytes = await cache.GetOrCreateAsync(CacheDivision.General, "avatar", async _ =>
+            var bytes = await cache.GetOrCreateAsync(
+                CacheDivision.General,
+                SiteCacheKey.For(siteContext.SiteId, "avatar"),
+                async _ =>
             {
                 logger.LogTrace("Avatar not on cache, getting new avatar image...");
 

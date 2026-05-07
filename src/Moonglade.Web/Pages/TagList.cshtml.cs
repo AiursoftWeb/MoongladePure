@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MoongladePure.Core.PostFeature;
 using MoongladePure.Core.TagFeature;
+using MoongladePure.Data.Infrastructure;
 using X.PagedList;
 
 namespace MoongladePure.Web.Pages;
 
-public class TagListModel(IMediator mediator, IBlogConfig blogConfig, IBlogCache cache)
+public class TagListModel(IMediator mediator, IBlogConfig blogConfig, IBlogCache cache, ISiteContext siteContext)
     : PageModel
 {
     [BindProperty(SupportsGet = true)]
@@ -20,7 +21,10 @@ public class TagListModel(IMediator mediator, IBlogConfig blogConfig, IBlogCache
 
         var pagesize = blogConfig.ContentSettings.PostListPageSize;
         var posts = await mediator.Send(new ListByTagQuery(tagResponse.Id, pagesize, P));
-        var count = await cache.GetOrCreateAsync(CacheDivision.PostCountTag, tagResponse.Id.ToString(), _ => mediator.Send(new CountPostQuery(CountType.Tag, TagId: tagResponse.Id)));
+        var count = await cache.GetOrCreateAsync(
+            CacheDivision.PostCountTag,
+            SiteCacheKey.For(siteContext.SiteId, tagResponse.Id.ToString()),
+            _ => mediator.Send(new CountPostQuery(CountType.Tag, TagId: tagResponse.Id)));
 
         ViewData["TitlePrefix"] = tagResponse.DisplayName;
 

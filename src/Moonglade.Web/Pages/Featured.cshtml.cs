@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MoongladePure.Core.PostFeature;
+using MoongladePure.Data.Infrastructure;
 using X.PagedList;
 
 namespace MoongladePure.Web.Pages;
 
-public class FeaturedModel(IBlogConfig blogConfig, IBlogCache cache, IMediator mediator)
+public class FeaturedModel(IBlogConfig blogConfig, IBlogCache cache, IMediator mediator, ISiteContext siteContext)
     : PageModel
 {
     public StaticPagedList<PostDigest> Posts { get; set; }
@@ -13,7 +14,10 @@ public class FeaturedModel(IBlogConfig blogConfig, IBlogCache cache, IMediator m
     {
         var pagesize = blogConfig.ContentSettings.PostListPageSize;
         var posts = await mediator.Send(new ListFeaturedQuery(pagesize, p));
-        var count = await cache.GetOrCreateAsync(CacheDivision.PostCountFeatured, "featured", _ => mediator.Send(new CountPostQuery(CountType.Featured)));
+        var count = await cache.GetOrCreateAsync(
+            CacheDivision.PostCountFeatured,
+            SiteCacheKey.For(siteContext.SiteId, "featured"),
+            _ => mediator.Send(new CountPostQuery(CountType.Featured)));
 
         var list = new StaticPagedList<PostDigest>(posts, p, pagesize, count);
         Posts = list;

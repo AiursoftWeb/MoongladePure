@@ -1,4 +1,5 @@
 ﻿using MoongladePure.Core.CategoryFeature;
+using MoongladePure.Data.Infrastructure;
 using MoongladePure.Syndication;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,7 +9,8 @@ namespace MoongladePure.Web.Controllers;
 public class SubscriptionController(
     IBlogConfig blogConfig,
     IBlogCache cache,
-    IMediator mediator)
+    IMediator mediator,
+    ISiteContext siteContext)
     : ControllerBase
 {
     [HttpGet("opml")]
@@ -39,7 +41,9 @@ public class SubscriptionController(
         var route = hasRoute ? routeName.ToLower().Trim() : null;
 
         return await cache.GetOrCreateAsync(
-            hasRoute ? CacheDivision.RssCategory : CacheDivision.General, route ?? "rss", async entry =>
+            hasRoute ? CacheDivision.RssCategory : CacheDivision.General,
+            SiteCacheKey.For(siteContext.SiteId, route ?? "rss"),
+            async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromHours(1);
 
@@ -56,7 +60,7 @@ public class SubscriptionController(
     [HttpGet("atom")]
     public async Task<IActionResult> Atom()
     {
-        return await cache.GetOrCreateAsync(CacheDivision.General, "atom", async entry =>
+        return await cache.GetOrCreateAsync(CacheDivision.General, SiteCacheKey.For(siteContext.SiteId, "atom"), async entry =>
         {
             entry.SlidingExpiration = TimeSpan.FromHours(1);
 

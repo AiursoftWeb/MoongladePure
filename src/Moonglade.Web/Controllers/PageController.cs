@@ -1,5 +1,6 @@
 ﻿using MoongladePure.Caching.Filters;
 using MoongladePure.Core.PageFeature;
+using MoongladePure.Data.Infrastructure;
 using MoongladePure.Web.Attributes;
 using NUglify;
 
@@ -10,7 +11,8 @@ namespace MoongladePure.Web.Controllers;
 [Route("api/[controller]")]
 public class PageController(
     IBlogCache cache,
-    IMediator mediator) : Controller
+    IMediator mediator,
+    ISiteContext siteContext) : Controller
 {
     [HttpPost]
     [TypeFilter(typeof(ClearBlogCache), Arguments = new object[] { BlogCacheType.SiteMap })]
@@ -41,7 +43,7 @@ public class PageController(
 
         var uid = await pageServiceAction(model);
 
-        cache.Remove(CacheDivision.Page, model.Slug.ToLower());
+        cache.Remove(CacheDivision.Page, SiteCacheKey.For(siteContext.SiteId, model.Slug.ToLower()));
         return Ok(new { PageId = uid });
     }
 
@@ -54,7 +56,7 @@ public class PageController(
 
         await mediator.Send(new DeletePageCommand(id));
 
-        cache.Remove(CacheDivision.Page, page.Slug);
+        cache.Remove(CacheDivision.Page, SiteCacheKey.For(siteContext.SiteId, page.Slug.ToLower()));
         return NoContent();
     }
 }

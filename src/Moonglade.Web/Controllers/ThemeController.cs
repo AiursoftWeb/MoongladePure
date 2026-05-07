@@ -1,4 +1,5 @@
 ﻿using MoongladePure.Caching.Filters;
+using MoongladePure.Data.Infrastructure;
 using NUglify;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,7 +7,7 @@ namespace MoongladePure.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ThemeController(IMediator mediator, IBlogCache cache, IBlogConfig blogConfig)
+public class ThemeController(IMediator mediator, IBlogCache cache, IBlogConfig blogConfig, ISiteContext siteContext)
     : ControllerBase
 {
     [HttpGet("/theme.css")]
@@ -17,7 +18,10 @@ public class ThemeController(IMediator mediator, IBlogCache cache, IBlogConfig b
     {
         try
         {
-            var css = await cache.GetOrCreateAsync(CacheDivision.General, "theme", async entry =>
+            var css = await cache.GetOrCreateAsync(
+                CacheDivision.General,
+                SiteCacheKey.For(siteContext.SiteId, "theme"),
+                async entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(20);
 

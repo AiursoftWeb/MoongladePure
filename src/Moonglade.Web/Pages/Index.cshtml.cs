@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MoongladePure.Core.PostFeature;
+using MoongladePure.Data.Infrastructure;
 using MoongladePure.Data.Spec;
 using X.PagedList;
 
 namespace MoongladePure.Web.Pages;
 
-public class IndexModel(IBlogConfig blogConfig, IBlogCache cache, IMediator mediator)
+public class IndexModel(IBlogConfig blogConfig, IBlogCache cache, IMediator mediator, ISiteContext siteContext)
     : PageModel
 {
     public string SortBy { get; set; }
@@ -27,7 +28,7 @@ public class IndexModel(IBlogConfig blogConfig, IBlogCache cache, IMediator medi
         var posts = await mediator.Send(new ListPostsQuery(pagesize, p, sortBy: sortByEnum));
         var totalPostsCount = await cache.GetOrCreateAsync(
             CacheDivision.General,
-            "postcount",
+            SiteCacheKey.For(siteContext.SiteId, "postcount"),
             _ => mediator.Send(new CountPostQuery(CountType.Public)));
 
         Posts = new StaticPagedList<PostDigest>(posts, p, pagesize, totalPostsCount);

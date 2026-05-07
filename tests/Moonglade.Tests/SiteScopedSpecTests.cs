@@ -7,6 +7,7 @@ using MoongladePure.Data.Entities;
 using MoongladePure.Data.Infrastructure;
 using MoongladePure.Data.InMemory;
 using MoongladePure.Data.Spec;
+using MoongladePure.Web;
 
 namespace MoongladePure.Tests;
 
@@ -227,6 +228,17 @@ public class SiteScopedSpecTests
         var siteContext = new RequestSiteContext(CreateHttpContextAccessor("BLOG.EXAMPLE.COM:8443"), context);
 
         Assert.AreEqual(OtherSiteId, siteContext.SiteId);
+    }
+
+    [TestMethod]
+    public void SiteCacheKeySeparatesSiteScopedEntries()
+    {
+        var defaultMenuKey = SiteCacheKey.For(SystemIds.DefaultSiteId, "menu");
+        var otherMenuKey = SiteCacheKey.For(OtherSiteId, "menu");
+
+        Assert.AreNotEqual(defaultMenuKey, otherMenuKey);
+        Assert.IsTrue(defaultMenuKey.EndsWith(":menu", StringComparison.Ordinal));
+        Assert.IsTrue(otherMenuKey.EndsWith(":menu", StringComparison.Ordinal));
     }
 
     private static InMemoryContext CreateContext()

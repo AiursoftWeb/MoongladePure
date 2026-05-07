@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MoongladePure.Core.PageFeature;
+using MoongladePure.Data.Infrastructure;
 
 namespace MoongladePure.Web.Pages;
 
-public class BlogPageModel(IMediator mediator, IBlogCache cache, IConfiguration configuration)
+public class BlogPageModel(IMediator mediator, IBlogCache cache, IConfiguration configuration, ISiteContext siteContext)
     : PageModel
 {
     public BlogPage BlogPage { get; set; }
@@ -12,7 +13,10 @@ public class BlogPageModel(IMediator mediator, IBlogCache cache, IConfiguration 
     {
         if (string.IsNullOrWhiteSpace(slug)) return BadRequest();
 
-        var page = await cache.GetOrCreateAsync(CacheDivision.Page, slug.ToLower(), async entry =>
+        var page = await cache.GetOrCreateAsync(
+            CacheDivision.Page,
+            SiteCacheKey.For(siteContext.SiteId, slug.ToLower()),
+            async entry =>
         {
             entry.SlidingExpiration = TimeSpan.FromMinutes(int.Parse(configuration["CacheSlidingExpirationMinutes:Page"] ?? "0"));
 

@@ -26,26 +26,33 @@ public class ClearBlogCache(CacheDivision division, string cacheKey, IBlogCache 
 
         if (_type.HasFlag(BlogCacheType.None))
         {
-            cache.Remove(division, cacheKey);
+            if (division == CacheDivision.General)
+            {
+                cache.Remove(division);
+            }
+            else
+            {
+                cache.Remove(division, cacheKey);
+            }
         }
 
         if (_type.HasFlag(BlogCacheType.Subscription))
         {
-            cache.Remove(CacheDivision.General, "rss");
-            cache.Remove(CacheDivision.General, "atom");
+            cache.Remove(CacheDivision.General);
             cache.Remove(CacheDivision.RssCategory);
         }
 
         if (_type.HasFlag(BlogCacheType.SiteMap))
         {
-            cache.Remove(CacheDivision.General, "sitemap");
+            cache.Remove(CacheDivision.General);
         }
 
         if (_type.HasFlag(BlogCacheType.PagingCount))
         {
-            cache.Remove(CacheDivision.General, "postcount");
+            cache.Remove(CacheDivision.General);
             cache.Remove(CacheDivision.PostCountCategory);
             cache.Remove(CacheDivision.PostCountTag);
+            cache.Remove(CacheDivision.PostCountFeatured);
         }
     }
 }
