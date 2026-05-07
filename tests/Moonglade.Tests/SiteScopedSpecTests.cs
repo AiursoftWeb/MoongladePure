@@ -1,5 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using MediatR;
+using MoongladePure.Caching;
+using MoongladePure.Configuration;
 using MoongladePure.Core.PageFeature;
 using MoongladePure.Core.PostFeature;
 using MoongladePure.Data;
@@ -7,6 +16,9 @@ using MoongladePure.Data.Entities;
 using MoongladePure.Data.Infrastructure;
 using MoongladePure.Data.InMemory;
 using MoongladePure.Data.Spec;
+using MoongladePure.Menus;
+using MoongladePure.Web.Pages;
+using MoongladePure.Web.ViewComponents;
 using MoongladePure.Web;
 
 namespace MoongladePure.Tests;
@@ -241,6 +253,81 @@ public class SiteScopedSpecTests
         Assert.IsTrue(otherMenuKey.EndsWith(":menu", StringComparison.Ordinal));
     }
 
+    [TestMethod]
+    public async Task IndexPageUsesSiteScopedPostCountCacheKey()
+    {
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            ListPostsQuery => new List<PostDigest>(),
+            CountPostQuery => 7,
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var model = new IndexModel(
+            new BlogConfig { ContentSettings = new ContentSettings { PostListPageSize = 10 } },
+            cache,
+            mediator,
+            new FixedSiteContext(OtherSiteId))
+        {
+            PageContext = CreatePageContext()
+        };
+
+        await model.OnGet();
+
+        Assert.AreEqual(CacheDivision.General, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "postcount"), cache.LastKey);
+        Assert.AreEqual(7, model.Posts.TotalItemCount);
+    }
+
+    [TestMethod]
+    public async Task BlogPageUsesSiteScopedSlugCacheKey()
+    {
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            GetPageBySlugQuery => new BlogPage { Slug = "about", Title = "About", IsPublished = true },
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string>
+            {
+                ["CacheSlidingExpirationMinutes:Page"] = "20"
+            })
+            .Build();
+        var model = new BlogPageModel(mediator, cache, configuration, new FixedSiteContext(OtherSiteId));
+
+        await model.OnGetAsync("About");
+
+        Assert.AreEqual(CacheDivision.Page, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "about"), cache.LastKey);
+        Assert.AreEqual("About", model.BlogPage.Title);
+    }
+
+    [TestMethod]
+    public async Task MenuViewComponentUsesSiteScopedCacheKey()
+    {
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            GetAllMenusQuery => new List<Menu>
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Other Site Menu",
+                    Url = "/"
+                }
+            },
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var component = new MenuViewComponent(cache, mediator, new FixedSiteContext(OtherSiteId));
+
+        await component.InvokeAsync();
+
+        Assert.AreEqual(CacheDivision.General, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "menu"), cache.LastKey);
+    }
+
     private static InMemoryContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<InMemoryContext>()
@@ -306,5 +393,94 @@ public class SiteScopedSpecTests
     private sealed class FixedSiteContext(Guid siteId) : ISiteContext
     {
         public Guid SiteId { get; } = siteId;
+    }
+
+    private static PageContext CreatePageContext() => new()
+    {
+        ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+    };
+
+    private sealed class CapturingBlogCache : IBlogCache
+    {
+        public CacheDivision LastDivision { get; private set; }
+        public string LastKey { get; private set; }
+
+        public TItem GetOrCreate<TItem>(CacheDivision division, string key, Func<ICacheEntry, TItem> factory)
+        {
+            LastDivision = division;
+            LastKey = key;
+
+            return factory(new StubCacheEntry(key));
+        }
+
+        public Task<TItem> GetOrCreateAsync<TItem>(CacheDivision division, string key, Func<ICacheEntry, Task<TItem>> factory)
+        {
+            LastDivision = division;
+            LastKey = key;
+
+            return factory(new StubCacheEntry(key));
+        }
+
+        public void RemoveAllCache()
+        {
+        }
+
+        public void Remove(CacheDivision division)
+        {
+            LastDivision = division;
+            LastKey = null;
+        }
+
+        public void Remove(CacheDivision division, string key)
+        {
+            LastDivision = division;
+            LastKey = key;
+        }
+    }
+
+    private sealed class StubCacheEntry(object key) : ICacheEntry
+    {
+        public object Key { get; } = key;
+        public object Value { get; set; }
+        public DateTimeOffset? AbsoluteExpiration { get; set; }
+        public TimeSpan? AbsoluteExpirationRelativeToNow { get; set; }
+        public TimeSpan? SlidingExpiration { get; set; }
+        public IList<IChangeToken> ExpirationTokens { get; } = new List<IChangeToken>();
+        public IList<PostEvictionCallbackRegistration> PostEvictionCallbacks { get; } = new List<PostEvictionCallbackRegistration>();
+        public CacheItemPriority Priority { get; set; }
+        public long? Size { get; set; }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    private sealed class StubMediator(Func<object, object> handler) : IMediator
+    {
+        public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default) =>
+            Task.FromResult((TResponse)handler(request));
+
+        public Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = default)
+            where TRequest : IRequest
+        {
+            handler(request);
+            return Task.CompletedTask;
+        }
+
+        public Task<object> Send(object request, CancellationToken cancellationToken = default) =>
+            Task.FromResult(handler(request));
+
+        public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public IAsyncEnumerable<object> CreateStream(object request, CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task Publish(object notification, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
+            where TNotification : INotification =>
+            Task.CompletedTask;
     }
 }
