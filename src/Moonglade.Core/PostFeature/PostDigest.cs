@@ -5,6 +5,8 @@ namespace MoongladePure.Core.PostFeature;
 
 public class PostDigest
 {
+    public Guid Id { get; set; }
+
     public DateTime PubDateUtc { get; set; }
 
     public string Title { get; set; }
@@ -23,6 +25,7 @@ public class PostDigest
 
     public static Expression<Func<PostEntity, PostDigest>> EntitySelector => p => new()
     {
+        Id = p.Id,
         Title = p.Title,
         Slug = p.Slug,
         ContentAbstractZh = p.ContentAbstractZh,
@@ -39,6 +42,7 @@ public class PostDigest
 
     public static readonly Expression<Func<PostTagEntity, PostDigest>> EntitySelectorByTag = p => new()
     {
+        Id = p.Post.Id,
         Title = p.Post.Title,
         Slug = p.Post.Slug,
         ContentAbstractZh = p.Post.ContentAbstractZh,

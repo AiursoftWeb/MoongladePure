@@ -74,12 +74,97 @@ public class SiteScopedSpecTests
             CreatePost(OtherSiteId, "Other Site Post"));
         await context.SaveChangesAsync();
         var repo = new BlogDbContextRepository<PostEntity>(context);
-        var handler = new ListPostsQueryHandler(repo, new FixedSiteContext(OtherSiteId));
+        var handler = new ListPostsQueryHandler(
+            repo,
+            new BlogDbContextRepository<PostContentEntity>(context),
+            new BlogDbContextRepository<AiArtifactEntity>(context),
+            new FixedSiteContext(OtherSiteId));
 
         var posts = await handler.Handle(new ListPostsQuery(10, 1), CancellationToken.None);
 
         Assert.AreEqual(1, posts.Count);
         Assert.AreEqual("Other Site Post", posts[0].Title);
+    }
+
+    [TestMethod]
+    public async Task ListPostsQueryUsesAiArtifactSummaryBeforeLegacyFields()
+    {
+        await using var context = CreateContext();
+        var post = CreatePost(SystemIds.DefaultSiteId, "Projection Post");
+        post.ContentAbstractZh = "legacy zh";
+        post.ContentAbstractEn = "legacy en";
+        await context.Post.AddAsync(post);
+        await context.AiArtifact.AddRangeAsync(
+            CreateArtifact(post.Id, AiArtifactType.Summary, "zh-CN", "artifact zh"),
+            CreateArtifact(post.Id, AiArtifactType.Summary, "en-US", "artifact en"));
+        await context.SaveChangesAsync();
+        var handler = new ListPostsQueryHandler(
+            new BlogDbContextRepository<PostEntity>(context),
+            new BlogDbContextRepository<PostContentEntity>(context),
+            new BlogDbContextRepository<AiArtifactEntity>(context),
+            new FixedSiteContext(SystemIds.DefaultSiteId));
+
+        var posts = await handler.Handle(new ListPostsQuery(10, 1), CancellationToken.None);
+
+        Assert.AreEqual("artifact zh", posts[0].ContentAbstractZh);
+        Assert.AreEqual("artifact en", posts[0].ContentAbstractEn);
+    }
+
+    [TestMethod]
+    public async Task GetPostByIdQueryUsesPostContentAndAiArtifactsBeforeLegacyFields()
+    {
+        await using var context = CreateContext();
+        var post = CreatePost(SystemIds.DefaultSiteId, "Detail Projection Post");
+        post.RawContent = "legacy raw";
+        post.ContentAbstractZh = "legacy zh";
+        post.ContentAbstractEn = "legacy en";
+        post.LocalizedChineseContent = "legacy translated zh";
+        post.LocalizedEnglishContent = "legacy translated en";
+        await context.Post.AddAsync(post);
+        await context.PostContent.AddRangeAsync(
+            CreatePostContent(post.Id, PostContentKind.RawMarkdown, "en-US", "postcontent raw"),
+            CreatePostContent(post.Id, PostContentKind.Translation, "zh-CN", "postcontent translated zh"));
+        await context.AiArtifact.AddRangeAsync(
+            CreateArtifact(post.Id, AiArtifactType.Summary, "zh-CN", "artifact zh"),
+            CreateArtifact(post.Id, AiArtifactType.Summary, "en-US", "artifact en"),
+            CreateArtifact(post.Id, AiArtifactType.Translation, "en-US", "artifact translated en"));
+        await context.SaveChangesAsync();
+        var handler = new GetPostByIdQueryHandler(
+            new BlogDbContextRepository<PostEntity>(context),
+            new BlogDbContextRepository<PostContentEntity>(context),
+            new BlogDbContextRepository<AiArtifactEntity>(context),
+            new FixedSiteContext(SystemIds.DefaultSiteId));
+
+        var projectedPost = await handler.Handle(new GetPostByIdQuery(post.Id), CancellationToken.None);
+
+        Assert.AreEqual("postcontent raw", projectedPost.RawPostContent);
+        Assert.AreEqual("artifact zh", projectedPost.ContentAbstractZh);
+        Assert.AreEqual("artifact en", projectedPost.ContentAbstractEn);
+        Assert.AreEqual("postcontent translated zh", projectedPost.LocalizedChineseContent);
+        Assert.AreEqual("artifact translated en", projectedPost.LocalizedEnglishContent);
+    }
+
+    [TestMethod]
+    public async Task GetPostByIdQueryFallsBackToLegacyFields()
+    {
+        await using var context = CreateContext();
+        var post = CreatePost(SystemIds.DefaultSiteId, "Legacy Projection Post");
+        post.RawContent = "legacy raw";
+        post.ContentAbstractZh = "legacy zh";
+        post.ContentAbstractEn = "legacy en";
+        await context.Post.AddAsync(post);
+        await context.SaveChangesAsync();
+        var handler = new GetPostByIdQueryHandler(
+            new BlogDbContextRepository<PostEntity>(context),
+            new BlogDbContextRepository<PostContentEntity>(context),
+            new BlogDbContextRepository<AiArtifactEntity>(context),
+            new FixedSiteContext(SystemIds.DefaultSiteId));
+
+        var projectedPost = await handler.Handle(new GetPostByIdQuery(post.Id), CancellationToken.None);
+
+        Assert.AreEqual("legacy raw", projectedPost.RawPostContent);
+        Assert.AreEqual("legacy zh", projectedPost.ContentAbstractZh);
+        Assert.AreEqual("legacy en", projectedPost.ContentAbstractEn);
     }
 
     [TestMethod]
@@ -176,6 +261,26 @@ public class SiteScopedSpecTests
         HtmlContent = "content",
         CreateTimeUtc = DateTime.UtcNow,
         IsPublished = true
+    };
+
+    private static PostContentEntity CreatePostContent(Guid postId, PostContentKind kind, string cultureCode, string body) => new()
+    {
+        SiteId = SystemIds.DefaultSiteId,
+        PostId = postId,
+        CultureCode = cultureCode,
+        ContentKind = kind,
+        Body = body,
+        IsOriginal = kind == PostContentKind.RawMarkdown
+    };
+
+    private static AiArtifactEntity CreateArtifact(Guid postId, AiArtifactType type, string cultureCode, string content) => new()
+    {
+        SiteId = SystemIds.DefaultSiteId,
+        TargetEntityType = nameof(PostEntity),
+        TargetEntityId = postId,
+        ArtifactType = type,
+        CultureCode = cultureCode,
+        Content = content
     };
 
     private static IHttpContextAccessor CreateHttpContextAccessor(string host)

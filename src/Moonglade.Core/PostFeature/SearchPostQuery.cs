@@ -5,7 +5,11 @@ namespace MoongladePure.Core.PostFeature;
 
 public record SearchPostQuery(string Keyword) : IRequest<IReadOnlyList<PostDigest>>;
 
-public class SearchPostQueryHandler(IRepository<PostEntity> repo, ISiteContext siteContext)
+public class SearchPostQueryHandler(
+    IRepository<PostEntity> repo,
+    IRepository<PostContentEntity> contentRepo,
+    IRepository<AiArtifactEntity> artifactRepo,
+    ISiteContext siteContext)
     : IRequestHandler<SearchPostQuery, IReadOnlyList<PostDigest>>
 {
     public async Task<IReadOnlyList<PostDigest>> Handle(SearchPostQuery request, CancellationToken ct)
@@ -15,10 +19,10 @@ public class SearchPostQueryHandler(IRepository<PostEntity> repo, ISiteContext s
             throw new ArgumentNullException(request?.Keyword);
         }
 
-        return await SearchByKeywordAsync(request.Keyword);
+        return await SearchByKeywordAsync(request.Keyword, ct);
     }
 
-    private Task<List<PostDigest>> SearchByKeywordAsync(string keyword)
+    private async Task<List<PostDigest>> SearchByKeywordAsync(string keyword, CancellationToken ct)
     {
         // Normalize and split the keyword into terms using one or more whitespace as delimiter.
         var terms = Regex.Split(keyword.Trim(), @"\s+")
@@ -27,7 +31,7 @@ public class SearchPostQueryHandler(IRepository<PostEntity> repo, ISiteContext s
 
         if (terms.Length == 0)
         {
-            return Task.FromResult(new List<PostDigest>());
+            return [];
         }
 
         // Pre-filter posts on the database side:
@@ -102,6 +106,8 @@ public class SearchPostQueryHandler(IRepository<PostEntity> repo, ISiteContext s
             .Select(x => x.Post)
             .ToList();
 
-        return Task.FromResult(scoredPosts.Select(PostDigest.EntitySelector.Compile()).ToList());
+        var results = scoredPosts.Select(PostDigest.EntitySelector.Compile()).ToList();
+        await PostReadProjection.EnrichAsync(results, contentRepo, artifactRepo, siteContext.SiteId, ct);
+        return results;
     }
 }

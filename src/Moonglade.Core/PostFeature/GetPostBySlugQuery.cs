@@ -7,7 +7,13 @@ namespace MoongladePure.Core.PostFeature;
 
 public record GetPostBySlugQuery(PostSlug Slug) : IRequest<Post>;
 
-public class GetPostBySlugQueryHandler(IRepository<PostEntity> repo, IBlogCache cache, IConfiguration configuration, ISiteContext siteContext)
+public class GetPostBySlugQueryHandler(
+    IRepository<PostEntity> repo,
+    IRepository<PostContentEntity> contentRepo,
+    IRepository<AiArtifactEntity> artifactRepo,
+    IBlogCache cache,
+    IConfiguration configuration,
+    ISiteContext siteContext)
     : IRequestHandler<GetPostBySlugQuery, Post>
 {
     public async Task<Post> Handle(GetPostBySlugQuery request, CancellationToken ct)
@@ -39,6 +45,7 @@ public class GetPostBySlugQueryHandler(IRepository<PostEntity> repo, IBlogCache 
             entry.SlidingExpiration = TimeSpan.FromMinutes(int.Parse(configuration["CacheSlidingExpirationMinutes:Post"] ?? "0"));
 
             var post = await repo.FirstOrDefaultAsync(spec, Post.EntitySelector);
+            await PostReadProjection.EnrichAsync(post, contentRepo, artifactRepo, siteContext.SiteId, ct);
             return post;
         });
 
