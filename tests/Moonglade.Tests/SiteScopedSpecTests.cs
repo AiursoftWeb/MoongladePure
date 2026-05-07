@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using MediatR;
 using MoongladePure.Caching;
 using MoongladePure.Configuration;
+using MoongladePure.Core.CategoryFeature;
 using MoongladePure.Core.PageFeature;
 using MoongladePure.Core.PostFeature;
+using MoongladePure.Core.TagFeature;
 using MoongladePure.Data;
 using MoongladePure.Data.Entities;
 using MoongladePure.Data.Infrastructure;
@@ -326,6 +328,98 @@ public class SiteScopedSpecTests
 
         Assert.AreEqual(CacheDivision.General, cache.LastDivision);
         Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "menu"), cache.LastKey);
+    }
+
+    [TestMethod]
+    public async Task CategoryListPageUsesSiteScopedCountCacheKey()
+    {
+        var categoryId = Guid.NewGuid();
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            GetCategoryByRouteQuery => new Category
+            {
+                Id = categoryId,
+                RouteName = "notes",
+                DisplayName = "Notes"
+            },
+            CountPostQuery => 3,
+            ListPostsQuery => new List<PostDigest>(),
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var model = new CategoryListModel(
+            new BlogConfig { ContentSettings = new ContentSettings { PostListPageSize = 10 } },
+            mediator,
+            cache,
+            new FixedSiteContext(OtherSiteId))
+        {
+            PageContext = CreatePageContext()
+        };
+
+        await model.OnGetAsync("notes");
+
+        Assert.AreEqual(CacheDivision.PostCountCategory, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, categoryId.ToString()), cache.LastKey);
+        Assert.AreEqual(3, model.Posts.TotalItemCount);
+    }
+
+    [TestMethod]
+    public async Task TagListPageUsesSiteScopedCountCacheKey()
+    {
+        const int tagId = 7;
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            GetTagQuery => new Tag
+            {
+                Id = tagId,
+                NormalizedName = "dotnet",
+                DisplayName = ".NET"
+            },
+            ListByTagQuery => new List<PostDigest>(),
+            CountPostQuery => 4,
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var model = new TagListModel(
+            mediator,
+            new BlogConfig { ContentSettings = new ContentSettings { PostListPageSize = 10 } },
+            cache,
+            new FixedSiteContext(OtherSiteId))
+        {
+            PageContext = CreatePageContext()
+        };
+
+        await model.OnGet("dotnet");
+
+        Assert.AreEqual(CacheDivision.PostCountTag, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, tagId.ToString()), cache.LastKey);
+        Assert.AreEqual(4, model.Posts.TotalItemCount);
+    }
+
+    [TestMethod]
+    public async Task FeaturedPageUsesSiteScopedCountCacheKey()
+    {
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            ListFeaturedQuery => new List<PostDigest>(),
+            CountPostQuery => 5,
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var model = new FeaturedModel(
+            new BlogConfig { ContentSettings = new ContentSettings { PostListPageSize = 10 } },
+            cache,
+            mediator,
+            new FixedSiteContext(OtherSiteId))
+        {
+            PageContext = CreatePageContext()
+        };
+
+        await model.OnGet();
+
+        Assert.AreEqual(CacheDivision.PostCountFeatured, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "featured"), cache.LastKey);
+        Assert.AreEqual(5, model.Posts.TotalItemCount);
     }
 
     private static InMemoryContext CreateContext()
