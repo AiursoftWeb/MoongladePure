@@ -1,6 +1,6 @@
 # Handoff: database code-first refactor
 
-日期：2026-05-06
+日期：2026-05-07
 
 分支：`users/aimer/refactor_db_service`
 
@@ -11,15 +11,20 @@
 - 新的 code-first 数据模型已经建立，包含默认 `Tenant`、默认 `Site`、站点级内容表、文章路由表、文章内容表、媒体/AI 表，以及兼容现有博客功能所需的表。
 - 旧版 SQLite 到 MoongladePure2 SQLite 的迁移工具已经实现，并覆盖了 preflight、migrate、validate、dry-run 和 JSON report。
 - 迁移工具已经用真实旧库验证过，真实迁移后的数据库也经过 Web 应用手动冒烟测试。
-- Web 当前仍保持单站点兼容模式，但已经引入 request-scoped `ISiteContext`，主要查询和写入路径通过当前站点上下文获取 `SiteId`，默认实现仍回落到默认站点。
+- Web 当前仍保持单站点兼容模式，但已经引入 request-scoped `ISiteContext`，主要查询和写入路径通过当前站点上下文获取 `SiteId`。
+- `RequestSiteContext` 已经支持按 request host 查询 `SiteDomain.Host` 解析当前站点；未知 host 或无 host 时 fallback 到默认站点。
+- 文章主要读取路径已经通过 `PostReadProjection` 优先读取 `PostContent` / `AiArtifact`，缺少新产物时 fallback 到旧宽表字段。
 - AI 后台任务现在会持久化 `AiJob` 和 `AiArtifact`，同时保留原有 UI 依赖的旧字段写入。
 
-当前工作区包含尚未提交的 `ISiteContext` 重构和本文档更新，需要 review 后再决定是否提交。
+从 `daea0a9a536ec5b82a613140a155e102c635308d` 到当前 `HEAD`，本地提交已经完成站点边界、host/domain 解析和文章读取投影三块增量。当前工作区只包含本文档和 `database-code-first-refactor-plan.md` 的更新。
 
 ## 重要提交
 
 近期完成的主要提交：
 
+- `90e1f98c refactor: project post reads from content artifacts`
+- `658fd01d refactor: resolve site context from request host`
+- `daea0a9a update for sitecontext`
 - `ef6d635c feat: persist ai jobs and artifacts`
 - `1f6fda92 refactor: scope web queries to default site`
 - `e94abdd5 feat: add migration dry-run validation`
@@ -148,21 +153,27 @@ dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.
 - 评论展示。
 - 新建和编辑文章。
 
-## Web 默认站点边界
+## Web 站点上下文边界
 
-当前还没有真正的 host/domain 动态解析，兼容模型仍然是单站点。但主要业务路径已经通过 request-scoped `ISiteContext` 获取站点边界：
+兼容模型仍然以单站点为默认体验，但主要业务路径已经通过 request-scoped `ISiteContext` 获取站点边界：
 
 ```csharp
 ISiteContext.SiteId
 ```
 
-默认实现：
+实现位置：
 
 ```text
 src/Moonglade.Data/Infrastructure/ISiteContext.cs
 ```
 
-`DefaultSiteContext` 仍返回 `SystemIds.DefaultSiteId`，用于保留现有单站点行为和后续动态解析的 fallback。
+当前实现：
+
+- `RequestSiteContext` 在 Web 中注册为 scoped 服务。
+- `RequestSiteContext` 读取当前 request host，按 `SiteDomain.Host` 查找 `SiteId`。
+- 未匹配到域名、无 request host 或非 Web 场景时 fallback 到 `SystemIds.DefaultSiteId`。
+- Web 已启用 `X-Forwarded-Host`，反向代理场景下可以使用转发后的 host。
+- `DefaultSiteContext` 仍保留为单站点/非 request 场景 fallback。
 
 已处理范围：
 
@@ -182,10 +193,46 @@ src/Moonglade.Data/Infrastructure/ISiteContext.cs
 tests/Moonglade.Tests/SiteScopedSpecTests.cs
 ```
 
-该测试现在包含两个 EF InMemory 级别的双站点隔离用例：
+该测试现在包含 EF InMemory 级别的双站点隔离、host/domain 解析和文章投影用例：
 
 - `ListPostsQueryUsesCurrentSiteBoundary`
+- `PostSpecsUseDefaultSiteBoundary`
+- `CategoryAndTagSpecsUseDefaultSiteBoundary`
+- `PageAndCommentSpecsUseDefaultSiteBoundary`
 - `GetPageBySlugQueryUsesCurrentSiteBoundary`
+- `RequestSiteContextUsesBoundDomain`
+- `RequestSiteContextFallsBackForUnknownDomain`
+- `RequestSiteContextNormalizesHostCaseAndPort`
+- `ListPostsQueryUsesAiArtifactSummaryBeforeLegacyFields`
+- `GetPostByIdQueryUsesPostContentAndAiArtifactsBeforeLegacyFields`
+- `GetPostByIdQueryFallsBackToLegacyFields`
+
+## 文章读取投影
+
+新增实现：
+
+```text
+src/Moonglade.Core/PostFeature/PostReadProjection.cs
+```
+
+已接入的读取路径：
+
+- `GetPostByIdQuery`
+- `GetPostBySlugQuery`
+- `GetDraftQuery`
+- `ListPostsQuery`
+- `ListArchiveQuery`
+- `ListByTagQuery`
+- `ListFeaturedQuery`
+- `SearchPostQuery`
+
+投影优先级：
+
+- 正文优先读取 `PostContent(ContentKind = RawMarkdown)`，没有时 fallback 到 `Post.RawContent`。
+- 摘要优先读取 `AiArtifact(Summary)`，其次读取 `PostContent(Summary).Abstract`，没有时 fallback 到 `Post.ContentAbstractZh` / `Post.ContentAbstractEn`。
+- 翻译优先读取 `PostContent(Translation)`，其次读取 `AiArtifact(Translation)`，没有时 fallback 到旧本地化字段。
+
+列表类查询会按当前 `SiteId` 批量读取 `PostContent` 和 `AiArtifact`，避免对每篇文章逐条查库。
 
 ## AI 数据模型
 
@@ -228,40 +275,39 @@ git diff --check
 最近已知完整测试结果：
 
 ```text
-Passed: 32
+Passed: 38
 ```
 
 最近已知 `SiteScopedSpecTests` 结果：
 
 ```text
-Passed: 5
+Passed: 11
 ```
 
 ## 尚未完成
 
 这个分支还没有完成完整 SaaS 产品形态。剩余工作包括：
 
-- 基于 request host/domain 的动态 `SiteContext`。
 - 租户注册、站点创建、站点管理 UI。
 - 成员、角色和权限管理；当前只是默认 owner/admin 兼容路径。
 - 用真实旧 MySQL 数据库验证或实现 MySQL legacy migration 路径。
 - 更深入的媒体文件和外部 blob 引用验证。
-- 前端读取路径完全切到 `PostContent` / `AiArtifact` 投影。
+- 非文章读取/编辑路径继续审计是否需要进一步使用新内容/AI 产物模型。
 - 多实例部署下的 AI job claiming / worker queue。
 - 内容和设置编辑的强并发控制。
 
 ## 风险点
 
-- 当前 `DefaultSiteContext` 仍返回 `SystemIds.DefaultSiteId`，它是过渡 fallback，不是最终多站点解析方案。
-- 使用 `/tmp/moonglade-app-migrated-20260506.db` 做过手动 Web 冒烟，用户反馈看起来没问题；后续引入 host/domain 解析后仍建议再跑一轮。
+- `RequestSiteContext` 当前按 host 精确匹配 `SiteDomain.Host`，未知域名会 fallback 到默认站点；这对兼容友好，但真实 SaaS 上线前需要明确未绑定域名是否应该 404、跳转或继续 fallback。
+- 使用 `/tmp/moonglade-app-migrated-20260506.db` 做过手动 Web 冒烟，用户反馈看起来没问题；host/domain 解析和文章投影合入后仍建议再跑一轮。
 - 迁移工具目前以 legacy SQLite 为主，不能假设旧 MySQL 路径已经同等成熟。
 - `AiJob` / `AiArtifact` 已经落库，但后台任务调度和管理 UI 还没有 SaaS 级能力。
 - 媒体迁移目前主要覆盖数据库内资产和元数据，文件系统/对象存储里的真实文件仍需部署侧审计。
 
 ## 推荐下一步
 
-1. Review 并提交当前 `ISiteContext` 重构和文档更新，建议提交信息：`refactor: introduce site context boundary`。
-2. 实现基于 request host/domain 的动态 `SiteContext`，优先读取 `SiteDomain.Host`，找不到时 fallback 到默认站点。
-3. 增加 host/domain 解析测试，覆盖已绑定域名、未知域名 fallback、大小写 host 归一化。
-4. 明确 MySQL legacy migration 是否进入当前里程碑；如果不做，需要在 release note 中写清楚。
-5. 继续把前端读取路径逐步切到 `PostContent` / `AiArtifact` 投影。
+1. 运行 `SiteScopedSpecTests` 和完整测试，确认当前 HEAD 的站点边界、host 解析和文章投影没有回归。
+2. 使用 `/tmp/moonglade-app-migrated-20260506.db` 或新的真实迁移库再做一轮 Web 手动冒烟，重点覆盖自定义 host、旧文章 URL、摘要/翻译展示和后台编辑。
+3. 明确 MySQL legacy migration 是否进入当前里程碑；如果不做，需要在 release note 中写清楚。
+4. 审计非文章读取/编辑路径是否还依赖旧宽表或默认站点假设。
+5. 设计租户注册、站点创建、成员角色权限和 SaaS 未绑定域名策略。

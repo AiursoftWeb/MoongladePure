@@ -622,19 +622,26 @@ moonglade-migrate
 - Repository 查询全部增加站点边界。
 - 保留旧 URL 解析行为。
 
-当前进展（2026-05-06）：
+当前进展（2026-05-07）：
 
 - 已新增 request-scoped `ISiteContext` 和 `DefaultSiteContext`，默认实现回落到 `SystemIds.DefaultSiteId`。
 - 文章、分类、标签、页面、评论、配置、菜单、友链、主题、RSS、导出、资产、统计和 AI 后台任务的主要读写路径已经切到 `ISiteContext.SiteId`。
 - Data specs 支持显式传入 `siteId`，不传时仍使用默认站点 fallback，保持旧调用兼容。
-- 已增加双站点隔离测试，验证文章列表和页面 slug 查询不会读取其他站点数据。
-- 尚未实现基于 request host/domain 的动态站点解析。
+- 已实现 request host/domain 到 `ISiteContext` 的动态解析：`RequestSiteContext` 读取 `SiteDomain.Host`，未知 host 或无 request host 时 fallback 到默认站点。
+- 已启用 `X-Forwarded-Host`，支持反向代理后的 host 解析。
+- 已增加双站点隔离和 host/domain 解析测试，覆盖文章列表、页面 slug 查询、已绑定域名、未知域名 fallback、host 大小写和端口归一化。
 
 ### 阶段 4：AI 数据模型迁移
 
 - 把摘要、翻译和 AI 评论从核心宽表迁到 `PostContent` / `AiArtifact`。
 - 后台任务改为写 `AiJob` 状态和产物。
 - 保留当前前台展示逻辑需要的读取投影。
+
+当前进展（2026-05-07）：
+
+- `AiJob` 和 `AiArtifact` 已经落库，后台 AI 摘要、评论、标签生成会保留兼容旧 UI 的字段写入。
+- 文章读取已引入 `PostReadProjection`，详情、列表、归档、标签页、精选、搜索和草稿读取会优先从 `PostContent` / `AiArtifact` 投影摘要、翻译和原始正文，再 fallback 到旧宽表字段。
+- 已增加投影测试，覆盖 `AiArtifact` 摘要优先、`PostContent` 正文/翻译优先，以及缺少新产物时回退旧字段。
 
 ### 阶段 5：SaaS 能力启用
 
@@ -720,7 +727,7 @@ moonglade-migrate
 
 1. 输出当前旧 schema 的 machine-readable 描述。
 2. 设计新实体类和 EF Core Fluent 配置。
-3. 设计 `SiteContext` 和默认单站点解析。
+3. 设计 `SiteContext` 和默认单站点解析。（已完成）
 4. 实现迁移工具 dry-run。
 5. 实现旧文章到新文章、内容、路由的迁移。
 6. 实现配置、主题、页面、菜单、友链迁移。
@@ -728,11 +735,11 @@ moonglade-migrate
 8. 实现账号和成员迁移。
 9. 实现媒体资产 metadata 迁移。
 10. 实现迁移校验报告。
-11. 将现有查询逐步加上 `SiteId` 边界。
-12. 将 AI 后台任务改为 `AiJob` 和 `AiArtifact`。
-13. 实现 host/domain 到 `ISiteContext` 的动态解析。
-14. 增加 host/domain 解析测试，覆盖已绑定域名、未知域名 fallback 和 host 归一化。
-15. 将前台读取路径逐步切到 `PostContent` / `AiArtifact` 投影。
+11. 将现有查询逐步加上 `SiteId` 边界。（主要路径已完成）
+12. 将 AI 后台任务改为 `AiJob` 和 `AiArtifact`。（已完成兼容写入）
+13. 实现 host/domain 到 `ISiteContext` 的动态解析。（已完成）
+14. 增加 host/domain 解析测试，覆盖已绑定域名、未知域名 fallback 和 host 归一化。（已完成）
+15. 将前台读取路径逐步切到 `PostContent` / `AiArtifact` 投影。（文章主要读取路径已完成）
 
 ## 13. 当前阶段结论
 
@@ -740,4 +747,6 @@ MoongladePure 现在不是缺少一个迁移文件，而是缺少一个明确的
 
 建议第一版重构以“默认租户 + 默认站点 + 旧 UI 完全兼容”为交付目标。这样既能让现有用户无感迁移，也能在不大幅扰动上层交互的前提下，把数据库结构推进到可以承载 SaaS 和 AI 功能的状态。
 
-截至 2026-05-06，第一版重构已经完成默认租户/默认站点、新 schema、legacy SQLite 迁移工具、迁移校验、AI job/artifact 落库、主要业务路径站点边界和默认 `ISiteContext`。下一步应从“默认站点 fallback”推进到“request host/domain 动态解析当前站点”。
+截至 2026-05-07，第一版重构已经完成默认租户/默认站点、新 schema、legacy SQLite 迁移工具、迁移校验、AI job/artifact 落库、主要业务路径站点边界、request host/domain 动态站点解析，以及文章主要读取路径的 `PostContent` / `AiArtifact` 投影。
+
+当前可以视为“单站点兼容 + code-first 新库 + legacy SQLite 迁移 + host 解析基础设施”的第一版功能闭环，但还不是完整 SaaS 产品形态。尚未完成的关键部分是租户/站点管理 UI、成员角色权限、真实旧 MySQL 迁移验证、多实例 AI job claiming、媒体外部文件审计、以及内容和设置编辑的强并发控制。
