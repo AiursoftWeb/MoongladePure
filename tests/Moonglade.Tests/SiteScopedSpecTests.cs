@@ -1,14 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using MediatR;
 using MoongladePure.Caching;
+using MoongladePure.Caching.Filters;
 using MoongladePure.Configuration;
+using MoongladePure.Core;
 using MoongladePure.Core.CategoryFeature;
 using MoongladePure.Core.PageFeature;
 using MoongladePure.Core.PostFeature;
@@ -19,9 +28,13 @@ using MoongladePure.Data.Infrastructure;
 using MoongladePure.Data.InMemory;
 using MoongladePure.Data.Spec;
 using MoongladePure.Menus;
+using MoongladePure.Syndication;
+using MoongladePure.Theme;
 using MoongladePure.Web.Pages;
 using MoongladePure.Web.ViewComponents;
 using MoongladePure.Web;
+using MoongladePure.Web.Controllers;
+using MoongladePure.Web.Middleware;
 
 namespace MoongladePure.Tests;
 
@@ -422,6 +435,132 @@ public class SiteScopedSpecTests
         Assert.AreEqual(5, model.Posts.TotalItemCount);
     }
 
+    [TestMethod]
+    public async Task SubscriptionControllerUsesSiteScopedFeedCacheKeys()
+    {
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            GetRssStringQuery => "<rss />",
+            GetAtomStringQuery => "<feed />",
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var controller = new SubscriptionController(
+            new BlogConfig { GeneralSettings = new GeneralSettings { SiteTitle = "Site" } },
+            cache,
+            mediator,
+            new FixedSiteContext(OtherSiteId));
+
+        await controller.Rss("News");
+
+        Assert.AreEqual(CacheDivision.RssCategory, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "news"), cache.LastKey);
+
+        await controller.Atom();
+
+        Assert.AreEqual(CacheDivision.General, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "atom"), cache.LastKey);
+    }
+
+    [TestMethod]
+    public async Task ThemeControllerUsesSiteScopedCssCacheKey()
+    {
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            GetStyleSheetQuery => ":root { --accent-color1: #fff; }",
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var controller = new ThemeController(
+            mediator,
+            cache,
+            new BlogConfig { GeneralSettings = new GeneralSettings { ThemeId = 1 } },
+            new FixedSiteContext(OtherSiteId));
+
+        await controller.Css();
+
+        Assert.AreEqual(CacheDivision.General, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "theme"), cache.LastKey);
+    }
+
+    [TestMethod]
+    public async Task AssetsControllerUsesSiteScopedAvatarCacheKey()
+    {
+        var cache = new CapturingBlogCache();
+        var mediator = new StubMediator(request => request switch
+        {
+            GetAssetQuery => Convert.ToBase64String(new byte[] { 1, 2, 3 }),
+            _ => throw new InvalidOperationException($"Unexpected request {request.GetType().Name}.")
+        });
+        var controller = new AssetsController(
+            NullLogger<AssetsController>.Instance,
+            mediator,
+            new StubWebHostEnvironment(),
+            new FixedSiteContext(OtherSiteId));
+
+        await controller.Avatar(cache);
+
+        Assert.AreEqual(CacheDivision.General, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "avatar"), cache.LastKey);
+    }
+
+    [TestMethod]
+    public async Task SiteMapMiddlewareUsesCurrentSiteForCacheAndData()
+    {
+        await using var context = CreateContext();
+        await context.Post.AddRangeAsync(
+            CreatePost(SystemIds.DefaultSiteId, "Default Site Post"),
+            CreatePost(OtherSiteId, "Other Site Post"));
+        await context.CustomPage.AddRangeAsync(
+            CreatePage(SystemIds.DefaultSiteId, "default-page", "Default Page"),
+            CreatePage(OtherSiteId, "other-page", "Other Page"));
+        await context.SaveChangesAsync();
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Path = "/sitemap.xml";
+        httpContext.Request.Scheme = "https";
+        httpContext.Request.Host = new HostString("other.example.com");
+        httpContext.Response.Body = new MemoryStream();
+        var cache = new CapturingBlogCache();
+        var middleware = new SiteMapMiddleware(_ => throw new InvalidOperationException("Sitemap request should not call next middleware."));
+
+        await middleware.Invoke(
+            httpContext,
+            new BlogConfig { AdvancedSettings = new AdvancedSettings { EnableSiteMap = true } },
+            cache,
+            CreateSiteMapConfiguration(),
+            new BlogDbContextRepository<PostEntity>(context),
+            new BlogDbContextRepository<PageEntity>(context),
+            new FixedSiteContext(OtherSiteId));
+
+        httpContext.Response.Body.Position = 0;
+        using var reader = new StreamReader(httpContext.Response.Body);
+        var xml = await reader.ReadToEndAsync();
+
+        Assert.AreEqual(CacheDivision.General, cache.LastDivision);
+        Assert.AreEqual(SiteCacheKey.For(OtherSiteId, "sitemap"), cache.LastKey);
+        Assert.Contains("other-site-post", xml);
+        Assert.Contains("other-page", xml);
+        Assert.DoesNotContain("default-site-post", xml);
+        Assert.DoesNotContain("default-page", xml);
+    }
+
+    [TestMethod]
+    public void ClearBlogCacheRemovesSiteScopedDivisions()
+    {
+        var cache = new CapturingBlogCache();
+        var filter = new ClearBlogCache(
+            BlogCacheType.Subscription | BlogCacheType.SiteMap | BlogCacheType.PagingCount,
+            cache);
+
+        filter.OnActionExecuted(CreateActionExecutedContext());
+
+        CollectionAssert.Contains(cache.RemovedDivisions, CacheDivision.General);
+        CollectionAssert.Contains(cache.RemovedDivisions, CacheDivision.RssCategory);
+        CollectionAssert.Contains(cache.RemovedDivisions, CacheDivision.PostCountCategory);
+        CollectionAssert.Contains(cache.RemovedDivisions, CacheDivision.PostCountTag);
+        CollectionAssert.Contains(cache.RemovedDivisions, CacheDivision.PostCountFeatured);
+    }
+
     private static InMemoryContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<InMemoryContext>()
@@ -494,10 +633,25 @@ public class SiteScopedSpecTests
         ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
     };
 
+    private static IConfiguration CreateSiteMapConfiguration() => new ConfigurationBuilder()
+        .AddInMemoryCollection(new Dictionary<string, string>
+        {
+            ["SiteMap:ChangeFreq:Posts"] = "monthly",
+            ["SiteMap:ChangeFreq:Pages"] = "monthly",
+            ["SiteMap:ChangeFreq:Default"] = "weekly"
+        })
+        .Build();
+
+    private static ActionExecutedContext CreateActionExecutedContext() => new(
+        new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor()),
+        new List<IFilterMetadata>(),
+        null);
+
     private sealed class CapturingBlogCache : IBlogCache
     {
         public CacheDivision LastDivision { get; private set; }
         public string LastKey { get; private set; }
+        public List<CacheDivision> RemovedDivisions { get; } = new();
 
         public TItem GetOrCreate<TItem>(CacheDivision division, string key, Func<ICacheEntry, TItem> factory)
         {
@@ -523,6 +677,7 @@ public class SiteScopedSpecTests
         {
             LastDivision = division;
             LastKey = null;
+            RemovedDivisions.Add(division);
         }
 
         public void Remove(CacheDivision division, string key)
@@ -576,5 +731,15 @@ public class SiteScopedSpecTests
         public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
             where TNotification : INotification =>
             Task.CompletedTask;
+    }
+
+    private sealed class StubWebHostEnvironment : IWebHostEnvironment
+    {
+        public string ApplicationName { get; set; } = nameof(SiteScopedSpecTests);
+        public IFileProvider WebRootFileProvider { get; set; } = new NullFileProvider();
+        public string WebRootPath { get; set; } = "/tmp";
+        public string EnvironmentName { get; set; } = "Development";
+        public string ContentRootPath { get; set; } = "/tmp";
+        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
     }
 }
