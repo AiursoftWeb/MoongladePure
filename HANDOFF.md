@@ -1,6 +1,6 @@
 # Handoff: database code-first refactor
 
-日期：2026-05-07
+日期：2026-05-08
 
 分支：`users/aimer/refactor_db_service`
 
@@ -15,13 +15,20 @@
 - `RequestSiteContext` 已经支持按 request host 查询 `SiteDomain.Host` 解析当前站点；未知 host 或无 host 时 fallback 到默认站点。
 - 文章主要读取路径已经通过 `PostReadProjection` 优先读取 `PostContent` / `AiArtifact`，缺少新产物时 fallback 到旧宽表字段。
 - AI 后台任务现在会持久化 `AiJob` 和 `AiArtifact`，同时保留原有 UI 依赖的旧字段写入。
+- 站点管理后端第一版已经实现，包含站点列表、站点域名绑定新增和站点域名绑定删除 API。
 
-从 `daea0a9a536ec5b82a613140a155e102c635308d` 到当前 `HEAD`，本地提交已经完成站点边界、host/domain 解析和文章读取投影三块增量。当前工作区只包含本文档和 `database-code-first-refactor-plan.md` 的更新。
+从 `daea0a9a536ec5b82a613140a155e102c635308d` 到当前 `HEAD`，本地提交已经完成站点边界、host/domain 解析、文章读取投影、站点级缓存隔离测试和站点域名管理后端 API 等增量。当前工作区包含本交接文档和 `database-code-first-refactor-plan.md` 的文档更新；`src/Moonglade.Web/appsettings.json` 是本地运行配置改动，不属于本次提交范围。
 
 ## 重要提交
 
 近期完成的主要提交：
 
+- `dc654632 feat: add site domain management endpoints`
+- `ad1518b0 test: cover remaining site-scoped web cache paths`
+- `78f2925b test: cover site-scoped page cache keys`
+- `eb6bc0da test: cover site-scoped web cache keys`
+- `5a5ada35 fix: scope web cache entries by site`
+- `0b9ce558 docs`
 - `90e1f98c refactor: project post reads from content artifacts`
 - `658fd01d refactor: resolve site context from request host`
 - `daea0a9a update for sitecontext`
@@ -234,6 +241,50 @@ src/Moonglade.Core/PostFeature/PostReadProjection.cs
 
 列表类查询会按当前 `SiteId` 批量读取 `PostContent` 和 `AiArtifact`，避免对每篇文章逐条查库。
 
+## 站点管理后端 API
+
+本轮新增的后端第一版文件：
+
+```text
+src/Moonglade.Core/SiteFeature/SiteDigest.cs
+src/Moonglade.Core/SiteFeature/ListSitesQuery.cs
+src/Moonglade.Core/SiteFeature/AddSiteDomainCommand.cs
+src/Moonglade.Core/SiteFeature/DeleteSiteDomainCommand.cs
+src/Moonglade.Web/Controllers/SiteController.cs
+tests/Moonglade.Tests/SiteManagementTests.cs
+```
+
+已实现 API：
+
+```text
+GET /api/site
+POST /api/site/{siteId}/domains
+DELETE /api/site/domains/{id}
+```
+
+行为说明：
+
+- `GET /api/site` 返回站点摘要和每个站点的域名绑定。
+- `POST /api/site/{siteId}/domains` 会新增站点域名绑定，并将 host 做 trim + lowercase 归一化。
+- 空 host、重复 host 和缺失站点会被拒绝；缺失站点返回 not found，重复或无效输入返回 conflict。
+- `DELETE /api/site/domains/{id}` 删除域名绑定；不存在时返回 not found。
+- 当前还没有站点创建 API、租户注册、成员角色权限和管理面板 UI。
+
+对应测试：
+
+```text
+tests/Moonglade.Tests/SiteManagementTests.cs
+```
+
+覆盖点：
+
+- 列表查询返回站点域名。
+- 新增域名时归一化 host。
+- 拒绝重复 host。
+- 拒绝缺失站点。
+- 删除已有域名。
+- 删除不存在域名返回 not found。
+
 ## AI 数据模型
 
 现有 UI 兼容行为保留：
@@ -262,6 +313,7 @@ src/Moonglade.Core/PostFeature/PostReadProjection.cs
 dotnet build tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-build --no-restore --filter MigrationToolTests -p:UseSharedCompilation=false -maxcpucount:1
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-build --no-restore --filter SiteScopedSpecTests -p:UseSharedCompilation=false -maxcpucount:1
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SiteManagementTests -p:UseSharedCompilation=false -maxcpucount:1
 dotnet test Aiursoft.MoongladePure.sln --no-restore -p:UseSharedCompilation=false -maxcpucount:1
 dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- migrate --source /tmp/moonglade-legacy.db --dry-run
 dotnet run --no-build --project src/Moonglade.Migration/MoongladePure.Migration.csproj -- preflight --source ./app.db
@@ -275,13 +327,19 @@ git diff --check
 最近已知完整测试结果：
 
 ```text
-Passed: 38
+Passed: 56
 ```
 
 最近已知 `SiteScopedSpecTests` 结果：
 
 ```text
-Passed: 11
+Passed: 23
+```
+
+最近已知 `SiteManagementTests` 结果：
+
+```text
+Passed: 6
 ```
 
 ## 尚未完成
@@ -303,11 +361,14 @@ Passed: 11
 - 迁移工具目前以 legacy SQLite 为主，不能假设旧 MySQL 路径已经同等成熟。
 - `AiJob` / `AiArtifact` 已经落库，但后台任务调度和管理 UI 还没有 SaaS 级能力。
 - 媒体迁移目前主要覆盖数据库内资产和元数据，文件系统/对象存储里的真实文件仍需部署侧审计。
+- 站点管理 API 当前只覆盖列表和域名绑定增删，尚未提供站点创建、编辑、删除、成员权限和 UI。
+- `src/Moonglade.Web/appsettings.json` 当前有本地 Ollama/运行配置改动，提交站点管理功能时不要误 stage。
 
 ## 推荐下一步
 
-1. 运行 `SiteScopedSpecTests` 和完整测试，确认当前 HEAD 的站点边界、host 解析和文章投影没有回归。
-2. 使用 `/tmp/moonglade-app-migrated-20260506.db` 或新的真实迁移库再做一轮 Web 手动冒烟，重点覆盖自定义 host、旧文章 URL、摘要/翻译展示和后台编辑。
-3. 明确 MySQL legacy migration 是否进入当前里程碑；如果不做，需要在 release note 中写清楚。
-4. 审计非文章读取/编辑路径是否还依赖旧宽表或默认站点假设。
-5. 设计租户注册、站点创建、成员角色权限和 SaaS 未绑定域名策略。
+1. 提交本轮文档更新，排除 `src/Moonglade.Web/appsettings.json`。
+2. 继续实现管理面板 UI，先调用现有站点列表和域名绑定 API。
+3. 运行 `SiteScopedSpecTests`、`SiteManagementTests` 和完整测试，确认站点边界、host 解析、文章投影和管理 API 没有回归。
+4. 使用 `/tmp/moonglade-app-migrated-20260506.db` 或新的真实迁移库再做一轮 Web 手动冒烟，重点覆盖自定义 host、旧文章 URL、摘要/翻译展示和后台编辑。
+5. 明确 MySQL legacy migration 是否进入当前里程碑；如果不做，需要在 release note 中写清楚。
+6. 设计租户注册、站点创建、成员角色权限和 SaaS 未绑定域名策略。

@@ -631,6 +631,14 @@ moonglade-migrate
 - 已启用 `X-Forwarded-Host`，支持反向代理后的 host 解析。
 - 已增加双站点隔离和 host/domain 解析测试，覆盖文章列表、页面 slug 查询、已绑定域名、未知域名 fallback、host 大小写和端口归一化。
 
+当前进展（2026-05-08）：
+
+- 已新增站点管理后端基础能力，提供站点列表查询、站点域名绑定新增和站点域名绑定删除。
+- 已新增授权 API：`GET /api/site`、`POST /api/site/{siteId}/domains`、`DELETE /api/site/domains/{id}`。
+- 域名新增会做 host trim + lowercase 归一化，拒绝空 host、缺失站点和重复 host。
+- 已补充 `SiteManagementTests`，覆盖列表返回域名、host 归一化、重复 host 拒绝、缺失站点拒绝、删除域名和删除不存在域名。
+- 该阶段仍未包含管理面板 UI；人工测试可等 UI 就绪后再覆盖完整管理流程。
+
 ### 阶段 4：AI 数据模型迁移
 
 - 把摘要、翻译和 AI 评论从核心宽表迁到 `PostContent` / `AiArtifact`。
@@ -649,6 +657,12 @@ moonglade-migrate
 - 增加域名解析和站点上下文。
 - 增加成员、角色和权限边界。
 - 增加站点级资源限制、AI 使用量统计和计费预留。
+
+当前进展（2026-05-08）：
+
+- host/domain 到站点上下文的动态解析已经完成，并有双站点隔离测试覆盖。
+- 站点域名绑定的后端管理 API 已完成第一版，可供后续管理面板调用。
+- 站点创建、租户注册、成员角色权限、资源限制、计费和管理面板仍未完成。
 
 ## 9. 第一版新 schema 的建议约束清单
 
@@ -740,6 +754,7 @@ moonglade-migrate
 13. 实现 host/domain 到 `ISiteContext` 的动态解析。（已完成）
 14. 增加 host/domain 解析测试，覆盖已绑定域名、未知域名 fallback 和 host 归一化。（已完成）
 15. 将前台读取路径逐步切到 `PostContent` / `AiArtifact` 投影。（文章主要读取路径已完成）
+16. 增加站点列表和站点域名绑定管理 API。（后端第一版已完成，管理面板未完成）
 
 ## 13. 当前阶段结论
 
@@ -747,6 +762,6 @@ MoongladePure 现在不是缺少一个迁移文件，而是缺少一个明确的
 
 建议第一版重构以“默认租户 + 默认站点 + 旧 UI 完全兼容”为交付目标。这样既能让现有用户无感迁移，也能在不大幅扰动上层交互的前提下，把数据库结构推进到可以承载 SaaS 和 AI 功能的状态。
 
-截至 2026-05-07，第一版重构已经完成默认租户/默认站点、新 schema、legacy SQLite 迁移工具、迁移校验、AI job/artifact 落库、主要业务路径站点边界、request host/domain 动态站点解析，以及文章主要读取路径的 `PostContent` / `AiArtifact` 投影。
+截至 2026-05-08，第一版重构已经完成默认租户/默认站点、新 schema、legacy SQLite 迁移工具、迁移校验、AI job/artifact 落库、主要业务路径站点边界、request host/domain 动态站点解析、文章主要读取路径的 `PostContent` / `AiArtifact` 投影，以及站点列表和域名绑定管理 API 的后端第一版。
 
-当前可以视为“单站点兼容 + code-first 新库 + legacy SQLite 迁移 + host 解析基础设施”的第一版功能闭环，但还不是完整 SaaS 产品形态。尚未完成的关键部分是租户/站点管理 UI、成员角色权限、真实旧 MySQL 迁移验证、多实例 AI job claiming、媒体外部文件审计、以及内容和设置编辑的强并发控制。
+当前可以视为“单站点兼容 + code-first 新库 + legacy SQLite 迁移 + host 解析基础设施 + 站点域名管理后端 API”的第一版功能闭环，但还不是完整 SaaS 产品形态。尚未完成的关键部分是租户/站点管理 UI、成员角色权限、真实旧 MySQL 迁移验证、多实例 AI job claiming、媒体外部文件审计、以及内容和设置编辑的强并发控制。
