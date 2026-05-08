@@ -267,9 +267,86 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 - 还没有 AI 产物审核、版本管理和成本统计 UI。
 - 还没有内容和设置编辑的强并发控制。
 
-## 5. 下一阶段 SaaS 规划
+## 5. SaaS 发布架构决策
 
-### 5.1 站点生命周期
+SaaS 能力不应直接内置进默认单站点 Web 发布包。默认发布包仍然应该是一个干净的单站点博客系统；部署者不启用 SaaS 时，产物不应包含 SaaS 注册、租户门户、站点创建、成员管理、计费、域名验证等功能入口。
+
+推荐采用同一 solution 下的独立发布入口：
+
+```text
+src/Moonglade.Web/              # 默认单站点博客发布入口
+src/Moonglade.SaaS/             # SaaS 应用层：租户、注册、域名验证、站点生命周期
+src/Moonglade.SaaS.Web/         # SaaS 平台发布入口
+```
+
+这个方向的边界：
+
+- `Moonglade.Web` 不引用 `Moonglade.SaaS`，默认打包结果不包含 SaaS 功能。
+- `Moonglade.SaaS.Web` 复用现有 Data/Core/Infrastructure 能力，但拥有独立的 host 分流、Portal、注册和平台管理入口。
+- 现有 `Tenant`、`Site`、`SiteDomain`、`SiteMembership` 仍作为共享数据模型基础。
+- `SystemIds.DefaultSiteId` 继续服务 legacy 迁移、单站点兼容和非 SaaS 部署，不作为 SaaS 平台入口语义。
+- SaaS 平台入口不应被建模为普通用户 `Site`，避免平台营销页、注册页和用户博客内容混用同一套站点设置、主题和文章查询逻辑。
+
+暂不建议拆成独立仓库。当前数据库模型、迁移工具和博客核心功能仍高度共享；拆仓会增加 schema、迁移和核心 bugfix 的同步成本。同仓库多发布项目可以同时满足默认包干净、SaaS 独立演进和共享核心能力三个目标。
+
+也不建议仅通过 `SaaS:Enabled` 在 `Moonglade.Web` 内隐藏功能。运行时开关无法保证发布产物不包含 SaaS controller、view、API 和依赖，也容易让单站点部署承担 SaaS 的复杂度。
+
+### 5.1 SaaS host 模型
+
+SaaS 发布入口使用配置项定义平台域名和用户站点子域根：
+
+```text
+SaaS:PortalHosts               # 例如 example.com,www.example.com
+SaaS:SiteSubdomainRoot         # 例如 app.example.com
+```
+
+访问策略：
+
+- 平台主域名访问 `PortalHosts`，展示营销注册页和登录/注册入口。
+- 用户注册时填写唯一 username，并自动获得 `{username}.{SiteSubdomainRoot}`，例如 `alice.app.example.com`。
+- 用户自定义域名必须完成验证后才参与站点 host 路由。
+- 未注册、未绑定或未验证的 host 返回友好的 404 页面，并引导回平台官网。
+- 非 SaaS 发布入口继续保持当前单站点兼容行为，不启用上述 host 策略。
+
+username 同时承担默认子域名前缀语义，需要建立保留词和格式限制：
+
+- 只允许小写字母、数字和短横线。
+- 不能以短横线开头或结尾。
+- 长度需要设置上下限。
+- 禁止平台保留词，例如 `www`、`admin`、`api`、`auth`、`mail`、`smtp`、`cdn`、`static`、`assets`、`app`、`blog`、`docs`、`support`、`status`、`root`、`localhost`。
+
+### 5.2 自定义域名验证
+
+自定义域名是 SaaS 付费能力，不能只保存绑定记录。建议使用通用 TXT 记录验证：
+
+```text
+_moonglade.example.com TXT moonglade-site-verification=<token>
+```
+
+`SiteDomain` 或 SaaS 域名扩展模型需要具备：
+
+- 验证状态：`PendingVerification`、`Verified`、`Rejected` 或等价状态。
+- 验证 token。
+- 最近验证时间。
+- 验证通过时间。
+- 失败原因或最近错误。
+
+只有 `Verified` 自定义域名参与 host 到 site 的解析。MVP 可以先落库状态、生成 token、暴露验证说明和管理 API；真正的 DNS TXT 查询如果需要引入 DNS client 依赖，需要单独评估并获得明确确认。
+
+### 5.3 SaaS 任务拆分
+
+建议按以下顺序推进：
+
+1. 新增 `Moonglade.SaaS` 和 `Moonglade.SaaS.Web` 项目骨架，保持 `Moonglade.Web` 默认发布包不引用 SaaS。
+2. 在 SaaS Web 入口实现 Portal host、用户子域、verified custom domain 和 unknown host 的分流策略。
+3. 建立 username/subdomain 校验服务，覆盖格式、保留词和唯一性测试。
+4. 实现注册后 Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单初始化。
+5. 实现自定义域名 pending/verified 状态、TXT token 生成、验证说明和管理 API。
+6. 增加最小 Portal 营销注册页，后续再补完整文案、定价、示例站点和转化流程。
+
+## 6. 下一阶段 SaaS 规划
+
+### 6.1 站点生命周期
 
 目标：
 
@@ -283,9 +360,9 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 1. `CreateSiteCommand` 和 `UpdateSiteCommand`。
 2. 站点创建时自动建立默认配置、主题、菜单和 owner membership。
 3. 后台 UI 增加站点创建和编辑入口。
-4. 明确未绑定域名访问策略：404、跳转还是 fallback 默认站点。
+4. SaaS 发布入口对未绑定域名返回 404；默认单站点发布入口继续保持现有 fallback 兼容行为。
 
-### 5.2 租户与注册
+### 6.2 租户与注册
 
 目标：
 
@@ -296,11 +373,12 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 建议先做：
 
 1. 明确 `Tenant`、`User`、`SiteMembership` 的产品语义。
-2. 增加租户 owner 初始化流程。
-3. 增加注册、邀请和接受邀请流程。
-4. 为后续计费和资源限制保留租户状态字段。
+2. 注册时要求填写全局唯一 username，并用它生成默认子域名。
+3. 增加租户 owner 初始化流程。
+4. 增加注册、邀请和接受邀请流程。
+5. 为后续计费和资源限制保留租户状态字段。
 
-### 5.3 成员、角色和权限
+### 6.3 成员、角色和权限
 
 目标：
 
@@ -321,7 +399,7 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 3. 增加成员列表、邀请、移除、角色变更 UI。
 4. 保留单站点部署默认 admin 体验。
 
-### 5.4 多站点数据隔离审计
+### 6.4 多站点数据隔离审计
 
 目标：
 
@@ -336,9 +414,9 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 - 导出和导入路径。
 - RSS、Sitemap、Manifest、OpenSearch 等中间件路径。
 
-## 6. 下一阶段 AI 规划
+## 7. 下一阶段 AI 规划
 
-### 6.1 AI Job 状态机
+### 7.1 AI Job 状态机
 
 目标：
 
@@ -360,7 +438,7 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 - 失败必须记录错误和重试次数。
 - 同一目标内容的重复任务需要幂等策略。
 
-### 6.2 AI Artifact 审核和发布
+### 7.2 AI Artifact 审核和发布
 
 目标：
 
@@ -378,7 +456,7 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 - 接受 AI 产物并写入展示内容。
 - 拒绝或重新生成 AI 产物。
 
-### 6.3 AI 使用量和成本
+### 7.3 AI 使用量和成本
 
 目标：
 
@@ -391,7 +469,7 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 - estimated cost。
 - tenant/site/user 维度聚合。
 
-### 6.4 AI 功能扩展
+### 7.4 AI 功能扩展
 
 可以按优先级拆分：
 
@@ -402,9 +480,9 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 5. 文章问答。
 6. 配图 prompt 和图片生成。
 
-## 7. MySQL 和媒体后续验证
+## 8. MySQL 和媒体后续验证
 
-### 7.1 MySQL legacy migration
+### 8.1 MySQL legacy migration
 
 当前迁移工具以 legacy SQLite 为主，不能假设 MySQL 旧库已经同等成熟。
 
@@ -415,7 +493,7 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 3. 实现或验证 MySQL source reader。
 4. 跑与 SQLite 同等级别的 preflight、dry-run、migrate、validate。
 
-### 7.2 媒体文件审计
+### 8.2 媒体文件审计
 
 当前数据库内资产和元数据已经迁移，但文件系统或对象存储中的真实文件仍需部署侧审计。
 
@@ -426,7 +504,7 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 3. 生成缺失文件报告。
 4. 决定是否补建 `MediaAsset` metadata。
 
-## 8. 发布前检查清单
+## 9. 发布前检查清单
 
 进入下一次可发布节点前，至少需要确认：
 
@@ -436,13 +514,14 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 4. 使用真实迁移库完成浏览器登录后的后台手动测试。
 5. 站点域名绑定新增、删除和重复 host 错误提示在浏览器中确认。
 6. 明确 release note 中 SQLite/MySQL 迁移支持边界。
-7. 不提交本地运行配置，例如 `src/Moonglade.Web/appsettings.json` 的私有改动。
+7. 确认默认 `Moonglade.Web` 发布包不引用 SaaS 项目，也不包含 SaaS controller、view、API 和依赖。
+8. 不提交本地运行配置，例如 `src/Moonglade.Web/appsettings.json` 的私有改动。
 
-## 9. 当前结论
+## 10. 当前结论
 
-截至 2026-05-08，数据库 code-first 重构已经完成一个可继续演进的阶段性基线。接下来不应继续在旧单站点假设上横向堆字段，而应围绕 SaaS 和 AI 两条主线推进：
+截至 2026-05-08，数据库 code-first 重构已经完成一个可继续演进的阶段性基线。默认发布入口应继续保持单站点博客定位；SaaS 能力应通过同一 solution 下的独立应用层和独立 Web 发布入口推进，避免污染默认开源打包产物。接下来不应继续在旧单站点假设上横向堆字段，而应围绕 SaaS 和 AI 两条主线推进：
 
-- SaaS 主线先补站点生命周期、租户注册、成员权限和未绑定域名策略。
+- SaaS 主线先补独立发布入口、Portal host、用户子域、verified custom domain、站点生命周期、租户注册、成员权限和未知 host 404 策略。
 - AI 主线先补 job claiming、artifact 审核发布、使用量统计和多语言内容工作流。
 
-当前最稳妥的下一步，是先完成浏览器环境下的后台站点管理 UI 人工验收，然后再启动站点创建和成员权限设计。
+当前最稳妥的下一步，是先补 `Moonglade.SaaS` / `Moonglade.SaaS.Web` 的项目骨架和 host 策略测试，同时保留浏览器环境下后台站点管理 UI 的人工验收任务。
