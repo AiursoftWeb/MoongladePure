@@ -1,0 +1,254 @@
+﻿@page "/admin/site"
+@{
+    ViewBag.Title = "Manage Sites";
+}
+
+@section scripts{
+<script>
+    var siteDomainCanvas = new bootstrap.Offcanvas(document.getElementById('siteDomainCanvas'));
+    var sites = [];
+
+    async function requestJson(uri, options) {
+        const response = await fetch(uri, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            ...options
+        });
+
+        if (!response.ok) {
+            if (response.status === 409) {
+                throw new Error('Domain already exists or is invalid.');
+            }
+
+            if (response.status === 404) {
+                throw new Error('Site or domain was not found.');
+            }
+
+            throw new Error(`Error ${response.status}`);
+        }
+
+        if (response.status === 204) {
+            return null;
+        }
+
+        return await response.json();
+    }
+
+    function setLoading(isLoading) {
+        document.querySelector('#site-loading').style.display = isLoading ? 'block' : 'none';
+        document.querySelector('#site-list').style.display = isLoading ? 'none' : 'block';
+    }
+
+    function createTextCell(value) {
+        const cell = document.createElement('td');
+        cell.textContent = value || '';
+        return cell;
+    }
+
+    function renderDomain(domain) {
+        const row = document.createElement('tr');
+        row.id = `domain-${domain.id}`;
+
+        row.appendChild(createTextCell(domain.host));
+
+        const primaryCell = document.createElement('td');
+        if (domain.isPrimary) {
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-success';
+            badge.textContent = 'Primary';
+            primaryCell.appendChild(badge);
+        } else {
+            primaryCell.textContent = '-';
+        }
+        row.appendChild(primaryCell);
+
+        const actionCell = document.createElement('td');
+        actionCell.className = 'text-end';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn btn-sm btn-outline-danger';
+        deleteButton.innerHTML = '<i class="bi-trash"></i>';
+        deleteButton.addEventListener('click', function () {
+            deleteDomain(domain.id);
+        });
+        actionCell.appendChild(deleteButton);
+        row.appendChild(actionCell);
+
+        return row;
+    }
+
+    function renderSite(site) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-4';
+
+        const header = document.createElement('div');
+        header.className = 'd-flex align-items-center justify-content-between mb-2';
+
+        const title = document.createElement('div');
+        const name = document.createElement('h5');
+        name.className = 'mb-1';
+        name.textContent = site.name;
+        const meta = document.createElement('div');
+        meta.className = 'small text-muted';
+        meta.textContent = `${site.slug} · ${site.status} · ${site.defaultCulture} · ${site.timeZoneId}`;
+        title.appendChild(name);
+        title.appendChild(meta);
+        header.appendChild(title);
+
+        const addButton = document.createElement('button');
+        addButton.type = 'button';
+        addButton.className = 'btn btn-outline-accent';
+        addButton.innerHTML = '<i class="bi-plus-lg"></i> Add Domain';
+        addButton.addEventListener('click', function () {
+            openDomainEditor(site.id, site.name);
+        });
+        header.appendChild(addButton);
+        wrapper.appendChild(header);
+
+        if (!site.domains || site.domains.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'alert alert-info';
+            empty.textContent = 'No domains bound.';
+            wrapper.appendChild(empty);
+            return wrapper;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'table align-middle';
+        table.innerHTML = '<thead class="table-light"><tr><th>Host</th><th>Primary</th><th class="text-end">Actions</th></tr></thead>';
+        const tbody = document.createElement('tbody');
+        site.domains.forEach(function (domain) {
+            tbody.appendChild(renderDomain(domain));
+        });
+        table.appendChild(tbody);
+        wrapper.appendChild(table);
+
+        return wrapper;
+    }
+
+    function renderSites() {
+        const siteList = document.querySelector('#site-list');
+        siteList.innerHTML = '';
+
+        if (!sites || sites.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'alert alert-info';
+            empty.textContent = 'No sites found.';
+            siteList.appendChild(empty);
+            return;
+        }
+
+        sites.forEach(function (site) {
+            siteList.appendChild(renderSite(site));
+        });
+    }
+
+    async function loadSites() {
+        setLoading(true);
+        try {
+            sites = await requestJson('/api/site', { method: 'GET' });
+            renderSites();
+        } catch (err) {
+            blogToast.error(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function openDomainEditor(siteId, siteName) {
+        document.querySelector('#domain-form').reset();
+        document.querySelector('#domain-site-id').value = siteId;
+        document.querySelector('#domain-site-name').textContent = siteName;
+        siteDomainCanvas.show();
+    }
+
+    async function deleteDomain(id) {
+        var cfm = confirm('Delete Confirmation?');
+        if (!cfm) return;
+
+        try {
+            await requestJson(`/api/site/domains/${id}`, { method: 'DELETE' });
+            blogToast.success('Domain deleted');
+            await loadSites();
+        } catch (err) {
+            blogToast.error(err.message);
+        }
+    }
+
+    async function handleDomainSubmit(event) {
+        event.preventDefault();
+
+        const siteId = document.querySelector('#domain-site-id').value;
+        const host = document.querySelector('#domain-host').value.trim();
+        const isPrimary = document.querySelector('#domain-is-primary').checked;
+
+        try {
+            await requestJson(`/api/site/${siteId}/domains`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    host: host,
+                    isPrimary: isPrimary
+                })
+            });
+
+            siteDomainCanvas.hide();
+            blogToast.success('Domain added');
+            await loadSites();
+        } catch (err) {
+            blogToast.error(err.message);
+        }
+    }
+
+    document.querySelector('#domain-form').addEventListener('submit', handleDomainSubmit);
+    loadSites();
+</script>
+}
+
+<div class="admin-toolbar ps-4 pe-4 pt-2 pb-2 border-bottom mb-3 shadow-sm">
+    <button class="btn btn-outline-secondary" type="button" onclick="loadSites();">
+        <i class="bi-arrow-clockwise"></i>
+        Refresh
+    </button>
+</div>
+
+<div class="ps-4 pe-4">
+    <div id="site-loading" class="p-4 text-center text-muted">
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+        Loading...
+    </div>
+    <div id="site-list"></div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="siteDomainCanvas" aria-labelledby="siteDomainCanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="siteDomainCanvasLabel">Site Domain</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="domain-form">
+            <input type="hidden" id="domain-site-id" />
+            <div class="mb-3">
+                <label class="form-label">Site</label>
+                <div id="domain-site-name" class="form-control-plaintext"></div>
+            </div>
+            <div class="mb-3">
+                <label for="domain-host" class="form-label">Host</label>
+                <input id="domain-host" class="form-control" maxlength="256" required />
+            </div>
+            <div class="mb-3">
+                <div class="form-check">
+                    <input id="domain-is-primary" class="form-check-input" type="checkbox">
+                    <label for="domain-is-primary" class="form-check-label">Primary</label>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-outline-accent">Submit</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -118,6 +118,11 @@
                         <i class="bi-link-45deg admin-nav-icon"></i>
                         @SharedLocalizer["Friend Links"]
                     </a>
+                    <a asp-page="/Admin/Site"
+                       class="list-group-item list-group-item-action @(currentPage is "/Admin/Site" ? "active" : null)">
+                        <i class="bi-globe2 admin-nav-icon"></i>
+                        @SharedLocalizer["Sites"]
+                    </a>
                     @{
                         // Only show accounts tab for local auth. For OIDC auth, hide it.
                         var authProvider = Configuration.GetValue<string>("AppSettings:AuthProvider");
