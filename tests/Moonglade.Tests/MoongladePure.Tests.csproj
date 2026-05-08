@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Moonglade.Migration\MoongladePure.Migration.csproj" />
+    <ProjectReference Include="..\..\src\Moonglade.SaaS\MoongladePure.SaaS.csproj" />
     <ProjectReference Include="..\..\src\Moonglade.Web\MoongladePure.Web.csproj" />
   </ItemGroup>
   <ItemGroup>

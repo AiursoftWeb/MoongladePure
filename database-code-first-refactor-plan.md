@@ -344,6 +344,21 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 5. 实现自定义域名 pending/verified 状态、TXT token 生成、验证说明和管理 API。
 6. 增加最小 Portal 营销注册页，后续再补完整文案、定价、示例站点和转化流程。
 
+### 5.4 已启动的 SaaS 基线
+
+已完成第一片 SaaS 代码基线：
+
+- 新增 `src/Moonglade.SaaS/MoongladePure.SaaS.csproj`，保存 SaaS 纯应用规则。
+- 新增 `src/Moonglade.SaaS.Web/MoongladePure.SaaS.Web.csproj`，作为独立 SaaS 发布入口。
+- `Moonglade.Web` 未引用 SaaS 项目，默认单站点发布包继续保持独立。
+- 已实现 Portal host、用户子域、custom domain candidate 和 unknown host 的基础分类。
+- 已实现 username/subdomain 格式校验和保留词校验。
+- 已实现自定义域名 TXT 记录名和值的生成规则，以及 32-byte hex token 生成。
+- 已增加最小 Portal 页面和未知域名 404 响应。
+- 已增加 SaaS 规则单元测试，覆盖平台域名、用户子域、嵌套非法子域、保留词、自定义域名候选、username 规则和 TXT 记录格式。
+
+下一片应把 host candidate 接入数据库：只有 `Verified` 的自定义域名映射到站点，`PendingVerification` 和不存在的域名都返回 404。
+
 ## 6. 下一阶段 SaaS 规划
 
 ### 6.1 站点生命周期
