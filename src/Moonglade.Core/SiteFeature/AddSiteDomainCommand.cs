@@ -35,6 +35,7 @@ public class AddSiteDomainCommandHandler(
             SiteId = request.SiteId,
             Host = host,
             IsPrimary = request.IsPrimary,
+            VerificationStatus = SiteDomainVerificationStatus.Verified,
             CreatedAtUtc = DateTime.UtcNow
         }, ct);
 

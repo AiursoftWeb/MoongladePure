@@ -76,6 +76,8 @@ public abstract class BlogDbContext(DbContextOptions options) : DbContext(option
             builder.HasKey(e => e.Id);
             builder.Property(e => e.Id).ValueGeneratedNever();
             builder.Property(e => e.Host).IsRequired().HasMaxLength(256);
+            builder.Property(e => e.VerificationToken).HasMaxLength(128);
+            builder.Property(e => e.LastVerificationError).HasMaxLength(512);
             builder.HasIndex(e => e.Host).IsUnique();
             builder.HasOne(e => e.Site).WithMany(e => e.Domains).HasForeignKey(e => e.SiteId);
         });

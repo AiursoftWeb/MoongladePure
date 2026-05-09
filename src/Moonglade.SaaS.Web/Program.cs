@@ -1,4 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MoongladePure.Data;
+using MoongladePure.Data.Sqlite;
 using MoongladePure.SaaS.Hosting;
 using MoongladePure.SaaS.Identity;
 
@@ -34,18 +37,27 @@ const string PortalHtml = """
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<SaaSOptions>(builder.Configuration.GetSection("SaaS"));
+builder.Services.AddDbContext<SqliteContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<BlogDbContext>(services => services.GetRequiredService<SqliteContext>());
+builder.Services.AddScoped<CustomDomainSiteResolver>();
 builder.Services.AddSingleton<UsernamePolicy>();
 builder.Services.AddSingleton<SaaSHostClassifier>();
 
 var app = builder.Build();
 
-app.MapGet("/", (HttpContext context, IOptions<SaaSOptions> options, SaaSHostClassifier classifier) =>
+app.MapGet("/", async (
+    HttpContext context,
+    IOptions<SaaSOptions> options,
+    SaaSHostClassifier classifier,
+    CustomDomainSiteResolver customDomainSiteResolver) =>
 {
     var resolution = classifier.Classify(context.Request.Host.Value, options.Value);
     return resolution.Kind switch
     {
         SaaSHostKind.Portal => Results.Content(PortalHtml, "text/html; charset=utf-8"),
         SaaSHostKind.UserSubdomain => Results.Content($"Site subdomain reserved for {resolution.Username}.", "text/plain; charset=utf-8"),
+        SaaSHostKind.CustomDomainCandidate => await ResolveCustomDomainAsync(customDomainSiteResolver, resolution.Host, context.RequestAborted),
         _ => Results.NotFound("This domain is not registered on this MoongladePure SaaS platform.")
     };
 });
@@ -53,3 +65,14 @@ app.MapGet("/", (HttpContext context, IOptions<SaaSOptions> options, SaaSHostCla
 app.MapFallback(() => Results.NotFound("This domain is not registered on this MoongladePure SaaS platform."));
 
 app.Run();
+
+static async Task<IResult> ResolveCustomDomainAsync(
+    CustomDomainSiteResolver customDomainSiteResolver,
+    string host,
+    CancellationToken ct)
+{
+    var site = await customDomainSiteResolver.ResolveAsync(host, ct);
+    return site is null
+        ? Results.NotFound("This domain is not registered on this MoongladePure SaaS platform.")
+        : Results.Content($"Site domain resolved for {site.SiteId}.", "text/plain; charset=utf-8");
+}

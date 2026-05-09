@@ -821,7 +821,24 @@ namespace MoongladePure.Data.Sqlite.Migrations
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("LastVerificationError")
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastVerifiedAtUtc")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("SiteId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("VerificationStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("VerificationToken")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("VerifiedAtUtc")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

@@ -179,6 +179,8 @@ dotnet build src/Moonglade.Migration/MoongladePure.Migration.csproj --no-restore
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SiteManagementTests -p:UseSharedCompilation=false -maxcpucount:1
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SiteScopedSpecTests -p:UseSharedCompilation=false -maxcpucount:1
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter MigrationToolTests -p:UseSharedCompilation=false -maxcpucount:1
+dotnet build src/Moonglade.SaaS.Web/MoongladePure.SaaS.Web.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
 ```
 
 结果：
@@ -186,7 +188,9 @@ dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filt
 - `SiteManagementTests`: 6 passed。
 - `SiteScopedSpecTests`: 23 passed。
 - `MigrationToolTests`: 12 passed。
+- `SaaS`: 20 passed。
 - Web 项目构建通过。
+- SaaS Web 项目构建通过。
 - Migration 项目构建通过。
 
 ### 3.2 真实 legacy SQLite 迁移验证
@@ -357,7 +361,15 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - 已增加最小 Portal 页面和未知域名 404 响应。
 - 已增加 SaaS 规则单元测试，覆盖平台域名、用户子域、嵌套非法子域、保留词、自定义域名候选、username 规则和 TXT 记录格式。
 
-下一片应把 host candidate 接入数据库：只有 `Verified` 的自定义域名映射到站点，`PendingVerification` 和不存在的域名都返回 404。
+已完成第二片 SaaS host 数据库接入：
+
+- `SiteDomain` 增加验证状态、验证 token、最近验证时间、验证通过时间和最近错误字段。
+- 默认单站点后台新增域名仍写入 `Verified`，保持现有兼容体验。
+- SaaS custom domain candidate 已接入数据库查询，只有 `Verified` 域名会映射到站点。
+- `PendingVerification`、`Rejected` 和不存在的自定义域名都返回 SaaS 404。
+- 已为 verified、pending 和 missing custom domain 补充单元测试。
+
+下一片应把用户子域接入真实注册/站点初始化流程：注册后创建 Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单，然后让 `{username}.{SiteSubdomainRoot}` 映射到对应站点。
 
 ## 6. 下一阶段 SaaS 规划
 
@@ -539,4 +551,4 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - SaaS 主线先补独立发布入口、Portal host、用户子域、verified custom domain、站点生命周期、租户注册、成员权限和未知 host 404 策略。
 - AI 主线先补 job claiming、artifact 审核发布、使用量统计和多语言内容工作流。
 
-当前最稳妥的下一步，是先补 `Moonglade.SaaS` / `Moonglade.SaaS.Web` 的项目骨架和 host 策略测试，同时保留浏览器环境下后台站点管理 UI 的人工验收任务。
+当前最稳妥的下一步，是补 SaaS 注册后的站点初始化和用户子域数据库映射，同时保留浏览器环境下后台站点管理 UI 的人工验收任务。

@@ -9,6 +9,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Moonglade.Data.Sqlite\MoongladePure.Data.Sqlite.csproj" />
     <ProjectReference Include="..\Moonglade.SaaS\MoongladePure.SaaS.csproj" />
   </ItemGroup>
 </Project>
