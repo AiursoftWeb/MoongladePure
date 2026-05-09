@@ -4,7 +4,7 @@ namespace MoongladePure.SaaS.Registration;
 
 public static class SaaSRegistrationHtml
 {
-    public static string Form(string error = null) => $$"""
+    public static string Form(string error = null, SaaSRegistrationInput input = null) => $$"""
 <!doctype html>
 <html lang="en">
 <head>
@@ -27,11 +27,11 @@ public static class SaaSRegistrationHtml
     <form method="post" action="/register">
       <h1>Create your site</h1>
       {{ErrorHtml(error)}}
-      <label>Username<input name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[a-z0-9][a-z0-9-]*[a-z0-9]"></label>
+      <label>Username<input name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[a-z0-9][a-z0-9-]*[a-z0-9]" value="{{AttributeValue(input?.Username)}}"></label>
       <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="32"></label>
-      <label>Email<input name="email" type="email" autocomplete="email"></label>
-      <label>Display name<input name="displayName" autocomplete="name" maxlength="64"></label>
-      <label>Site name<input name="siteName" maxlength="128"></label>
+      <label>Email<input name="email" type="email" autocomplete="email" value="{{AttributeValue(input?.Email)}}"></label>
+      <label>Display name<input name="displayName" autocomplete="name" maxlength="64" value="{{AttributeValue(input?.DisplayName)}}"></label>
+      <label>Site name<input name="siteName" maxlength="128" value="{{AttributeValue(input?.SiteName)}}"></label>
       <button type="submit">Create site</button>
     </form>
   </main>
@@ -68,4 +68,7 @@ public static class SaaSRegistrationHtml
 
     private static string ErrorHtml(string error) =>
         string.IsNullOrWhiteSpace(error) ? string.Empty : $"<p class=\"error\">{WebUtility.HtmlEncode(error)}</p>";
+
+    private static string AttributeValue(string value) =>
+        string.IsNullOrWhiteSpace(value) ? string.Empty : WebUtility.HtmlEncode(value.Trim());
 }

@@ -62,6 +62,19 @@ public class SaaSRegistrationEndpointTests
         Assert.AreEqual(1, await context.LocalAccount.CountAsync());
     }
 
+    [TestMethod]
+    public void FormKeepsNonPasswordInputAfterValidationError()
+    {
+        var html = SaaSRegistrationHtml.Form(
+            "Password must be 8-32 characters and include letters and numbers.",
+            new SaaSRegistrationInput(" Alice ", "weak", "alice@example.com", "Alice", "Alice Blog"));
+
+        StringAssert.Contains(html, "value=\"Alice\"");
+        StringAssert.Contains(html, "value=\"alice@example.com\"");
+        StringAssert.Contains(html, "value=\"Alice Blog\"");
+        Assert.IsFalse(html.Contains("value=\"weak\"", StringComparison.Ordinal));
+    }
+
     private static InMemoryContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<InMemoryContext>()

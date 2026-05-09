@@ -33,7 +33,7 @@ public sealed class SaaSRegistrationEndpoint(
         if (!response.Succeeded)
         {
             return Results.Content(
-                SaaSRegistrationHtml.Form(response.Error),
+                SaaSRegistrationHtml.Form(response.Error, input),
                 "text/html; charset=utf-8",
                 statusCode: StatusCodes.Status400BadRequest);
         }
