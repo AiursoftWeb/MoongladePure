@@ -188,7 +188,7 @@ dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filt
 - `SiteManagementTests`: 6 passed。
 - `SiteScopedSpecTests`: 23 passed。
 - `MigrationToolTests`: 12 passed。
-- `SaaS`: 20 passed。
+- `SaaS`: 25 passed。
 - Web 项目构建通过。
 - SaaS Web 项目构建通过。
 - Migration 项目构建通过。
@@ -367,7 +367,8 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - 默认单站点后台新增域名仍写入 `Verified`，保持现有兼容体验。
 - SaaS custom domain candidate 已接入数据库查询，只有 `Verified` 域名会映射到站点。
 - `PendingVerification`、`Rejected` 和不存在的自定义域名都返回 SaaS 404。
-- 已为 verified、pending 和 missing custom domain 补充单元测试。
+- 已为 resolver 层补充 verified、pending、rejected、missing 和 blank host 单元测试。
+- 已为 SaaS Web root endpoint 补充 Portal、verified custom domain 和 pending custom domain 行为测试。
 
 下一片应把用户子域接入真实注册/站点初始化流程：注册后创建 Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单，然后让 `{username}.{SiteSubdomainRoot}` 映射到对应站点。
 
@@ -546,9 +547,27 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 
 ## 10. 当前结论
 
-截至 2026-05-08，数据库 code-first 重构已经完成一个可继续演进的阶段性基线。默认发布入口应继续保持单站点博客定位；SaaS 能力应通过同一 solution 下的独立应用层和独立 Web 发布入口推进，避免污染默认开源打包产物。接下来不应继续在旧单站点假设上横向堆字段，而应围绕 SaaS 和 AI 两条主线推进：
+截至 2026-05-09，数据库 code-first 重构已经完成一个可继续演进的阶段性基线。默认发布入口应继续保持单站点博客定位；SaaS 能力应通过同一 solution 下的独立应用层和独立 Web 发布入口推进，避免污染默认开源打包产物。接下来不应继续在旧单站点假设上横向堆字段，而应围绕 SaaS 和 AI 两条主线推进：
 
 - SaaS 主线先补独立发布入口、Portal host、用户子域、verified custom domain、站点生命周期、租户注册、成员权限和未知 host 404 策略。
 - AI 主线先补 job claiming、artifact 审核发布、使用量统计和多语言内容工作流。
 
 当前最稳妥的下一步，是补 SaaS 注册后的站点初始化和用户子域数据库映射，同时保留浏览器环境下后台站点管理 UI 的人工验收任务。
+
+## 11. 新任务重启入口
+
+如果新的任务从这里重新开始，建议按以下边界接手：
+
+1. 保持 `Moonglade.Web` 不引用 `Moonglade.SaaS` 或 `Moonglade.SaaS.Web`。
+2. 先实现 SaaS 注册后的最小站点初始化流程：Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单。
+3. 让 `{username}.{SiteSubdomainRoot}` 从占位响应改为真实站点映射；未知用户子域继续返回 SaaS 404。
+4. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
+5. 每次改动至少运行：
+
+```bash
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
+dotnet build src/Moonglade.SaaS.Web/MoongladePure.SaaS.Web.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+git diff --check
+```
+
+继续提交时不要包含 `src/Moonglade.Web/appsettings.json` 的本地私有配置改动。

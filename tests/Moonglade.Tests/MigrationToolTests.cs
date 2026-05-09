@@ -77,7 +77,7 @@ public class MigrationToolTests
             using var output = new StringWriter();
             Console.SetOut(output);
 
-            var exitCode = Program.Main([
+            var exitCode = MoongladePure.Migration.Program.Main([
                 "migrate",
                 "--source",
                 fixture.SourcePath,
@@ -114,7 +114,7 @@ public class MigrationToolTests
             using var output = new StringWriter();
             Console.SetOut(output);
 
-            var exitCode = Program.Main([
+            var exitCode = MoongladePure.Migration.Program.Main([
                 "migrate",
                 "--source",
                 fixture.SourcePath,

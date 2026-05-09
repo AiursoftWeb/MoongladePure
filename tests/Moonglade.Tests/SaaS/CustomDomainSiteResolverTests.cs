@@ -41,6 +41,20 @@ public class CustomDomainSiteResolverTests
     }
 
     [TestMethod]
+    public async Task ResolveAsyncReturnsNullForRejectedCustomDomain()
+    {
+        await using var context = CreateContext();
+        await AddSiteAsync(context);
+        await context.SiteDomain.AddAsync(CreateDomain("blog.customer.com", SiteDomainVerificationStatus.Rejected));
+        await context.SaveChangesAsync();
+        var resolver = new CustomDomainSiteResolver(context);
+
+        var result = await resolver.ResolveAsync("blog.customer.com");
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
     public async Task ResolveAsyncReturnsNullForMissingCustomDomain()
     {
         await using var context = CreateContext();
@@ -48,6 +62,17 @@ public class CustomDomainSiteResolverTests
         var resolver = new CustomDomainSiteResolver(context);
 
         var result = await resolver.ResolveAsync("missing.customer.com");
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task ResolveAsyncReturnsNullForBlankHost()
+    {
+        await using var context = CreateContext();
+        var resolver = new CustomDomainSiteResolver(context);
+
+        var result = await resolver.ResolveAsync(" ");
 
         Assert.IsNull(result);
     }
