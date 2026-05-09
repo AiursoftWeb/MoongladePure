@@ -690,7 +690,7 @@ dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore -p:Use
 - `Moonglade.SaaS.Web` build succeeded。
 - `git diff --check`: passed。
 - 全量测试：89 passed。
-- `./lint.sh`: failed，剩余问题均位于既有 `tests/Moonglade.Tests/MigrationToolTests.cs`，第 80 行和第 117 行提示 redundant qualifier；本次新增/修改的 SaaS 代码已不再出现在 lint 失败清单中。
+- `./lint.sh`: passed。此前剩余的 `tests/Moonglade.Tests/MigrationToolTests.cs` 第 80 行和第 117 行 redundant qualifier 已修复。
 - `dotnet build`、`dotnet test` 和 `./lint.sh` restore 阶段都出现 `NU1900` warning，原因是当前环境无法读取 `https://nuget.aiursoft.com/v3/index.json` 的 package vulnerability metadata；未影响构建和测试结果。
 
 提交前建议补跑：
@@ -707,4 +707,34 @@ dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore -p:Use
 feat: add SaaS registration endpoint
 ```
 
-提交范围建议只包含本次 SaaS 注册入口、对应测试和本文档更新；不要包含 `src/Moonglade.Web/appsettings.json` 的本地私有配置改动。
+提交范围建议只包含本次 SaaS 注册入口、对应测试、lint 修复和本文档更新；不要包含 `src/Moonglade.Web/appsettings.json` 的本地私有配置改动。
+
+## 13. 2026-05-09 会话收尾状态
+
+最后收尾任务已完成：
+
+- 修复 `./lint.sh` 剩余错误：`tests/Moonglade.Tests/MigrationToolTests.cs` 中两处 `MoongladePure.Migration.Program.Main` 改为 `Program.Main`，匹配文件顶部已有 `using MoongladePure.Migration;`。
+- `./lint.sh` 已通过，输出为 `Linting PASSED! No warnings found.`。
+- `MigrationToolTests` 已单独验证通过：12 passed。
+- `git diff --check` 已通过。
+
+当前工作区检查结果：
+
+- 需要提交的收尾改动：`tests/Moonglade.Tests/MigrationToolTests.cs` 和 `database-code-first-refactor-plan.md`。
+- 仍存在本地私有配置改动：`src/Moonglade.Web/appsettings.json` 中 `OpenAI` token、endpoint 和 model 被改成本地值；不要纳入提交。
+
+下一次新会话可以从这里继续：
+
+1. 先运行 `git status --short`，确认除 `src/Moonglade.Web/appsettings.json` 外没有意外改动。
+2. 如需提交本轮成果，先查看 `git diff`，然后只 stage 相关代码和本文档。
+3. 建议提交信息：
+
+```text
+feat: add SaaS registration endpoint
+```
+
+如果只提交最后的 lint 收尾改动，可使用：
+
+```text
+chore: fix migration test lint
+```
