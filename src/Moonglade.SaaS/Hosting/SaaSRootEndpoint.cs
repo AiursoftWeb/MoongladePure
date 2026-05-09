@@ -6,7 +6,8 @@ namespace MoongladePure.SaaS.Hosting;
 public sealed class SaaSRootEndpoint(
     IOptions<SaaSOptions> options,
     SaaSHostClassifier classifier,
-    CustomDomainSiteResolver customDomainSiteResolver)
+    CustomDomainSiteResolver customDomainSiteResolver,
+    UserSubdomainSiteResolver userSubdomainSiteResolver)
 {
     private const string NotRegisteredMessage = "This domain is not registered on this MoongladePure SaaS platform.";
 
@@ -16,7 +17,10 @@ public sealed class SaaSRootEndpoint(
         return resolution.Kind switch
         {
             SaaSHostKind.Portal => Results.Content(PortalHtml.Content, "text/html; charset=utf-8"),
-            SaaSHostKind.UserSubdomain => Results.Content($"Site subdomain reserved for {resolution.Username}.", "text/plain; charset=utf-8"),
+            SaaSHostKind.UserSubdomain => await ResolveUserSubdomainAsync(
+                resolution.Username,
+                resolution.Host,
+                context.RequestAborted),
             SaaSHostKind.CustomDomainCandidate => await ResolveCustomDomainAsync(resolution.Host, context.RequestAborted),
             _ => Results.NotFound(NotRegisteredMessage)
         };
@@ -30,5 +34,13 @@ public sealed class SaaSRootEndpoint(
         return site is null
             ? Results.NotFound(NotRegisteredMessage)
             : Results.Content($"Site domain resolved for {site.SiteId}.", "text/plain; charset=utf-8");
+    }
+
+    private async Task<IResult> ResolveUserSubdomainAsync(string username, string host, CancellationToken ct)
+    {
+        var site = await userSubdomainSiteResolver.ResolveAsync(username, host, ct);
+        return site is null
+            ? Results.NotFound(NotRegisteredMessage)
+            : Results.Content($"Site subdomain resolved for {site.SiteId}.", "text/plain; charset=utf-8");
     }
 }

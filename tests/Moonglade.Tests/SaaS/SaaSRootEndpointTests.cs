@@ -6,6 +6,7 @@ using MoongladePure.Data.Entities;
 using MoongladePure.Data.InMemory;
 using MoongladePure.SaaS.Hosting;
 using MoongladePure.SaaS.Identity;
+using MoongladePure.SaaS.Registration;
 
 namespace MoongladePure.Tests.SaaS;
 
@@ -46,6 +47,36 @@ public class SaaSRootEndpointTests
     }
 
     [TestMethod]
+    public async Task HandleAsyncReturnsSiteForRegisteredUserSubdomain()
+    {
+        await using var context = CreateContext();
+        var provisioning = new SaaSSiteProvisioningService(context, new UsernamePolicy());
+        var site = await provisioning.ProvisionAsync(new SaaSSiteProvisioningRequest("Alice", "app.example.com"));
+        var endpoint = CreateEndpoint(context);
+        var httpContext = CreateHttpContext("alice.app.example.com");
+
+        var result = await endpoint.HandleAsync(httpContext);
+        await result.ExecuteAsync(httpContext);
+
+        Assert.AreEqual(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        StringAssert.Contains(await ReadBodyAsync(httpContext), site.SiteId.ToString());
+    }
+
+    [TestMethod]
+    public async Task HandleAsyncReturnsNotFoundForMissingUserSubdomain()
+    {
+        await using var context = CreateContext();
+        var endpoint = CreateEndpoint(context);
+        var httpContext = CreateHttpContext("alice.app.example.com");
+
+        var result = await endpoint.HandleAsync(httpContext);
+        await result.ExecuteAsync(httpContext);
+
+        Assert.AreEqual(StatusCodes.Status404NotFound, httpContext.Response.StatusCode);
+        StringAssert.Contains(await ReadBodyAsync(httpContext), "not registered");
+    }
+
+    [TestMethod]
     public async Task HandleAsyncReturnsNotFoundForPendingCustomDomain()
     {
         await using var context = CreateContext();
@@ -79,7 +110,8 @@ public class SaaSRootEndpointTests
                 SiteSubdomainRoot = "app.example.com"
             }),
             new SaaSHostClassifier(new UsernamePolicy()),
-            new CustomDomainSiteResolver(context));
+            new CustomDomainSiteResolver(context),
+            new UserSubdomainSiteResolver(context));
 
     private static DefaultHttpContext CreateHttpContext(string host)
     {

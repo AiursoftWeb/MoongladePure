@@ -188,7 +188,7 @@ dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filt
 - `SiteManagementTests`: 6 passed。
 - `SiteScopedSpecTests`: 23 passed。
 - `MigrationToolTests`: 12 passed。
-- `SaaS`: 25 passed。
+- `SaaS`: 30 passed。
 - Web 项目构建通过。
 - SaaS Web 项目构建通过。
 - Migration 项目构建通过。
@@ -370,7 +370,15 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - 已为 resolver 层补充 verified、pending、rejected、missing 和 blank host 单元测试。
 - 已为 SaaS Web root endpoint 补充 Portal、verified custom domain 和 pending custom domain 行为测试。
 
-下一片应把用户子域接入真实注册/站点初始化流程：注册后创建 Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单，然后让 `{username}.{SiteSubdomainRoot}` 映射到对应站点。
+已完成第三片 SaaS 注册初始化和用户子域数据库映射：
+
+- 新增 `SaaSSiteProvisioningService`，提供注册后的最小站点初始化流程。
+- 初始化时创建 `Tenant`、`User`、`Site`、owner `SiteMembership`、默认用户子域名、默认配置、主题和菜单。
+- 默认用户子域名写入 `SiteDomain`，状态为 `Verified`，作为 SaaS 子域访问的数据库来源。
+- 新增 `UserSubdomainSiteResolver`，按 username、host、active site 和 owner membership 解析真实站点。
+- SaaS root endpoint 已将 `{username}.{SiteSubdomainRoot}` 从占位响应改为真实站点映射。
+- 未注册或未初始化的用户子域继续返回 SaaS 404。
+- 已增加注册初始化和用户子域 endpoint 行为测试。
 
 ## 6. 下一阶段 SaaS 规划
 
@@ -552,7 +560,7 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - SaaS 主线先补独立发布入口、Portal host、用户子域、verified custom domain、站点生命周期、租户注册、成员权限和未知 host 404 策略。
 - AI 主线先补 job claiming、artifact 审核发布、使用量统计和多语言内容工作流。
 
-当前最稳妥的下一步，是补 SaaS 注册后的站点初始化和用户子域数据库映射，同时保留浏览器环境下后台站点管理 UI 的人工验收任务。
+当前最稳妥的下一步，是在 SaaS 发布入口补最小注册 API 或注册页面，把 `SaaSSiteProvisioningService` 接入真实用户入口；同时保留浏览器环境下后台站点管理 UI 的人工验收任务。
 
 ## 11. 新任务重启入口
 
@@ -560,10 +568,11 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 
 1. 保持 `Moonglade.Web` 不引用 `Moonglade.SaaS` 或 `Moonglade.SaaS.Web`。
 2. 测试项目也不要引用 `Moonglade.SaaS.Web`，避免发布入口的 `appsettings.json` 污染 `Moonglade.Web` 集成测试配置；需要测试 endpoint 行为时，测试 `Moonglade.SaaS` 应用层里的 `SaaSRootEndpoint`。
-3. 先实现 SaaS 注册后的最小站点初始化流程：Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单。
-4. 让 `{username}.{SiteSubdomainRoot}` 从占位响应改为真实站点映射；未知用户子域继续返回 SaaS 404。
-5. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
-6. 每次改动至少运行：
+3. 当前已具备 SaaS 注册后的最小站点初始化服务和用户子域数据库映射。
+4. 下一步建议补最小注册 API 或注册页面，把 `SaaSSiteProvisioningService` 接入真实入口。
+5. 未知用户子域应继续返回 SaaS 404，默认 `Moonglade.Web` 仍保持单站点 fallback 兼容。
+6. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
+7. 每次改动至少运行：
 
 ```bash
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
