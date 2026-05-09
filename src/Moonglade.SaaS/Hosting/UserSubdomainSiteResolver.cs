@@ -32,9 +32,9 @@ public sealed class UserSubdomainSiteResolver(BlogDbContext dbContext)
                     dbContext.LocalAccount.Any(user =>
                         user.Id == membership.UserId &&
                         user.NormalizedUsername == normalizedUsername)))
-            .Select(domain => new UserSubdomainSiteResolution(domain.SiteId, domain.Host, normalizedUsername))
+            .Select(domain => new UserSubdomainSiteResolution(domain.SiteId))
             .SingleOrDefaultAsync(ct);
     }
 }
 
-public sealed record UserSubdomainSiteResolution(Guid SiteId, string Host, string Username);
+public sealed record UserSubdomainSiteResolution(Guid SiteId);

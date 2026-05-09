@@ -435,10 +435,20 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - SaaS Web 不执行默认博客 seed；租户、用户和站点数据仍由后续注册流程创建。
 - 本地手动测试时，如果使用新的 SQLite 文件，启动后应具备 `SiteDomain` 等新 schema 表，不再因 fresh database 缺表导致 host resolver 抛异常。
 
+已完成第四片 SaaS 最小注册入口：
+
+- 新增 `SaaSRegistrationEndpoint`，把 `SaaSSiteProvisioningService` 接入真实 HTTP 入口。
+- `GET /register` 返回最小注册表单。
+- `POST /register` 支持表单提交并创建租户、用户、站点、owner membership、默认子域名、默认配置、主题和菜单。
+- `POST /api/register` 支持 JSON 注册请求，成功返回 `201 Created` 和站点 host，失败返回 `400 Bad Request`。
+- 注册入口会校验密码长度、字母数字组合和允许字符，并使用 PBKDF2 + salt 保存 `PasswordSalt` 与 `PasswordHash`。
+- 继续复用 username/subdomain 规则，重复 username 或重复默认子域名仍由 provisioning service 拒绝。
+- 已增加注册 endpoint 单元测试，覆盖成功初始化、弱密码拒绝和重复 username 拒绝。
+
 仍未实现：
 
 - SaaS 网关到内部 `Moonglade.Web` 的真实转发。
-- 真实注册 API 或注册页面。
+- 完整登录会话、邮箱验证、找回密码和注册后的控制台跳转。
 - SaaS 平台级站点管理、成员管理、权限管理和计费。
 - DNS TXT 自动查询验证器。
 
@@ -623,7 +633,7 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - SaaS 主线先补独立平台入口/网关、Portal host、用户子域、verified custom domain、网关转发、站点生命周期、租户注册、成员权限和未知 host 404 策略。
 - AI 主线先补 job claiming、artifact 审核发布、使用量统计和多语言内容工作流。
 
-当前最稳妥的下一步，是先补 `Moonglade.SaaS.Web` 到内部 `Moonglade.Web` 的最小转发策略，确认 accepted host 能进入博客渲染服务、unknown host 仍由 SaaS 网关拦截；随后再补最小注册 API 或注册页面，把 `SaaSSiteProvisioningService` 接入真实用户入口。同时保留浏览器环境下后台站点管理 UI 的人工验收任务。
+当前最稳妥的下一步，是先补 `Moonglade.SaaS.Web` 到内部 `Moonglade.Web` 的最小转发策略，确认 accepted host 能进入博客渲染服务、unknown host 仍由 SaaS 网关拦截。转发能力建议优先评估 YARP；如果要新增该依赖，需要单独确认依赖变更。与此同时，继续保留浏览器环境下后台站点管理 UI 的人工验收任务。
 
 ## 11. 新任务重启入口
 
@@ -631,8 +641,8 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 
 1. 保持 `Moonglade.Web` 不引用 `Moonglade.SaaS` 或 `Moonglade.SaaS.Web`。
 2. 测试项目也不要引用 `Moonglade.SaaS.Web`，避免发布入口的 `appsettings.json` 污染 `Moonglade.Web` 集成测试配置；需要测试 endpoint 行为时，测试 `Moonglade.SaaS` 应用层里的 `SaaSRootEndpoint`。
-3. 当前已具备 SaaS 注册后的最小站点初始化服务和用户子域数据库映射。
-4. 下一步建议先补 SaaS 网关到内部 `Moonglade.Web` 的最小转发，再补最小注册 API 或注册页面。
+3. 当前已具备 SaaS 注册后的最小站点初始化服务、用户子域数据库映射、`GET /register` 注册表单、`POST /register` 表单提交和 `POST /api/register` JSON 注册入口。
+4. 下一步建议先补 SaaS 网关到内部 `Moonglade.Web` 的最小转发；优先评估 YARP，新增依赖前需要明确确认。
 5. 转发必须保留原始 host 或设置 `X-Forwarded-Host`，确保内部 `Moonglade.Web` 的 `RequestSiteContext` 仍按 host 解析 `SiteId`。
 6. 未知用户子域应继续返回 SaaS 404，默认 `Moonglade.Web` 仍保持单站点 fallback 兼容。
 7. `Moonglade.SaaS.Web` 启动时会应用数据库迁移，但不 seed 默认博客数据。
@@ -648,3 +658,53 @@ git diff --check
 交接或提交前还需要跑一次全量 `dotnet test`，确认 SaaS 发布入口和默认 Web 集成测试没有配置输出污染。
 
 继续提交时不要包含 `src/Moonglade.Web/appsettings.json` 的本地私有配置改动。
+
+## 12. 2026-05-09 继续推进记录
+
+本次新增：
+
+- `src/Moonglade.SaaS/Registration/SaaSRegistrationEndpoint.cs`
+- `src/Moonglade.SaaS/Registration/SaaSRegistrationHtml.cs`
+- `src/Moonglade.SaaS/Registration/SaaSRegistrationInput.cs`
+- `src/Moonglade.SaaS/Registration/SaaSRegistrationResponse.cs`
+- `tests/Moonglade.Tests/SaaS/SaaSRegistrationEndpointTests.cs`
+
+本次修改：
+
+- `src/Moonglade.SaaS.Web/Program.cs` 接入 `/register`、`POST /register` 和 `POST /api/register`。
+- `database-code-first-refactor-plan.md` 更新当前进展、测试指南和提交建议。
+
+本次已执行测试：
+
+```bash
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
+dotnet build src/Moonglade.SaaS.Web/MoongladePure.SaaS.Web.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+git diff --check
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+./lint.sh
+```
+
+结果：
+
+- `SaaS`: 33 passed。
+- `Moonglade.SaaS.Web` build succeeded。
+- `git diff --check`: passed。
+- 全量测试：89 passed。
+- `./lint.sh`: failed，剩余问题均位于既有 `tests/Moonglade.Tests/MigrationToolTests.cs`，第 80 行和第 117 行提示 redundant qualifier；本次新增/修改的 SaaS 代码已不再出现在 lint 失败清单中。
+- `dotnet build`、`dotnet test` 和 `./lint.sh` restore 阶段都出现 `NU1900` warning，原因是当前环境无法读取 `https://nuget.aiursoft.com/v3/index.json` 的 package vulnerability metadata；未影响构建和测试结果。
+
+提交前建议补跑：
+
+```bash
+git diff --check
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+./lint.sh
+```
+
+建议 commit 信息：
+
+```text
+feat: add SaaS registration endpoint
+```
+
+提交范围建议只包含本次 SaaS 注册入口、对应测试和本文档更新；不要包含 `src/Moonglade.Web/appsettings.json` 的本地私有配置改动。
