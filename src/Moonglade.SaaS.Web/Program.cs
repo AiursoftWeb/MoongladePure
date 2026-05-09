@@ -1,3 +1,4 @@
+using Aiursoft.DbTools;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MoongladePure.Data;
@@ -20,6 +21,8 @@ builder.Services.AddSingleton<UsernamePolicy>();
 builder.Services.AddSingleton<SaaSHostClassifier>();
 
 var app = builder.Build();
+
+await app.UpdateDbAsync<BlogDbContext>();
 
 app.MapGet("/", (HttpContext context, SaaSRootEndpoint endpoint) => endpoint.HandleAsync(context));
 

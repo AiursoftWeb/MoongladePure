@@ -380,6 +380,12 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - 未注册或未初始化的用户子域继续返回 SaaS 404。
 - 已增加注册初始化和用户子域 endpoint 行为测试。
 
+已修复 SaaS Web fresh database 启动问题：
+
+- `Moonglade.SaaS.Web` 启动时会执行 `UpdateDbAsync<BlogDbContext>()`，确保 code-first schema 已应用。
+- SaaS Web 不执行默认博客 seed；租户、用户和站点数据仍由后续注册流程创建。
+- 本地手动测试时，如果使用新的 SQLite 文件，启动后应具备 `SiteDomain` 等新 schema 表，不再因 fresh database 缺表导致 host resolver 抛异常。
+
 ## 6. 下一阶段 SaaS 规划
 
 ### 6.1 站点生命周期
@@ -551,7 +557,8 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 5. 站点域名绑定新增、删除和重复 host 错误提示在浏览器中确认。
 6. 明确 release note 中 SQLite/MySQL 迁移支持边界。
 7. 确认默认 `Moonglade.Web` 发布包不引用 SaaS 项目，也不包含 SaaS controller、view、API 和依赖。
-8. 不提交本地运行配置，例如 `src/Moonglade.Web/appsettings.json` 的私有改动。
+8. SaaS Web 使用 fresh SQLite 文件启动时能自动应用 schema，并对未知 host 返回 SaaS 404。
+9. 不提交本地运行配置，例如 `src/Moonglade.Web/appsettings.json` 的私有改动，也不提交本地生成的 SQLite 数据库文件。
 
 ## 10. 当前结论
 
@@ -571,8 +578,9 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 3. 当前已具备 SaaS 注册后的最小站点初始化服务和用户子域数据库映射。
 4. 下一步建议补最小注册 API 或注册页面，把 `SaaSSiteProvisioningService` 接入真实入口。
 5. 未知用户子域应继续返回 SaaS 404，默认 `Moonglade.Web` 仍保持单站点 fallback 兼容。
-6. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
-7. 每次改动至少运行：
+6. `Moonglade.SaaS.Web` 启动时会应用数据库迁移，但不 seed 默认博客数据。
+7. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
+8. 每次改动至少运行：
 
 ```bash
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
