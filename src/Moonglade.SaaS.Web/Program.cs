@@ -4,7 +4,6 @@ using MoongladePure.Data;
 using MoongladePure.Data.Sqlite;
 using MoongladePure.SaaS.Hosting;
 using MoongladePure.SaaS.Identity;
-using MoongladePure.SaaS.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 

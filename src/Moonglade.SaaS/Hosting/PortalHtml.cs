@@ -1,4 +1,4 @@
-namespace MoongladePure.SaaS.Web;
+namespace MoongladePure.SaaS.Hosting;
 
 public static class PortalHtml
 {

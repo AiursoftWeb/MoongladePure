@@ -559,15 +559,18 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 如果新的任务从这里重新开始，建议按以下边界接手：
 
 1. 保持 `Moonglade.Web` 不引用 `Moonglade.SaaS` 或 `Moonglade.SaaS.Web`。
-2. 先实现 SaaS 注册后的最小站点初始化流程：Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单。
-3. 让 `{username}.{SiteSubdomainRoot}` 从占位响应改为真实站点映射；未知用户子域继续返回 SaaS 404。
-4. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
-5. 每次改动至少运行：
+2. 测试项目也不要引用 `Moonglade.SaaS.Web`，避免发布入口的 `appsettings.json` 污染 `Moonglade.Web` 集成测试配置；需要测试 endpoint 行为时，测试 `Moonglade.SaaS` 应用层里的 `SaaSRootEndpoint`。
+3. 先实现 SaaS 注册后的最小站点初始化流程：Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单。
+4. 让 `{username}.{SiteSubdomainRoot}` 从占位响应改为真实站点映射；未知用户子域继续返回 SaaS 404。
+5. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
+6. 每次改动至少运行：
 
 ```bash
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
 dotnet build src/Moonglade.SaaS.Web/MoongladePure.SaaS.Web.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
 git diff --check
 ```
+
+交接或提交前还需要跑一次全量 `dotnet test`，确认 SaaS 发布入口和默认 Web 集成测试没有配置输出污染。
 
 继续提交时不要包含 `src/Moonglade.Web/appsettings.json` 的本地私有配置改动。

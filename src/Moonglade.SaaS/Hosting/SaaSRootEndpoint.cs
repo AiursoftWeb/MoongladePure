@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using MoongladePure.SaaS.Hosting;
 
-namespace MoongladePure.SaaS.Web;
+namespace MoongladePure.SaaS.Hosting;
 
 public sealed class SaaSRootEndpoint(
     IOptions<SaaSOptions> options,
