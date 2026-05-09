@@ -167,6 +167,13 @@ GET /admin/site
 
 当前仍不包含站点创建、站点编辑、站点删除、租户注册、成员角色权限和完整 SaaS 管理面板。
 
+产品边界：
+
+- `Moonglade.Web` 中的 `/admin/site` 目前保留为阶段性管理和验证入口，主要用于当前站点域名绑定验证。
+- 不应继续在 `Moonglade.Web` 中扩展租户注册、站点创建、成员管理、计费或 SaaS 平台级管理能力。
+- 后续可将该页面收窄或改名为当前站点 `Domains` 管理。
+- 完整平台级 `Sites` 管理应放入 `Moonglade.SaaS.Web`。
+
 ## 3. 阶段验收结果
 
 ### 3.1 自动测试
@@ -275,25 +282,65 @@ ASPNETCORE_URLS='http://127.0.0.1:5088' ConnectionStrings__DefaultConnection='Da
 
 SaaS 能力不应直接内置进默认单站点 Web 发布包。默认发布包仍然应该是一个干净的单站点博客系统；部署者不启用 SaaS 时，产物不应包含 SaaS 注册、租户门户、站点创建、成员管理、计费、域名验证等功能入口。
 
-推荐采用同一 solution 下的独立发布入口：
+推荐采用同一 solution 下的独立发布入口，并区分普通部署和 SaaS 部署：
 
 ```text
 src/Moonglade.Web/              # 默认单站点博客发布入口
 src/Moonglade.SaaS/             # SaaS 应用层：租户、注册、域名验证、站点生命周期
-src/Moonglade.SaaS.Web/         # SaaS 平台发布入口
+src/Moonglade.SaaS.Web/         # SaaS 平台入口和 host 网关
 ```
 
 这个方向的边界：
 
-- `Moonglade.Web` 不引用 `Moonglade.SaaS`，默认打包结果不包含 SaaS 功能。
-- `Moonglade.SaaS.Web` 复用现有 Data/Core/Infrastructure 能力，但拥有独立的 host 分流、Portal、注册和平台管理入口。
+- 普通单站点部署只启动 `Moonglade.Web`。
+- SaaS 部署对外暴露 `Moonglade.SaaS.Web`，同时在内部运行 `Moonglade.Web` 作为博客渲染服务。
+- `Moonglade.SaaS.Web` 负责平台首页、注册、租户/站点管理、host 分流、未知 host 404、自定义域名验证和后续转发策略。
+- `Moonglade.Web` 负责博客前台和后台渲染，不引用 `Moonglade.SaaS`，默认打包结果不包含 SaaS 功能。
+- SaaS 网关将已解析、已允许的用户子域名或 verified custom domain 转发给内部 `Moonglade.Web`，并保留 `Host` / `X-Forwarded-Host`，让 `RequestSiteContext` 继续按 host 解析当前 `SiteId`。
+- `Moonglade.SaaS.Web` 不应复制完整博客 Razor UI；博客体验仍由 `Moonglade.Web` 承担。
 - 现有 `Tenant`、`Site`、`SiteDomain`、`SiteMembership` 仍作为共享数据模型基础。
 - `SystemIds.DefaultSiteId` 继续服务 legacy 迁移、单站点兼容和非 SaaS 部署，不作为 SaaS 平台入口语义。
 - SaaS 平台入口不应被建模为普通用户 `Site`，避免平台营销页、注册页和用户博客内容混用同一套站点设置、主题和文章查询逻辑。
 
-暂不建议拆成独立仓库。当前数据库模型、迁移工具和博客核心功能仍高度共享；拆仓会增加 schema、迁移和核心 bugfix 的同步成本。同仓库多发布项目可以同时满足默认包干净、SaaS 独立演进和共享核心能力三个目标。
+暂不建议拆成独立仓库。当前数据库模型、迁移工具和博客核心功能仍高度共享；拆仓会增加 schema、迁移和核心 bugfix 的同步成本。同仓库多发布项目可以同时满足默认包干净、SaaS 独立演进、共享核心能力和网关转发四个目标。
 
 也不建议仅通过 `SaaS:Enabled` 在 `Moonglade.Web` 内隐藏功能。运行时开关无法保证发布产物不包含 SaaS controller、view、API 和依赖，也容易让单站点部署承担 SaaS 的复杂度。
+
+### 5.0 SaaS 数据存储模型
+
+当前规划采用共享数据库、共享表结构、逻辑多租户隔离，不采用每个用户一个数据库或每个站点一套表。
+
+核心层级：
+
+```text
+Tenant
+  -> Site
+      -> Post / Page / Menu / Comment / Config / Theme / Media / AI data
+```
+
+主要边界：
+
+- `Tenant` 表示租户或组织。
+- `Site` 表示一个博客站点。
+- `SiteDomain` 保存用户默认子域名和自定义域名绑定。
+- `User` 保存平台用户。
+- `SiteMembership` 保存用户在站点内的角色。
+- 文章、页面、菜单、评论、配置、主题、媒体和 AI 数据通过 `SiteId` 隔离。
+
+请求路径：
+
+```text
+Host -> Moonglade.SaaS.Web 网关校验 -> Moonglade.Web -> RequestSiteContext -> SiteDomain -> SiteId
+```
+
+示例：
+
+```text
+alice.app.example.com -> SiteId A -> 只读写 Alice 站点数据
+bob.app.example.com   -> SiteId B -> 只读写 Bob 站点数据
+```
+
+因此 SaaS 的核心要求不是拆库，而是确保所有博客业务查询和写入都经过当前 `SiteId` 边界。
 
 ### 5.1 SaaS host 模型
 
@@ -309,7 +356,8 @@ SaaS:SiteSubdomainRoot         # 例如 app.example.com
 - 平台主域名访问 `PortalHosts`，展示营销注册页和登录/注册入口。
 - 用户注册时填写唯一 username，并自动获得 `{username}.{SiteSubdomainRoot}`，例如 `alice.app.example.com`。
 - 用户自定义域名必须完成验证后才参与站点 host 路由。
-- 未注册、未绑定或未验证的 host 返回友好的 404 页面，并引导回平台官网。
+- 未注册、未绑定或未验证的 host 由 `Moonglade.SaaS.Web` 返回友好的 404 页面，并引导回平台官网。
+- 已注册用户子域名和 verified custom domain 后续由 `Moonglade.SaaS.Web` 转发到内部 `Moonglade.Web` 渲染博客。
 - 非 SaaS 发布入口继续保持当前单站点兼容行为，不启用上述 host 策略。
 
 username 同时承担默认子域名前缀语义，需要建立保留词和格式限制：
@@ -345,8 +393,9 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 2. 在 SaaS Web 入口实现 Portal host、用户子域、verified custom domain 和 unknown host 的分流策略。
 3. 建立 username/subdomain 校验服务，覆盖格式、保留词和唯一性测试。
 4. 实现注册后 Tenant、User、Site、SiteMembership、默认子域名、默认配置、主题和菜单初始化。
-5. 实现自定义域名 pending/verified 状态、TXT token 生成、验证说明和管理 API。
-6. 增加最小 Portal 营销注册页，后续再补完整文案、定价、示例站点和转化流程。
+5. 增加 SaaS 网关到内部 `Moonglade.Web` 的转发策略，保留原始 host 或 `X-Forwarded-Host`。
+6. 实现自定义域名 pending/verified 状态、TXT token 生成、验证说明和管理 API。
+7. 增加最小 Portal 营销注册页，后续再补完整文案、定价、示例站点和转化流程。
 
 ### 5.4 已启动的 SaaS 基线
 
@@ -385,6 +434,13 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - `Moonglade.SaaS.Web` 启动时会执行 `UpdateDbAsync<BlogDbContext>()`，确保 code-first schema 已应用。
 - SaaS Web 不执行默认博客 seed；租户、用户和站点数据仍由后续注册流程创建。
 - 本地手动测试时，如果使用新的 SQLite 文件，启动后应具备 `SiteDomain` 等新 schema 表，不再因 fresh database 缺表导致 host resolver 抛异常。
+
+仍未实现：
+
+- SaaS 网关到内部 `Moonglade.Web` 的真实转发。
+- 真实注册 API 或注册页面。
+- SaaS 平台级站点管理、成员管理、权限管理和计费。
+- DNS TXT 自动查询验证器。
 
 ## 6. 下一阶段 SaaS 规划
 
@@ -562,12 +618,12 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 
 ## 10. 当前结论
 
-截至 2026-05-09，数据库 code-first 重构已经完成一个可继续演进的阶段性基线。默认发布入口应继续保持单站点博客定位；SaaS 能力应通过同一 solution 下的独立应用层和独立 Web 发布入口推进，避免污染默认开源打包产物。接下来不应继续在旧单站点假设上横向堆字段，而应围绕 SaaS 和 AI 两条主线推进：
+截至 2026-05-09，数据库 code-first 重构已经完成一个可继续演进的阶段性基线。默认发布入口应继续保持单站点博客定位；SaaS 能力应通过同一 solution 下的独立应用层和独立平台入口/网关推进，避免污染默认开源打包产物。接下来不应继续在旧单站点假设上横向堆字段，而应围绕 SaaS 和 AI 两条主线推进：
 
-- SaaS 主线先补独立发布入口、Portal host、用户子域、verified custom domain、站点生命周期、租户注册、成员权限和未知 host 404 策略。
+- SaaS 主线先补独立平台入口/网关、Portal host、用户子域、verified custom domain、网关转发、站点生命周期、租户注册、成员权限和未知 host 404 策略。
 - AI 主线先补 job claiming、artifact 审核发布、使用量统计和多语言内容工作流。
 
-当前最稳妥的下一步，是在 SaaS 发布入口补最小注册 API 或注册页面，把 `SaaSSiteProvisioningService` 接入真实用户入口；同时保留浏览器环境下后台站点管理 UI 的人工验收任务。
+当前最稳妥的下一步，是先补 `Moonglade.SaaS.Web` 到内部 `Moonglade.Web` 的最小转发策略，确认 accepted host 能进入博客渲染服务、unknown host 仍由 SaaS 网关拦截；随后再补最小注册 API 或注册页面，把 `SaaSSiteProvisioningService` 接入真实用户入口。同时保留浏览器环境下后台站点管理 UI 的人工验收任务。
 
 ## 11. 新任务重启入口
 
@@ -576,11 +632,12 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 1. 保持 `Moonglade.Web` 不引用 `Moonglade.SaaS` 或 `Moonglade.SaaS.Web`。
 2. 测试项目也不要引用 `Moonglade.SaaS.Web`，避免发布入口的 `appsettings.json` 污染 `Moonglade.Web` 集成测试配置；需要测试 endpoint 行为时，测试 `Moonglade.SaaS` 应用层里的 `SaaSRootEndpoint`。
 3. 当前已具备 SaaS 注册后的最小站点初始化服务和用户子域数据库映射。
-4. 下一步建议补最小注册 API 或注册页面，把 `SaaSSiteProvisioningService` 接入真实入口。
-5. 未知用户子域应继续返回 SaaS 404，默认 `Moonglade.Web` 仍保持单站点 fallback 兼容。
-6. `Moonglade.SaaS.Web` 启动时会应用数据库迁移，但不 seed 默认博客数据。
-7. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
-8. 每次改动至少运行：
+4. 下一步建议先补 SaaS 网关到内部 `Moonglade.Web` 的最小转发，再补最小注册 API 或注册页面。
+5. 转发必须保留原始 host 或设置 `X-Forwarded-Host`，确保内部 `Moonglade.Web` 的 `RequestSiteContext` 仍按 host 解析 `SiteId`。
+6. 未知用户子域应继续返回 SaaS 404，默认 `Moonglade.Web` 仍保持单站点 fallback 兼容。
+7. `Moonglade.SaaS.Web` 启动时会应用数据库迁移，但不 seed 默认博客数据。
+8. 暂不引入 DNS TXT 查询依赖；自定义域名的 DNS 验证执行器另开任务评估。
+9. 每次改动至少运行：
 
 ```bash
 dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
