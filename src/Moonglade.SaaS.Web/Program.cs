@@ -2,6 +2,7 @@ using Aiursoft.DbTools;
 using Microsoft.EntityFrameworkCore;
 using MoongladePure.Data;
 using MoongladePure.Data.Sqlite;
+using MoongladePure.SaaS.Domains;
 using MoongladePure.SaaS.Hosting;
 using MoongladePure.SaaS.Identity;
 using MoongladePure.SaaS.Registration;
@@ -13,6 +14,8 @@ builder.Services.AddDbContext<SqliteContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<BlogDbContext>(services => services.GetRequiredService<SqliteContext>());
 builder.Services.AddScoped<CustomDomainSiteResolver>();
+builder.Services.AddScoped<SaaSCustomDomainService>();
+builder.Services.AddScoped<SaaSCustomDomainEndpoint>();
 builder.Services.AddScoped<UserSubdomainSiteResolver>();
 builder.Services.AddScoped<SaaSSiteProvisioningService>();
 builder.Services.AddScoped<SaaSRegistrationEndpoint>();
@@ -30,6 +33,20 @@ app.MapPost("/register", (HttpRequest request, SaaSRegistrationEndpoint endpoint
     endpoint.RegisterFormAsync(request, ct));
 app.MapPost("/api/register", (SaaSRegistrationInput input, SaaSRegistrationEndpoint endpoint, CancellationToken ct) =>
     endpoint.RegisterJsonAsync(input, ct));
+app.MapGet("/api/sites/{siteId:guid}/domains", (
+    Guid siteId,
+    SaaSCustomDomainEndpoint endpoint,
+    CancellationToken ct) => endpoint.ListAsync(siteId, ct));
+app.MapPost("/api/sites/{siteId:guid}/domains", (
+    Guid siteId,
+    SaaSCustomDomainRequest request,
+    SaaSCustomDomainEndpoint endpoint,
+    CancellationToken ct) => endpoint.AddAsync(siteId, request, ct));
+app.MapDelete("/api/sites/{siteId:guid}/domains/{domainId:guid}", (
+    Guid siteId,
+    Guid domainId,
+    SaaSCustomDomainEndpoint endpoint,
+    CancellationToken ct) => endpoint.DeleteAsync(siteId, domainId, ct));
 
 app.MapFallback(SaaSRootEndpoint.NotRegistered);
 

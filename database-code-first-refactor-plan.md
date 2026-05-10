@@ -445,11 +445,21 @@ _moonglade.example.com TXT moonglade-site-verification=<token>
 - 继续复用 username/subdomain 规则，重复 username 或重复默认子域名仍由 provisioning service 拒绝。
 - 已增加注册 endpoint 单元测试，覆盖成功初始化、弱密码拒绝和重复 username 拒绝。
 
+已完成第五片 SaaS 自定义域名管理 MVP：
+
+- 新增 `SaaSCustomDomainService`，支持按站点列出域名、创建 pending custom domain 和删除非主域名。
+- 新增 `SaaSCustomDomainEndpoint`，接入最小 HTTP API。
+- `POST /api/sites/{siteId}/domains` 创建 `PendingVerification` 域名，生成 32-byte hex verification token，并返回 TXT 记录名和值。
+- `GET /api/sites/{siteId}/domains` 返回站点已有域名和验证说明。
+- `DELETE /api/sites/{siteId}/domains/{domainId}` 删除非主域名；默认用户子域名等 primary domain 会被拒绝删除。
+- host 归一化补充 trailing dot 处理，例如 `Blog.Customer.COM.` 会保存为 `blog.customer.com`。
+- 已增加 SaaS custom domain service 单元测试，覆盖 pending 创建、TXT 指令、重复 host、缺失站点、列表排序、删除和 primary domain 保护。
+
 仍未实现：
 
 - SaaS 网关到内部 `Moonglade.Web` 的真实转发。
 - 完整登录会话、邮箱验证、找回密码和注册后的控制台跳转。
-- SaaS 平台级站点管理、成员管理、权限管理和计费。
+- SaaS 平台级认证授权、站点管理、成员管理、权限管理和计费。
 - DNS TXT 自动查询验证器。
 
 ## 6. 下一阶段 SaaS 规划
@@ -738,3 +748,91 @@ feat: add SaaS registration endpoint
 ```text
 chore: fix migration test lint
 ```
+
+## 14. 2026-05-09 自定义域名管理继续推进记录
+
+本次新增：
+
+- `src/Moonglade.SaaS/Domains/SaaSCustomDomainRequest.cs`
+- `src/Moonglade.SaaS/Domains/SaaSCustomDomainDigest.cs`
+- `src/Moonglade.SaaS/Domains/SaaSCustomDomainResult.cs`
+- `src/Moonglade.SaaS/Domains/SaaSCustomDomainService.cs`
+- `src/Moonglade.SaaS/Domains/SaaSCustomDomainEndpoint.cs`
+- `tests/Moonglade.Tests/SaaS/SaaSCustomDomainServiceTests.cs`
+
+本次修改：
+
+- `src/Moonglade.SaaS.Web/Program.cs` 接入 custom domain 列表、新增和删除 API。
+- `src/Moonglade.SaaS/Hosting/SaaSHostClassifier.cs` 的 host 归一化补充 trailing dot 处理。
+- `tests/Moonglade.Tests/SaaS/SaaSHostClassifierTests.cs` 增加 trailing dot 场景覆盖。
+- `database-code-first-refactor-plan.md` 更新当前进展、测试指南和提交建议。
+
+新增 API：
+
+```text
+GET /api/sites/{siteId}/domains
+POST /api/sites/{siteId}/domains
+DELETE /api/sites/{siteId}/domains/{domainId}
+```
+
+`POST /api/sites/{siteId}/domains` 请求体示例：
+
+```json
+{
+  "host": "blog.customer.com"
+}
+```
+
+成功后返回 pending domain，包括：
+
+- `verificationToken`
+- `txtRecordName`，例如 `_moonglade.blog.customer.com`
+- `txtRecordValue`，例如 `moonglade-site-verification=<token>`
+
+当前边界：
+
+- 这仍是 SaaS custom domain 管理 MVP；API 先落库 pending 状态和验证说明。
+- 还没有 DNS TXT 自动查询验证器，不能自动把 pending domain 提升为 verified。
+- 还没有完整 SaaS 登录会话和权限系统；后续接入认证授权前，不应把这些管理 API 暴露到公网生产环境。
+- 已 verified custom domain 才会参与 `CustomDomainSiteResolver` 到站点的解析；pending domain 仍返回 SaaS 404。
+- 本轮仍未引入 YARP 或其他代理依赖，真实网关转发继续作为单独任务评估。
+
+本次已执行测试：
+
+```bash
+git diff --check
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
+dotnet build src/Moonglade.SaaS.Web/MoongladePure.SaaS.Web.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+./lint.sh
+```
+
+当前结果：
+
+- `git diff --check`: passed。
+- `SaaS`: 40 passed。
+- `Moonglade.SaaS.Web` build succeeded。
+- `./lint.sh`: passed。
+- 仍有 `NU1900` warning，原因同前：当前环境无法读取 `https://nuget.aiursoft.com/v3/index.json` 的 package vulnerability metadata。
+
+提交前建议补跑：
+
+```bash
+git diff --check
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore --filter SaaS -p:UseSharedCompilation=false -maxcpucount:1
+dotnet build src/Moonglade.SaaS.Web/MoongladePure.SaaS.Web.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+./lint.sh
+```
+
+如需发布前更稳妥验收，再补一轮全量：
+
+```bash
+dotnet test tests/Moonglade.Tests/MoongladePure.Tests.csproj --no-restore -p:UseSharedCompilation=false -maxcpucount:1
+```
+
+建议 commit 信息：
+
+```text
+feat: add SaaS custom domain management
+```
+
+提交范围建议只包含本次 SaaS custom domain 管理、host normalization、对应测试和本文档更新；不要包含 `src/Moonglade.Web/appsettings.json` 的本地私有配置改动。

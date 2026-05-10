@@ -59,7 +59,7 @@ public class SaaSHostClassifierTests
     {
         var classifier = CreateClassifier();
 
-        var result = classifier.Classify("blog.customer.com", Options);
+        var result = classifier.Classify("Blog.Customer.COM.", Options);
 
         Assert.AreEqual(SaaSHostKind.CustomDomainCandidate, result.Kind);
         Assert.AreEqual("blog.customer.com", result.Host);

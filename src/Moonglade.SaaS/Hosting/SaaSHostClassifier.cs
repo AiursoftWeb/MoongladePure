@@ -37,7 +37,8 @@ public sealed class SaaSHostClassifier(UsernamePolicy usernamePolicy)
 
         var normalized = host.Trim().ToLowerInvariant();
         var separatorIndex = normalized.LastIndexOf(':');
-        return separatorIndex <= 0 ? normalized : normalized[..separatorIndex];
+        var hostWithoutPort = separatorIndex <= 0 ? normalized : normalized[..separatorIndex];
+        return hostWithoutPort.TrimEnd('.');
     }
 
     private static bool IsPortalHost(string host, IEnumerable<string> portalHosts) =>
