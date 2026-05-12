@@ -9,6 +9,7 @@ namespace MoongladePure.Tests.SaaS;
 public class SaaSCustomDomainServiceTests
 {
     private static readonly Guid SiteId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+    private static readonly Guid OtherSiteId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
     [TestMethod]
     public async Task AddPendingAsyncCreatesPendingDomainWithTxtInstructions()
@@ -27,6 +28,20 @@ public class SaaSCustomDomainServiceTests
         Assert.AreEqual("_moonglade.blog.customer.com", result.Domain.TxtRecordName);
         Assert.AreEqual($"moonglade-site-verification={result.Domain.VerificationToken}", result.Domain.TxtRecordValue);
         Assert.AreEqual(1, await context.SiteDomain.CountAsync());
+    }
+
+    [TestMethod]
+    public async Task AddPendingAsyncRejectsBlankHost()
+    {
+        await using var context = CreateContext();
+        await AddSiteAsync(context);
+        var service = new SaaSCustomDomainService(context);
+
+        var result = await service.AddPendingAsync(SiteId, new SaaSCustomDomainRequest("   "));
+
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("Host is required.", result.Error);
+        Assert.AreEqual(0, await context.SiteDomain.CountAsync());
     }
 
     [TestMethod]
@@ -78,6 +93,24 @@ public class SaaSCustomDomainServiceTests
     }
 
     [TestMethod]
+    public async Task ListAsyncReturnsOnlyRequestedSiteDomains()
+    {
+        await using var context = CreateContext();
+        await AddSiteAsync(context);
+        await AddSiteAsync(context, OtherSiteId, "Other Site", "other");
+        await context.SiteDomain.AddRangeAsync(
+            CreateDomain("blog.customer.com", false),
+            CreateDomain(OtherSiteId, "other.customer.com", false));
+        await context.SaveChangesAsync();
+        var service = new SaaSCustomDomainService(context);
+
+        var domains = await service.ListAsync(SiteId);
+
+        Assert.AreEqual(1, domains.Count);
+        Assert.AreEqual("blog.customer.com", domains[0].Host);
+    }
+
+    [TestMethod]
     public async Task DeleteAsyncDeletesNonPrimaryDomain()
     {
         await using var context = CreateContext();
@@ -92,6 +125,24 @@ public class SaaSCustomDomainServiceTests
         Assert.IsTrue(result.Succeeded);
         Assert.AreEqual("blog.customer.com", result.Domain.Host);
         Assert.AreEqual(0, await context.SiteDomain.CountAsync());
+    }
+
+    [TestMethod]
+    public async Task DeleteAsyncRejectsDomainFromOtherSite()
+    {
+        await using var context = CreateContext();
+        await AddSiteAsync(context);
+        await AddSiteAsync(context, OtherSiteId, "Other Site", "other");
+        var domain = CreateDomain(OtherSiteId, "other.customer.com", false);
+        await context.SiteDomain.AddAsync(domain);
+        await context.SaveChangesAsync();
+        var service = new SaaSCustomDomainService(context);
+
+        var result = await service.DeleteAsync(SiteId, domain.Id);
+
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("Domain does not exist.", result.Error);
+        Assert.AreEqual(1, await context.SiteDomain.CountAsync());
     }
 
     [TestMethod]
@@ -122,12 +173,17 @@ public class SaaSCustomDomainServiceTests
 
     private static async Task AddSiteAsync(InMemoryContext context)
     {
+        await AddSiteAsync(context, SiteId, "Customer Site", "customer");
+    }
+
+    private static async Task AddSiteAsync(InMemoryContext context, Guid siteId, string name, string slug)
+    {
         await context.Site.AddAsync(new SiteEntity
         {
-            Id = SiteId,
+            Id = siteId,
             TenantId = SystemIds.DefaultTenantId,
-            Name = "Customer Site",
-            Slug = "customer",
+            Name = name,
+            Slug = slug,
             Status = SiteStatus.Active,
             DefaultCulture = "en-US",
             TimeZoneId = "UTC"
@@ -135,10 +191,13 @@ public class SaaSCustomDomainServiceTests
         await context.SaveChangesAsync();
     }
 
-    private static SiteDomainEntity CreateDomain(string host, bool isPrimary) => new()
+    private static SiteDomainEntity CreateDomain(string host, bool isPrimary) =>
+        CreateDomain(SiteId, host, isPrimary);
+
+    private static SiteDomainEntity CreateDomain(Guid siteId, string host, bool isPrimary) => new()
     {
         Id = Guid.NewGuid(),
-        SiteId = SiteId,
+        SiteId = siteId,
         Host = host,
         IsPrimary = isPrimary,
         VerificationStatus = isPrimary
