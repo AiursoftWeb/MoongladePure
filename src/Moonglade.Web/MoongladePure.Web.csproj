@@ -31,11 +31,10 @@
     <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="10.0.19" />
+    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="10.0.20" />
     <PackageReference Include="Aiursoft.Dotlang.AspNetTranslate" Version="10.0.39" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Edi.ImageWatermark" Version="3.0.0" />
-    <PackageReference Include="SkiaSharp" Version="3.119.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="X.PagedList.EF" Version="10.5.9" />
