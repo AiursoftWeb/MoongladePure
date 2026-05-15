@@ -1,5 +1,5 @@
 ﻿using MoongladePure.Caching.Filters;
-using SixLabors.ImageSharp;
+using SkiaSharp;
 
 namespace MoongladePure.Web.Controllers;
 
@@ -59,8 +59,8 @@ public class AssetsController(
 
         try
         {
-            using var bmp = await Image.LoadAsync(new MemoryStream(base64Chars));
-            if (bmp.Height != bmp.Width || bmp.Height + bmp.Width != 600)
+            using var bmp = SKBitmap.Decode(new MemoryStream(base64Chars));
+            if (bmp == null || bmp.Height != bmp.Width || bmp.Height + bmp.Width != 600)
             {
                 return Conflict("Image size must be 300x300.");
             }
@@ -135,8 +135,8 @@ public class AssetsController(
             return Conflict("Bad base64 data");
         }
 
-        using var bmp = await Image.LoadAsync(new MemoryStream(base64Chars));
-        if (bmp.Height != bmp.Width) return Conflict("image height must be equal to width");
+        using var bmp = SKBitmap.Decode(new MemoryStream(base64Chars));
+        if (bmp == null || bmp.Height != bmp.Width) return Conflict("image height must be equal to width");
         await mediator.Publish(new SaveAssetCommand(AssetId.SiteIconBase64, base64Img));
 
         return NoContent();

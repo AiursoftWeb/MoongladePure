@@ -1,5 +1,4 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
+﻿using SkiaSharp;
 using System.Collections.Concurrent;
 
 namespace MoongladePure.Web;
@@ -12,7 +11,6 @@ public static class MemoryStreamIconGenerator
     {
         byte[] buffer;
 
-        // Fall back to default image
         if (string.IsNullOrWhiteSpace(base64Data))
         {
             logger.LogWarning("SiteIconBase64 is empty or not valid, fall back to default image");
@@ -37,8 +35,9 @@ public static class MemoryStreamIconGenerator
         }
 
         using var ms = new MemoryStream(buffer);
-        using var image = Image.Load(ms);
-        if (image.Height != image.Width)
+        using var bitmap = SKBitmap.Decode(ms)
+            ?? throw new InvalidOperationException("Invalid Site Icon Data");
+        if (bitmap.Height != bitmap.Width)
         {
             throw new InvalidOperationException("Invalid Site Icon Data");
         }
@@ -55,16 +54,16 @@ public static class MemoryStreamIconGenerator
             foreach (var size in value)
             {
                 var fileName = $"{key}{size}x{size}.png";
-                var bytes = ResizeImage(image, size, size);
+                var bytes = ResizeImage(bitmap, size, size);
 
                 SiteIconDictionary.TryAdd(fileName, bytes);
             }
         }
 
-        var icon1Bytes = ResizeImage(image, 192, 192);
+        var icon1Bytes = ResizeImage(bitmap, 192, 192);
         SiteIconDictionary.TryAdd("apple-icon.png", icon1Bytes);
 
-        var icon2Bytes = ResizeImage(image, 192, 192);
+        var icon2Bytes = ResizeImage(bitmap, 192, 192);
         SiteIconDictionary.TryAdd("apple-icon-precomposed.png", icon2Bytes);
     }
 
@@ -74,11 +73,22 @@ public static class MemoryStreamIconGenerator
         return SiteIconDictionary.TryGetValue(fileName, out var value) ? value : null;
     }
 
-    private static byte[] ResizeImage(Image image, int toWidth, int toHeight)
+    private static byte[] ResizeImage(SKBitmap source, int toWidth, int toHeight)
     {
-        image.Mutate(x => x.Resize(toWidth, toHeight));
-        using var ms = new MemoryStream();
-        image.SaveAsPng(ms);
-        return ms.ToArray();
+        using var resized = new SKBitmap(toWidth, toHeight);
+        using var canvas = new SKCanvas(resized);
+        using var paint = new SKPaint();
+        paint.IsAntialias = true;
+        canvas.DrawBitmap(source,
+            new SKRect(0, 0, source.Width, source.Height),
+            new SKRect(0, 0, toWidth, toHeight),
+            paint);
+        canvas.Flush();
+
+        using var image = SKImage.FromBitmap(resized);
+        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+        using var resultMs = new MemoryStream();
+        data.SaveTo(resultMs);
+        return resultMs.ToArray();
     }
 }

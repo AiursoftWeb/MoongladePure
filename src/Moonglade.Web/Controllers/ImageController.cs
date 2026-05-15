@@ -1,7 +1,7 @@
 ﻿using Edi.ImageWatermark;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using SixLabors.ImageSharp;
+using SkiaSharp;
 
 namespace MoongladePure.Web.Controllers;
 
@@ -97,7 +97,7 @@ public class ImageController(
 
                 watermarkedStream = watermarker.AddWatermark(
                     blogConfig.ImageSettings.WatermarkText,
-                    Color.FromRgba(
+                    new SKColor(
                         (byte)blogConfig.ImageSettings.WatermarkColorR,
                         (byte)blogConfig.ImageSettings.WatermarkColorG,
                         (byte)blogConfig.ImageSettings.WatermarkColorB,
