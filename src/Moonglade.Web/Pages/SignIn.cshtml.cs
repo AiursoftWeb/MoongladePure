@@ -27,7 +27,7 @@ public class SignInModel(
     [Display(Name = "Password")]
     [DataType(DataType.Password)]
     [MinLength(8), MaxLength(32)]
-    [RegularExpression(@"^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@#$^&*]{8,}$")]
+    [RegularExpression(@"^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@#$^&*-]{8,}$")]
     public string Password { get; set; }
 
     [BindProperty]

@@ -55,7 +55,7 @@ public class LocalAccountController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ResetPassword([NotEmpty] Guid id, [FromBody][Required] string newPassword)
     {
-        if (!Regex.IsMatch(newPassword, @"^(?=.*[A-Za-z])(?=.*\d)[!@#$%^&*A-Za-z\d]{8,}$"))
+        if (!Regex.IsMatch(newPassword, @"^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@#$^&*-]{8,}$"))
         {
             return Conflict("Password must be minimum eight characters, at least one letter and one number");
         }
