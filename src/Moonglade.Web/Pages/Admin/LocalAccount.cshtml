@@ -145,7 +145,7 @@
                     </div>
                     <div class="mb-2">
                         <label asp-for="ViewModel.Password"></label>
-                        <input asp-for="ViewModel.Password" class="form-control" required pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@@#$^&*]{8,}$" />
+                        <input asp-for="ViewModel.Password" class="form-control" required pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@@#$^&*-]{8,}$" />
                         <small class="text-muted">Password must be minimum eight characters, at least one letter and one number</small>
                     </div>
                 </div>
@@ -176,7 +176,7 @@
                                minlength="8"
                                maxlength="32"
                                name="NewPassword"
-                               pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@@#$^&*]{8,}$"
+                               pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@@#$^&*-]{8,}$"
                                required>
                         <span class="text-danger field-validation-valid"></span>
                     </div>

@@ -58,7 +58,7 @@
                                     <label asp-for="Username"></label>
                                 </div>
                                 <div class="form-floating mb-3">
-                                    <input asp-for="Password" class="form-control" required pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@@#$^&*]{8,}$" placeholder="@Html.DisplayNameFor(m => m.Password)" minlength="8" maxlength="32" />
+                                    <input asp-for="Password" class="form-control" required pattern="^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9._~!@@#$^&*-]{8,}$" placeholder="@Html.DisplayNameFor(m => m.Password)" minlength="8" maxlength="32" />
                                     <label asp-for="Password"></label>
                                 </div>
 
