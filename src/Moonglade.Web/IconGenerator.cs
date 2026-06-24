@@ -79,10 +79,11 @@ public static class MemoryStreamIconGenerator
         using var canvas = new SKCanvas(resized);
         using var paint = new SKPaint();
         paint.IsAntialias = true;
-        canvas.DrawBitmap(source,
-            new SKRect(0, 0, source.Width, source.Height),
-            new SKRect(0, 0, toWidth, toHeight),
-            paint);
+canvas.DrawImage(SKImage.FromBitmap(source),
+                    new SKRect(0, 0, source.Width, source.Height),
+                    new SKRect(0, 0, toWidth, toHeight),
+                    SKSamplingOptions.Default,
+                    paint);
         canvas.Flush();
 
         using var image = SKImage.FromBitmap(resized);
