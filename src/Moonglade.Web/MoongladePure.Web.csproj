@@ -35,7 +35,7 @@
     <PackageReference Include="Aiursoft.Dotlang.AspNetTranslate" Version="10.0.46" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Edi.ImageWatermark" Version="3.0.0" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.148.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="X.PagedList.EF" Version="10.5.9" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.9" />
