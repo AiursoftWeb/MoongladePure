@@ -1,17 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Library</OutputType>
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>MoongladePure.Data.Sqlite</AssemblyName>
     <RootNamespace>MoongladePure.Data.Sqlite</RootNamespace>
     <IsTestProject>false</IsTestProject>
     <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable></PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Moonglade.Data\MoongladePure.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.Sqlite" Version="10.0.22" />
+    <PackageReference Include="Aiursoft.DbTools.Sqlite" Version="10.0.23" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
   </ItemGroup>
 </Project>
