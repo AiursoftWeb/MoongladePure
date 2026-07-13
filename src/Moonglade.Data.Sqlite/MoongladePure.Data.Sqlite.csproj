@@ -13,7 +13,7 @@
     <ProjectReference Include="..\Moonglade.Data\MoongladePure.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.Sqlite" Version="10.0.23" />
+    <PackageReference Include="Aiursoft.DbTools.Sqlite" Version="10.0.25" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
   </ItemGroup>
 </Project>
