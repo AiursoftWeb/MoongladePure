@@ -31,8 +31,8 @@
     <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="10.0.22" />
-    <PackageReference Include="Aiursoft.Dotlang.AspNetTranslate" Version="10.0.58" />
+    <PackageReference Include="Aiursoft.DbTools.Switchable" Version="10.0.23" />
+    <PackageReference Include="Aiursoft.Dotlang.AspNetTranslate" Version="10.0.59" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Edi.ImageWatermark" Version="3.0.0" />
     <PackageReference Include="SkiaSharp" Version="4.151.1" />
