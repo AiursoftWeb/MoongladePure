@@ -32,16 +32,17 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aiursoft.DbTools.Switchable" Version="10.0.24" />
-    <PackageReference Include="Aiursoft.Dotlang.AspNetTranslate" Version="10.0.65" />
+    <PackageReference Include="Aiursoft.Dotlang.AspNetTranslate" Version="10.0.67" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Edi.ImageWatermark" Version="3.0.0" />
-    <PackageReference Include="SkiaSharp" Version="4.151.1" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.151.2" />
+    <!-- Keep managed and native SkiaSharp packages on the same release. -->
+    <PackageReference Include="SkiaSharp" Version="4.152.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.152.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="X.PagedList.EF" Version="10.6.0" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="10.6.0" />
     <PackageReference Include="Aiursoft.WebTools" Version="10.0.16" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
